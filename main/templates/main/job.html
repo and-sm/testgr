@@ -1,0 +1,305 @@
+<html>
+
+<head>
+
+<title>Testgr</title>
+
+{% load static %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.css">
+
+<style>
+    .test_failed {
+        color: red;
+    }
+</style>
+
+</head>
+
+<body>
+
+<div class="ui grid">
+
+	<div class="sixteen wide column">
+        <div class="ui stackable menu">
+            <div class="item">
+                <h3><a href="{%  url 'index' %}">Testgr</a></h3>
+            </div>
+            <!-- TODO <a href="{%  url 'index' %}" class="item active">Monitoring</a> -->
+            <a href="https://github.com/and-sm/testgr" target="_blank" class="item right floated">Github</a>
+        </div>
+	</div>
+
+    <div class="one wide column">
+    </div>
+
+    <div class="four wide column">
+        <h3>Job Details</h3>
+        <div class="ui divider"></div>
+        <div><h5 id="job_status">Status:
+            {% if status == 1 %}<span class="ui blue small header">In Progress</span>
+            {% elif status == 2 %}<span class="ui green small header">Passed</span>
+            {% elif status == 3 %}<span class="ui red small header">Failed</span>
+            {% elif status == 4 %}<span class="ui yellow small header">Stopped</span>
+            {% endif %}</h5>
+        </div><br />
+        <div><h5>Environment: &nbsp;<span class="ui middle label">{{ env|upper }}</span></h5></div><br />
+        <div><h5>UUID: </h5>{{ uuid }}</div><br />
+        <div><h5>Start Date: </h5>{{ start_time }}</div><br />
+        <p><strong>Stop Date: </strong><br /><span id="job_stop_timestamp">{% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}</span></p>
+        <p><strong>Time Taken: </strong><br /><span id="job_time_taken">{% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}</span></p>
+        {% if status != 1 %}
+            <div><h5>Chart:</h5></div>
+            <div><canvas id="myChart" width="250" height="250"></canvas></div>
+        {% endif %}
+    </div>
+
+    <div class="ten wide column">
+        <h3>Tests: {{ test_count }}</h3>
+        <div class="ui horizontal segments">
+            <div class="ui segment">
+                <h4 id="job_tests_passed">Passed: {{ passed }}</h4>
+            </div>
+            <div class="ui segment">
+                <h4 id="job_tests_failed">Failed: <span class="{% if failed > 0 %}test_failed{% else %}{% endif %}">{{ failed }}</span></h4>
+            </div>
+            <div class="ui segment">
+                <h4 id="job_tests_aborted">Aborted: <span class="{% if aborted > 0 %}test_failed{% else %}{% endif %}">{{ aborted }}</span></h4>
+            </div>
+            <div class="ui segment">
+                <h4 id="job_tests_skipped">Skipped: {{ skipped }}</h4>
+            </div>
+            <div class="ui segment">
+                <h4 id="job_tests_not_started">Not Started: {{ not_started }}</h4>
+            </div>
+        </div>
+
+        <div class="ui divider"></div>
+        <table class="ui very basic table">
+            <thead>
+            <tr>
+                <th>Test Method</th>
+                <th>Time Taken</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody id="tests_list">
+            {% for item in tests.all %}
+                <tr>
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">{{ item.get_test_method }}</a></td>
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">{% if item.time_taken is not None %}{{ item.time_taken }}{% else %}Pending...{% endif %}</a></td>
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                        {% if item.status == 1%}<div class="ui gray basic label">Not Started</div>
+                        {% elif item.status == 2%}<div class="ui blue basic label">In Progress</div>
+                        {% elif item.status == 3%}<div class="ui green basic label">Passed</div>
+                        {% elif item.status == 4 %}<span class="ui red basic label">Failed</span>
+                        {% elif item.status == 5 %}<div class="ui yellow basic label">Skipped</div>
+                        {% elif item.status == 6 %}<div class="ui red basic label">Aborted</div>
+                        {% endif %}
+                    </a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="one wide column">
+    </div>
+
+</div>
+
+</body>
+
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+
+<script>
+    let passed = {{ passed }};
+    let failed = {{ failed }};
+    let aborted = {{ aborted }};
+    let not_started = {{ not_started }};
+    let skipped = {{ skipped }};
+    data = {
+    datasets: [{
+        data: [passed, failed, aborted, skipped, not_started],
+        backgroundColor:
+            ["rgb(0, 166, 0)","rgb(200, 0, 0)","rgb(200, 0, 0)","rgb(255, 200, 0)","rgb(130, 130, 130)"]
+    }],
+
+
+    labels: [
+        'Passed',
+        'Failed',
+        'Aborted',
+        'Skipped',
+        'Not Started'
+    ]
+};
+$(document).ready(function() {
+        var ctx = $("#myChart");
+        var myDoughnutChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: data,
+            options: {
+                responsive: false,
+                legend: {
+                    display: false,
+                    labels: {
+                        fontColor: 'rgb(255, 99, 132)'
+                    }
+                }
+            }
+        });
+
+});
+</script>
+
+<script>
+    setInterval(function get_job_details() {
+
+        let uuid = "{{ uuid }}";
+
+        $.ajax({
+            url : "{% url 'job_details' %}",
+            type : "POST",
+            data: '{"uuid": "' + uuid + '" }',
+            contentType: "application/json",
+            dataType: 'json',
+            success : function(json) {
+                $("#tests_list tr").remove();
+                $.each(json, function (k, v) {
+
+                    // Job status
+                    if(k === 'status'){
+                        let job_status = v;
+                        if(job_status === "1"){
+                            job_status_txt = "Status: <span class=\"ui blue small header\">In Progress</span>";
+                            console.log("job_status: " + job_status + " (In Progress)")
+                        }
+                        else if(job_status === "2"){
+                            job_status_txt = "Status: <span class=\"ui green small header\">Passed</span>";
+                            console.log("job_status: " + job_status + " (Passed)")
+                        }
+                        else if(job_status === "3"){
+                            job_status_txt = "Status: <span class=\"ui red small header\">Failed</span>";
+                            console.log("job_status: " + job_status + " (Failed)")
+                        }
+                        else if(job_status === "4"){
+                            job_status_txt = "Status: <span class=\"ui red small header\">Stopped</span>";
+                            console.log("job_status: " + job_status + " (Stopped)")
+                        }
+                        $("#job_status").html(job_status_txt);
+                    }
+
+                    // Job stop time
+                    if(k === 'stop_time') {
+                        let job_stop_time = v;
+                        if (job_stop_time != null) {
+                            $("#job_stop_timestamp").text(job_stop_time)
+                        }
+                        else {
+                            $("#job_stop_timestamp").text("Pending...")
+                        }
+                    }
+
+                    // Job taken time
+                    if(k === 'time_taken') {
+                        let job_time_taken = v;
+                        if (job_time_taken != null) {
+                            $("#job_time_taken").text(job_time_taken)
+                        }
+                        else {
+                            $("#job_time_taken").text("Pending...")
+                        }
+                    }
+
+                    // Passed
+                    if(k === 'passed') {
+                        $("#job_tests_passed").html("Passed: " + v)
+                    }
+
+                    // Failed
+                    if(k === 'failed') {
+                        let text = '';
+                        if(v > 0){
+                            text = "Failed: <span class=\"test_failed\">" + v + "</span>"
+                        }
+                        else{
+                            text = "Failed: " + v
+                        }
+                        $("#job_tests_failed").html(text)
+                    }
+
+                    // Aborted
+                    if(k === 'aborted') {
+                        let text = '';
+                        if(v > 0){
+                            text = "Aborted: <span class=\"test_failed\">" + v + "</span>"
+                        }
+                        else{
+                            text = "Aborted: " + v
+                        }
+                        $("#job_tests_aborted").html(text)
+                    }
+
+                    // Skipped
+                    if(k === 'skipped') {
+                        $("#job_tests_skipped").html("Skipped: " + v)
+                    }
+
+                    // Not Started
+                    if(k === 'not_started') {
+                        $("#job_tests_not_started").html("Not Started: " + v)
+                    }
+
+                    if(k === 'tests') {
+                        $.each(v, function (k, v) {
+
+                                let uuid = v['uuid'];
+                                let host_domain = "{{ request.scheme }}://{{ request.META.HTTP_HOST }}";
+                                let status = v['status'];
+                                let time_taken = v['time_taken'];
+                                if(time_taken === null){
+                                    time_taken = "Pending..."
+                                }
+                                else{
+                                    time_taken = v['time_taken']
+                                }
+                                if(status === 3){
+                                    status = "<a href=" + host_domain + "/test/" + uuid + " class=\"ui green basic label\">Passed</a>"
+                                }
+                                else if (status === 4){
+                                    status = "<a href=" + host_domain + "/test/" + uuid + " class=\"ui red basic label\">Failed</a>"
+                                }
+                                else if (status === 2){
+                                    status = "<a href=" + host_domain + "/test/" + uuid + " class=\"ui blue basic label\">In Progress</a>"
+                                }
+                                else if (status === 5){
+                                    status = "<a href=" + host_domain + "/test/" + uuid + " class=\"ui yellow basic label\">Skipped</a>"
+                                }
+                                else if (status === 6){
+                                    status = "<a href=" + host_domain + "/test/" + uuid + " class=\"ui red basic label\">Aborted</a>"
+                                }
+                                else if (status === 1){
+                                    status = "<a href=" + host_domain + "/test/" + uuid + " class=\"ui gray basic label\">Not Started</a>"
+                                }
+                                $("#tests_list").append(
+                                    '<tr>' +
+                                    '<td><a href="' + host_domain + '/test/' + v['uuid'] + '">' + v['identity'] + '</a></td>' +
+                                    '<td><a href="' + host_domain + '/test/' + v['uuid'] + '">' + time_taken + '</a></td>' +
+                                    '<td>' + status + '</td>' +
+                                    '</tr>');
+                            }
+                        )
+                    }
+                });
+            }
+        });
+    }, 3000);
+</script>
+
+</html>
