@@ -1,0 +1,71 @@
+<html>
+
+<head>
+
+<title>Testgr</title>
+
+{% load static %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.css">
+
+</head>
+
+<body>
+
+<div class="ui grid">
+
+	<div class="sixteen wide column">
+        <div class="ui stackable menu">
+            <div class="item">
+                <h3><a href="{%  url 'index' %}">Testgr</a></h3>
+            </div>
+            <!-- TODO <a href="{%  url 'index' %}" class="item active">Monitoring</a> -->
+            <a href="https://github.com/and-sm/testgr" target="_blank" class="item right floated">Github</a>
+        </div>
+	</div>
+
+    <div class="one wide column">
+    </div>
+
+    <div class="four wide column">
+        <h3>Test Details</h3>
+        <div class="ui divider"></div>
+        <div><h5 id="job_status">Status:
+            {% if status == 1 %}<span class="ui gray small header">Not Started</span>
+            {% elif status == 2 %}<span class="ui blue small header">In Progress</span>
+            {% elif status == 3 %}<span class="ui green small header">Passed</span>
+            {% elif status == 4 %}<span class="ui red small header">Failed</span>
+            {% elif status == 5 %}<span class="ui yellow small header">Skipped</span>
+            {% elif status == 6 %}<span class="ui red small header">Aborted</span>
+            {% endif %}</h5>
+        </div><br />
+        <div><h5>Environment: &nbsp;<span class="ui middle label">{{ env|upper }}</span></h5></div><br />
+        <div><h5>Start Date: </h5>{% if start_time is not None %}{{ start_time }}{% else %}Pending...{% endif %}</div><br />
+        <div><h5>Stop Date: </h5>{% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}</div><br />
+        <div><h5>Time Taken: </h5>{% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}</div>
+    </div>
+
+    <div class="ten wide column">
+        {% if msg %}
+        <h3>Additional info</h3>
+        <div class="ui divider"></div>
+        <h4>Error:</h4>{{ msg }}
+        {% else %}
+        <h3>No errors</h3>
+        {% endif %}
+    </div>
+
+    <div class="one wide column">
+    </div>
+
+</div>
+
+</body>
+
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.js"></script>
+
+</html>
