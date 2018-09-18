@@ -16,6 +16,7 @@ There you can observe status of your test execution.
 
 ### Requirements:
 **Testgr** was developed an tested using the following software:
+* Python 3.6.5
 * Django 2.1.1
 * MySQL 5.7.23
 
