@@ -1,5 +1,5 @@
 # Testgr
-Web service which provides all collected data from test executions, launched using nose2 and nose2-rt plugin.
+Web service which provides all collected data from test executions, launched using nose2 and [nose2-rt](https://github.com/and-sm/nose2-rt) plugin.
 # How it works
 nose2 has several methods for providing details of test runs and tests before and after test execution. Testgr API collects all data produced by those methods and show it in user friendly manner.
 Each nose2 execution generates a job object with list of tests. If some test is running, passed, failed or skipped - nose2-rt plugin sends updated data to Testgr and user can see test execution status in real-time.
