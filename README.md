@@ -7,12 +7,12 @@ Each nose2 execution generates a job object with list of tests. If some test is 
 ### Main page of Testgr. 
 In the current development phase it has two tables - "Job History" and "Running Jobs".
 
-![Main page](https://i.imgur.com/fW1Jn4L.png)
+![Main page](https://i.imgur.com/W93XoHm.png)
 
 ### Job page. 
 There you can observe status of your test execution. 
 
-![Job page](https://i.imgur.com/Hdp9F05.png)
+![Job page](https://i.imgur.com/NfhUJOw.png)
 
 ### Requirements:
 **Testgr** was developed an tested using the following software:
