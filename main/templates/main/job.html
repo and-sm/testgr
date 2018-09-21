@@ -2,7 +2,7 @@
 
 <head>
 
-<title>Testgr</title>
+<title>TESTGR</title>
 
 {% load static %}
 
@@ -23,7 +23,7 @@
 	<div class="sixteen wide column">
         <div class="ui stackable menu">
             <div class="item">
-                <h3><a href="{%  url 'index' %}">Testgr</a></h3>
+                <h3><a href="{%  url 'index' %}">TESTGR</a></h3>
             </div>
             <!-- TODO <a href="{%  url 'index' %}" class="item active">Monitoring</a> -->
             <a href="https://github.com/and-sm/testgr" target="_blank" class="item right floated">Github</a>
@@ -87,7 +87,7 @@
             {% for item in tests.all %}
                 <tr>
                     <td><a href="{%  url 'test' test_uuid=item.uuid  %}">{{ item.get_test_method }}</a></td>
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">{% if item.time_taken is not None %}{{ item.time_taken }}{% else %}Pending...{% endif %}</a></td>
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">{% if item.get_time_taken is not None %}{{ item.get_time_taken }}{% else %}Pending...{% endif %}</a></td>
                     <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
                         {% if item.status == 1%}<div class="ui gray basic label">Not Started</div>
                         {% elif item.status == 2%}<div class="ui blue basic label">In Progress</div>

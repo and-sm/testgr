@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from loader.models import TestJobs, Tests
+from tools.tools import unix_time_to_datetime
 
 import json
 import uuid
@@ -20,7 +21,8 @@ def loader(request):
             # print("DBG: startTestRun")
             if TestJobs.objects.filter(uuid=data['job_id']):
                 return HttpResponse(status=409)
-            job_object = TestJobs(uuid=data['job_id'], status=1, start_time=data['startTime'], env=data['env'])
+            job_object = TestJobs(uuid=data['job_id'], status=1, start_time=unix_time_to_datetime(data['startTime']),
+                                  env=data['env'])
             job_object.save()
             # Tests
             for k, identity in data['tests'].items():
@@ -42,8 +44,8 @@ def loader(request):
                 # if no tests with 'failed' or 'running' states after 'stopTestRun' signal - mark job as 'Passed'
                 else:
                     job_object.status = 2
-                job_object.stop_time = data['stopTime']
-                job_object.time_taken = data['timeTaken']
+                job_object.stop_time = unix_time_to_datetime(data['stopTime'])
+                job_object.time_taken = job_object.stop_time - job_object.start_time
                 job_object.tests_success = data['tests_success']
                 job_object.tests_errors = data['tests_errors']
                 job_object.tests_failed = data['tests_failed']
@@ -59,7 +61,7 @@ def loader(request):
                 try:
                     test = Tests.objects.get(identity=data['test'], job=job_object)
                     test.status = 2
-                    test.start_time = data['startTime']
+                    test.start_time = unix_time_to_datetime(data['startTime'])
                     test.save()
                     return HttpResponse(status=200)
                 except ObjectDoesNotExist:
@@ -72,8 +74,8 @@ def loader(request):
                 job_object = TestJobs.objects.get(uuid=data['job_id'])
                 try:
                     test = Tests.objects.get(identity=data['test'], job=job_object)
-                    test.stop_time = data['stopTime']
-                    test._time_taken = float(test.stop_time) - float(test.start_time)
+                    test.stop_time = unix_time_to_datetime(data['stopTime'])
+                    test.time_taken = test.stop_time - test.start_time
                     if data['status'] == "passed":
                         test.status = 3
                     elif data['status'] == "error":
