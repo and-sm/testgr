@@ -2,7 +2,6 @@ from django.http import JsonResponse
 from loader.models import TestJobs
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseForbidden
-from tools.tools import normalize_unix_time
 
 import json
 
@@ -14,8 +13,8 @@ def jobs_latest(request):
     for job in latest_jobs:
         job_item = dict()
         job_item['uuid'] = job.uuid
-        job_item['time_taken'] = job.time_taken
-        job_item['stop_time'] = normalize_unix_time(job.stop_time)
+        job_item['time_taken'] = job.get_time_taken()
+        job_item['stop_time'] = job.stop_time.strftime('%H:%M:%S %d-%b-%Y')
         job_item['status'] = job.status
         job_item['env'] = job.env
         result.append(job_item)
@@ -23,13 +22,12 @@ def jobs_latest(request):
 
 
 def jobs_running(request):
-
     running_jobs = TestJobs.objects.filter(status='1').order_by('-start_time')
     result = []
     for job in running_jobs:
         job_item = dict()
         job_item['uuid'] = job.uuid
-        job_item['start_time'] = normalize_unix_time(job.start_time)
+        job_item['start_time'] = job.start_time.strftime('%H:%M:%S %d-%b-%Y')
         job_item['status'] = job.status
         job_item['env'] = job.env
         result.append(job_item)
@@ -44,17 +42,16 @@ def job_details(request):
         uuid = data['uuid']
     else:
         return HttpResponseForbidden()
-
     job_object = TestJobs.objects.get(uuid=uuid)
     result = {}
 
     # Statistics
     if job_object.stop_time is not None:
-        result['stop_time'] = normalize_unix_time(job_object.stop_time)
+        result['stop_time'] = job_object.stop_time.strftime('%H:%M:%S %d-%b-%Y')
     else:
         result['stop_time'] = None
     if job_object.time_taken is not None:
-        result['time_taken'] = normalize_unix_time(job_object.time_taken, remove_date=True)
+        result['time_taken'] = job_object.get_time_taken()
     else:
         result['time_taken'] = None
 
@@ -64,7 +61,7 @@ def job_details(request):
         test_item = dict()
         test_item['identity'] = test.get_test_method()
         test_item['uuid'] = test.uuid
-        test_item['time_taken'] = test.time_taken
+        test_item['time_taken'] = test.get_time_taken()
         test_item['status'] = test.status
         tests.append(test_item)
 

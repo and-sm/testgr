@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from loader.models import TestJobs, Tests
-from tools.tools import normalize_unix_time
 
 
 def index(request):
 
     job_count = TestJobs.objects.all().count()
+
     return render(request, "main/index.html", {"job_count": job_count})
 
 
@@ -13,13 +13,13 @@ def job(request, job_uuid):
 
     job_object = TestJobs.objects.get(uuid=job_uuid)
     uuid = job_object.uuid
-    start_time = normalize_unix_time(job_object.start_time)
+    start_time = job_object.start_time.strftime('%H:%M:%S %d-%b-%Y')
     if job_object.stop_time:
-        stop_time = normalize_unix_time(job_object.stop_time)
+        stop_time = job_object.stop_time.strftime('%H:%M:%S %d-%b-%Y')
     else:
         stop_time = None
     if job_object.time_taken:
-        time_taken = normalize_unix_time(job_object.time_taken, remove_date=True)
+        time_taken = job_object.get_time_taken()
     else:
         time_taken = None
     env = job_object.env
@@ -53,13 +53,13 @@ def test(request, test_uuid):
 
     test_object = Tests.objects.get(uuid=test_uuid)
     uuid = test_object.uuid
-    start_time = normalize_unix_time(test_object.start_time)
+    start_time = test_object.start_time.strftime('%H:%M:%S %d-%b-%Y')
     if test_object.stop_time:
-        stop_time = normalize_unix_time(test_object.stop_time)
+        stop_time = test_object.stop_time.strftime('%H:%M:%S %d-%b-%Y')
     else:
         stop_time = None
-    if test_object._time_taken:
-        time_taken = normalize_unix_time(test_object._time_taken, remove_date=True)
+    if test_object.time_taken:
+        time_taken = test_object.get_time_taken()
     else:
         time_taken = None
     env = test_object.job.env
@@ -67,9 +67,9 @@ def test(request, test_uuid):
     msg = test_object.msg
 
     return render(request, "main/test.html", {'uuid': uuid,
-                                             'start_time': start_time,
-                                             'stop_time': stop_time,
-                                             'time_taken': time_taken,
-                                             'env': env,
-                                             'status': status,
-                                             'msg': msg})
+                                              'start_time': start_time,
+                                              'stop_time': stop_time,
+                                              'time_taken': time_taken,
+                                              'env': env,
+                                              'status': status,
+                                              'msg': msg})

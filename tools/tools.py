@@ -1,13 +1,33 @@
 from datetime import datetime
-from django.utils.timezone import make_aware
+import pytz
 
 
-def normalize_unix_time(time, remove_date=False):
-    try:
-        time_from_timestamp = make_aware(datetime.fromtimestamp(time))
-        time = datetime.strptime(str(time_from_timestamp), "%Y-%m-%d %H:%M:%S.%f+00:00")
-        if remove_date:
-            return time.strftime('%H:%M:%S')
-    except TypeError:
-        return None
-    return time.strftime('%H:%M:%S %d-%b-%Y')
+# https://stackoverflow.com/a/12589821
+# https://stackoverflow.com/a/18724165
+def unix_time_to_datetime(timestamp):
+    print("Timestamp: " + str(timestamp))
+    timestamp = int(timestamp.replace('.', '')[0:13])
+    print("Timestamp updated: " + str(timestamp))
+    user_tz = pytz.timezone("UTC")
+    utc_dt = datetime.utcfromtimestamp(timestamp/1000).replace(microsecond=(timestamp % 1000) * 1000)\
+        .replace(tzinfo=pytz.utc)
+    print("utc_dt: " + str(utc_dt))
+    dt = user_tz.normalize(utc_dt.astimezone(user_tz))
+    print("dt: " + str(dt))
+    return dt
+
+
+def normalize_time_taken(obj):
+    seconds = obj.time_taken.total_seconds()
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    seconds = seconds % 60
+    if not hours:
+        hours = ""
+    else:
+        hours = str(int(hours)) + "h "
+    if not minutes:
+        minutes = ""
+    else:
+        minutes = str(int(minutes)) + "m "
+    return hours + minutes + str(int(seconds)) + "s"
