@@ -5,15 +5,15 @@ import pytz
 # https://stackoverflow.com/a/12589821
 # https://stackoverflow.com/a/18724165
 def unix_time_to_datetime(timestamp):
-    print("Timestamp: " + str(timestamp))
-    timestamp = int(timestamp.replace('.', '')[0:13])
-    print("Timestamp updated: " + str(timestamp))
+    # print("Timestamp: " + str(timestamp))
+    timestamp = int(str(timestamp).replace('.', '')[0:13])
+    # print("Timestamp updated: " + str(timestamp))
     user_tz = pytz.timezone("UTC")
     utc_dt = datetime.utcfromtimestamp(timestamp/1000).replace(microsecond=(timestamp % 1000) * 1000)\
         .replace(tzinfo=pytz.utc)
-    print("utc_dt: " + str(utc_dt))
+    # print("utc_dt: " + str(utc_dt))
     dt = user_tz.normalize(utc_dt.astimezone(user_tz))
-    print("dt: " + str(dt))
+    # print("dt: " + str(dt))
     return dt
 
 
