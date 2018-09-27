@@ -15,12 +15,21 @@
 <div class="ui grid">
 
 	<div class="sixteen wide column">
-        <div class="ui stackable menu">
+        <div class="ui  menu">
             <div class="item">
                 <h3><a href="{%  url 'index' %}">TESTGR</a></h3>
             </div>
-            <!-- TODO <a href="{%  url 'index' %}" class="item active">Monitoring</a> -->
-            <a href="https://github.com/and-sm/testgr" target="_blank" class="item right floated">Github</a>
+            {% comment %}
+            <a href="{%  url 'index' %}" class="item active">Monitoring</a>
+            <a href="{%  url 'search' %}" class="item">Search</a>
+            {% endcomment %}
+            <div class="right menu" id="main_right_menu">
+                <div class="" id="running_jobs_count">
+                </div>
+                <div class="item">
+                    <a href="https://github.com/and-sm/testgr" target="_blank">Github</a>
+                </div>
+            </div>
         </div>
 	</div>
 
@@ -29,7 +38,7 @@
             <thead>
             <tr>
                 <th colspan="4">
-                    <h3>Job History</h3>
+                    <h3>{% comment %}Job History{% endcomment %}Last 10 jobs</h3>
                 </th>
             </tr>
             </thead>
@@ -57,7 +66,7 @@
             <thead>
             <tr>
                 <th colspan="3">
-                    <h3>Running Jobs</h3>
+                    <h3>Running jobs</h3>
                 </th>
             </tr>
             </thead>
@@ -92,6 +101,8 @@
      {% endif %}
      {% endcomment %}
 
+    </div>
+
 </div>
 
 </body>
@@ -116,6 +127,9 @@
                     }
                     else if (status === 3){
                         status = "<a href=\job\\" + v['uuid'] + " class=\"ui red basic label\">Failed</a>"
+                    }
+                    if(v['env'] == null){
+                       v['env'] = "not set";
                     }
                     $("#latest_jobs").append(
                         '<tr>' +
@@ -146,13 +160,16 @@
                 else if (status === 3){
                     status = "<a href=\job\\" + v['uuid'] + " class=\"ui red basic label\">Failed</a>"
                 }
-                    $("#latest_jobs").append(
-                        '<tr>' +
-                        '<td><a href="job/' + v['uuid'] + '">' + v['stop_time'] + '</a></td>' +
-                        '<td><a href="job/' + v['uuid'] + '">' + v['time_taken'] + '</a></td>' +
-                        '<td><a href="job/' + v['uuid'] + '">' + v['env'] + '</a></td>' +
-                        '<td>' + status + '</td>' +
-                        '</tr>');
+                if(v['env'] == null){
+                    v['env'] = "not set";
+                }
+                $("#latest_jobs").append(
+                    '<tr>' +
+                    '<td><a href="job/' + v['uuid'] + '">' + v['stop_time'] + '</a></td>' +
+                    '<td><a href="job/' + v['uuid'] + '">' + v['time_taken'] + '</a></td>' +
+                    '<td><a href="job/' + v['uuid'] + '">' + v['env'] + '</a></td>' +
+                    '<td>' + status + '</td>' +
+                    '</tr>');
                 });
             }
         });
@@ -177,6 +194,9 @@
                     else if (status === 1){
                         status = "<a href=\job\\" + v['uuid'] + " class=\"ui blue basic label\">Running</a>"
                     }
+                    if(v['env'] == null){
+                        v['env'] = "not set";
+                    }
                     $("#running_jobs").append(
                         '<tr>' +
                         '<td><a href="job/' + v['uuid'] + '">' + v['start_time'] + '</a></td>' +
@@ -188,6 +208,7 @@
         });
     });
 </script>
+
 
 <script>
     setInterval(function update_running_jobs() {
@@ -213,6 +234,45 @@
                         '<td><a href="job/' + v['uuid'] + '">' + v['env'] + '</a></td>' +
                         '<td>' + status + '</td>' +
                         '</tr>');
+                });
+            }
+        });
+    }, 3000);
+</script>
+
+<script>
+    $(document).ready(function running_jobs_count() {
+        $.ajax({
+            url : "{% url 'jobs_running_count' %}",
+            type : "GET",
+            success : function(json) {
+                $("#running_jobs_count span").remove();
+                $.each(json, function (k, v) {
+                   if(v > 0){
+                       $("#running_jobs_count").attr('class', 'item').append("<span>Currently running jobs: " +
+                           "<strong>" + v + "</strong></span>");
+                    }
+                });
+            }
+        });
+    }, 3000);
+</script>
+
+<script>
+    setInterval(function running_jobs_count() {
+        $.ajax({
+            url : "{% url 'jobs_running_count' %}",
+            type : "GET",
+            success : function(json) {
+                $("#running_jobs_count span").remove();
+                $.each(json, function (k, v) {
+                   if(v > 0){
+                       $("#running_jobs_count").attr('class', 'item').append("<span>Currently running jobs: " +
+                           "<strong>" + v + "</strong></span>");
+                    }
+                    else{
+                        $("#running_jobs_count").attr('class', '');
+                   }
                 });
             }
         });

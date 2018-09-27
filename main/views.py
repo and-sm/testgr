@@ -4,9 +4,8 @@ from loader.models import TestJobs, Tests
 
 def index(request):
 
-    job_count = TestJobs.objects.all().count()
-
-    return render(request, "main/index.html", {"job_count": job_count})
+    running_jobs_count = TestJobs.objects.filter(status='1').count()
+    return render(request, "main/index.html", {"running_jobs_count": running_jobs_count})
 
 
 def job(request, job_uuid):
@@ -34,6 +33,12 @@ def job(request, job_uuid):
     skipped = tests.filter(status=5).count()
     aborted = tests.filter(status=6).count()
 
+    # Framework type
+    fw = job_object.fw_type
+
+    # Running jobs count
+    running_jobs_count = TestJobs.objects.filter(status='1').count()
+
     return render(request, "main/job.html", {'uuid': uuid,
                                              'start_time': start_time,
                                              'stop_time': stop_time,
@@ -46,7 +51,9 @@ def job(request, job_uuid):
                                              'failed': failed,
                                              'skipped': skipped,
                                              'not_started': not_started,
-                                             'aborted': aborted})
+                                             'aborted': aborted,
+                                             'fw': fw,
+                                             'running_jobs_count': running_jobs_count})
 
 
 def test(request, test_uuid):
@@ -65,6 +72,10 @@ def test(request, test_uuid):
     env = test_object.job.env
     status = test_object.status
     msg = test_object.msg
+    identity = test_object.identity
+
+    # Running jobs count
+    running_jobs_count = TestJobs.objects.filter(status='1').count()
 
     return render(request, "main/test.html", {'uuid': uuid,
                                               'start_time': start_time,
@@ -72,4 +83,6 @@ def test(request, test_uuid):
                                               'time_taken': time_taken,
                                               'env': env,
                                               'status': status,
-                                              'msg': msg})
+                                              'msg': msg,
+                                              'identity': identity,
+                                              'running_jobs_count': running_jobs_count})

@@ -21,12 +21,21 @@
 <div class="ui grid">
 
 	<div class="sixteen wide column">
-        <div class="ui stackable menu">
+        <div class="ui  menu">
             <div class="item">
                 <h3><a href="{%  url 'index' %}">TESTGR</a></h3>
             </div>
-            <!-- TODO <a href="{%  url 'index' %}" class="item active">Monitoring</a> -->
-            <a href="https://github.com/and-sm/testgr" target="_blank" class="item right floated">Github</a>
+            {% comment %}
+            <a href="{%  url 'index' %}" class="item active">Monitoring</a>
+            <a href="{%  url 'search' %}" class="item">Search</a>
+            {% endcomment %}
+            <div class="right menu" id="main_right_menu">
+                <div class="" id="running_jobs_count">
+                </div>
+                <div class="item">
+                    <a href="https://github.com/and-sm/testgr" target="_blank">Github</a>
+                </div>
+            </div>
         </div>
 	</div>
 
@@ -43,7 +52,8 @@
             {% elif status == 4 %}<span class="ui yellow small header">Stopped</span>
             {% endif %}</h5>
         </div><br />
-        <div><h5>Environment: &nbsp;<span class="ui middle label">{{ env|upper }}</span></h5></div><br />
+        {% if env != None %}<div><h5>Environment: &nbsp;<span class="ui middle label">{{ env|upper }}</span></h5></div><br />
+        {% endif %}
         <div><h5>UUID: </h5>{{ uuid }}</div><br />
         <div><h5>Start Date: </h5>{{ start_time }}</div><br />
         <p><strong>Stop Date: </strong><br /><span id="job_stop_timestamp">{% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}</span></p>
@@ -55,7 +65,13 @@
     </div>
 
     <div class="ten wide column">
-        <h3>Tests: {{ test_count }}</h3>
+        <div class="ui grid">
+            <div class="eight wide column"><h3>Tests: {{ test_count }}</h3></div>
+            <div class="eight wide column right aligned"><h3><div class="ui grey label">
+                {% if fw == 1 %}nose2{% elif fw == 2 %}pytest{% else %}unknown type of tests{% endif %}</div></h3>
+            </div>
+        </div>
+
         <div class="ui horizontal segments">
             <div class="ui segment">
                 <h4 id="job_tests_passed">Passed: {{ passed }}</h4>
@@ -86,7 +102,13 @@
             <tbody id="tests_list">
             {% for item in tests.all %}
                 <tr>
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">{{ item.get_test_method }}</a></td>
+                    {% if fw == 1 %}
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">
+                        {{ item.get_test_method_for_nose }}</a></td>
+                    {% elif fw == 2 %}
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">
+                        {{ item.get_test_method_for_pytest }}</a></td>
+                    {% endif %}
                     <td><a href="{%  url 'test' test_uuid=item.uuid  %}">{% if item.get_time_taken is not None %}{{ item.get_time_taken }}{% else %}Pending...{% endif %}</a></td>
                     <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
                         {% if item.status == 1%}<div class="ui gray basic label">Not Started</div>
@@ -289,13 +311,52 @@ $(document).ready(function() {
                                 }
                                 $("#tests_list").append(
                                     '<tr>' +
-                                    '<td><a href="' + host_domain + '/test/' + v['uuid'] + '">' + v['identity'] + '</a></td>' +
-                                    '<td><a href="' + host_domain + '/test/' + v['uuid'] + '">' + time_taken + '</a></td>' +
+                                    '<td><a href="' + host_domain + '/test/' + v['uuid'] + '" title="' + v['identity'] + '">' + v['short_identity'] + '</a></td>' +
+                                    '<td><a href="' + host_domain + '/test/' + v['uuid'] + '" title="' + v['identity'] + '">' + time_taken + '</a></td>' +
                                     '<td>' + status + '</td>' +
                                     '</tr>');
                             }
                         )
                     }
+                });
+            }
+        });
+    }, 3000);
+</script>
+
+<script>
+    $(document).ready(function running_jobs_count() {
+        $.ajax({
+            url : "{% url 'jobs_running_count' %}",
+            type : "GET",
+            success : function(json) {
+                $("#running_jobs_count span").remove();
+                $.each(json, function (k, v) {
+                   if(v > 0){
+                       $("#running_jobs_count").attr('class', 'item').append("<span>Currently running jobs: " +
+                           "<strong>" + v + "</strong></span>");
+                    }
+                });
+            }
+        });
+    }, 3000);
+</script>
+
+<script>
+    setInterval(function running_jobs_count() {
+        $.ajax({
+            url : "{% url 'jobs_running_count' %}",
+            type : "GET",
+            success : function(json) {
+                $("#running_jobs_count span").remove();
+                $.each(json, function (k, v) {
+                   if(v > 0){
+                       $("#running_jobs_count").attr('class', 'item').append("<span>Currently running jobs: " +
+                           "<strong>" + v + "</strong></span>");
+                    }
+                    else{
+                        $("#running_jobs_count").attr('class', '');
+                   }
                 });
             }
         });

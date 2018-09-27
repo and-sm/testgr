@@ -15,12 +15,21 @@
 <div class="ui grid">
 
 	<div class="sixteen wide column">
-        <div class="ui stackable menu">
+        <div class="ui  menu">
             <div class="item">
                 <h3><a href="{%  url 'index' %}">TESTGR</a></h3>
             </div>
-            <!-- TODO <a href="{%  url 'index' %}" class="item active">Monitoring</a> -->
-            <a href="https://github.com/and-sm/testgr" target="_blank" class="item right floated">Github</a>
+            {% comment %}
+            <a href="{%  url 'index' %}" class="item active">Monitoring</a>
+            <a href="{%  url 'search' %}" class="item">Search</a>
+            {% endcomment %}
+            <div class="right menu" id="main_right_menu">
+                <div class="" id="running_jobs_count">
+                </div>
+                <div class="item">
+                    <a href="https://github.com/and-sm/testgr" target="_blank">Github</a>
+                </div>
+            </div>
         </div>
 	</div>
 
@@ -39,7 +48,9 @@
             {% elif status == 6 %}<span class="ui red small header">Aborted</span>
             {% endif %}</h5>
         </div><br />
-        <div><h5>Environment: &nbsp;<span class="ui middle label">{{ env|upper }}</span></h5></div><br />
+        {% if env != None %}<div><h5>Environment: &nbsp;<span class="ui middle label">{{ env|upper }}</span></h5></div><br />
+        {% endif %}
+        <div><h5>UUID: </h5>{{ uuid }}</div><br />
         <div><h5>Start Date: </h5>{% if start_time is not None %}{{ start_time }}{% else %}Pending...{% endif %}</div><br />
         <div><h5>Stop Date: </h5>{% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}</div><br />
         <div><h5>Time Taken: </h5>{% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}</div>
@@ -49,8 +60,12 @@
         {% if msg %}
         <h3>Additional info</h3>
         <div class="ui divider"></div>
-        <h4>Error:</h4>{{ msg }}
+            <h4>Test identity:</h4> {{ identity }}
+            <h4>Error:</h4>{{ msg|escape|linebreaksbr }}
         {% else %}
+        <h3>Additional info</h3>
+        <div class="ui divider"></div>
+        <h4>Test identity:</h4> {{ identity }}
         <h3>No errors</h3>
         {% endif %}
     </div>
@@ -67,5 +82,44 @@
   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
   crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.js"></script>
+
+<script>
+    $(document).ready(function running_jobs_count() {
+        $.ajax({
+            url : "{% url 'jobs_running_count' %}",
+            type : "GET",
+            success : function(json) {
+                $("#running_jobs_count span").remove();
+                $.each(json, function (k, v) {
+                   if(v > 0){
+                       $("#running_jobs_count").attr('class', 'item').append("<span>Currently running jobs: " +
+                           "<strong>" + v + "</strong></span>");
+                    }
+                });
+            }
+        });
+    }, 3000);
+</script>
+
+<script>
+    setInterval(function running_jobs_count() {
+        $.ajax({
+            url : "{% url 'jobs_running_count' %}",
+            type : "GET",
+            success : function(json) {
+                $("#running_jobs_count span").remove();
+                $.each(json, function (k, v) {
+                   if(v > 0){
+                       $("#running_jobs_count").attr('class', 'item').append("<span>Currently running jobs: " +
+                           "<strong>" + v + "</strong></span>");
+                    }
+                    else{
+                        $("#running_jobs_count").attr('class', '');
+                   }
+                });
+            }
+        });
+    }, 3000);
+</script>
 
 </html>

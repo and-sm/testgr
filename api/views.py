@@ -34,6 +34,11 @@ def jobs_running(request):
     return JsonResponse(result, safe=False)
 
 
+def jobs_running_count(request):
+    running_jobs = TestJobs.objects.filter(status='1').count()
+    return JsonResponse({'count': running_jobs}, safe=False)
+
+
 @csrf_exempt
 def job_details(request):
 
@@ -59,7 +64,11 @@ def job_details(request):
     tests = []
     for test in job_object.tests.all():
         test_item = dict()
-        test_item['identity'] = test.get_test_method()
+        if job_object.fw_type == 1:
+            test_item['short_identity'] = test.get_test_method_for_nose()
+        elif job_object.fw_type == 2:
+            test_item['short_identity'] = test.get_test_method_for_pytest()
+        test_item['identity'] = test.identity
         test_item['uuid'] = test.uuid
         test_item['time_taken'] = test.get_time_taken()
         test_item['status'] = test.status

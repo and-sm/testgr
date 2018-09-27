@@ -14,6 +14,7 @@ class TestJobs(models.Model):
     tests_errors = models.IntegerField(blank=True, null=True)
     tests_failed = models.IntegerField(blank=True, null=True)
     tests_skipped = models.IntegerField(blank=True, null=True)
+    fw_type = models.SmallIntegerField(blank=True, null=True)
 
     def get_time_taken(self):
         try:
@@ -34,9 +35,22 @@ class Tests(models.Model):
     msg = models.TextField(blank=True)
     job = models.ForeignKey(TestJobs, on_delete=models.CASCADE, related_name='tests')
 
-    def get_test_method(self):
+    def get_test_method_for_nose(self):
         try:
-            self.method = self.identity.split('.')[-2]
+            self.method = self.identity.split('.')
+            self.method = self.method[-1] + " [" + self.method[-2] + "]"
+        except BaseException:  # if for some reason we haven't full identity - for example "test_method".
+            return self.identity
+        return self.method
+
+    def get_test_method_for_pytest(self):
+        try:
+            if "()" in self.identity:
+                self.method = self.identity.split('::')
+                self.method = self.method[-1] + " [" + self.method[1] + "]"
+            else:
+                self.method = self.identity.split('::')
+                self.method = self.method[-1] + " [" + self.method[0] + "]"
         except BaseException:  # if for some reason we haven't full identity - for example "test_method".
             return self.identity
         return self.method
