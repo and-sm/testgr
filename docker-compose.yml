@@ -1,0 +1,20 @@
+version: '3.3'
+
+services:
+  web:
+    build: .
+    command: python /code/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - 8000:8000
+    environment:
+      - SECRET_KEY=changeonprod
+    depends_on:
+     - migration
+  migration:
+    volumes:
+      - .:/code
+    build: .
+    command: python /code/manage.py migrate
+

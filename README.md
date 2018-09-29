@@ -23,12 +23,25 @@ There you can observe status of your test execution.
 **Testgr** was developed an tested using the following software:
 * Python 3.6.5
 * Django 2.1.1
-* MySQL 5.7.23
+* SQLite and MySQL 5.7.23
+* Docker (or not, as you wish)
 
 ### Initial setup
-1. Make folder for **Testgr**.
-2. Download sources from GitHub and unpack inside the previously created folder.
-3. [Configure](https://docs.djangoproject.com/en/2.1/topics/install/) Django and make migrations.
+Here is example with a simple docker-compose stack:
+```
+git clone https://github.com/and-sm/testgr.git
+docker-compose up -d --build
+```
+
+Stop **Testgr**:
+```
+docker-compose stop
+```
+
+Start **Testgr** again:
+```
+docker-compose up -d
+```
 
 ### nose2-rt setup
 
@@ -48,7 +61,7 @@ show_errors = True
 
 In conftest.py enable following settings:
 ```
-pytest_plugins = "pytest_rt"  
-endpoint = "http://127.0.0.1/loader"  
+pytest_plugins = "pytest_rt"
+endpoint = "http://127.0.0.1/loader"
 show_errors = True
 ```
