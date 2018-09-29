@@ -31,6 +31,7 @@ There you can observe status of your test execution.
 Here is example with a simple docker-compose stack:
 ```
 git clone https://github.com/and-sm/testgr.git
+cd testgr
 docker-compose up -d --build
 ```
 
