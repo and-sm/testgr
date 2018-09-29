@@ -25,6 +25,7 @@ There you can observe status of your test execution.
 * Django 2.1.1
 * SQLite and MySQL 5.7.23
 * Docker (or not, as you wish)
+* docker-compose
 
 ### Initial setup
 Here is example with a simple docker-compose stack:
