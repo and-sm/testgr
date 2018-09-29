@@ -1,11 +1,7 @@
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.core.exceptions import ObjectDoesNotExist
-from loader.models import TestJobs, Tests
-from tools.tools import unix_time_to_datetime
 
 import json
-import uuid
 
 from loader.methods.nose2 import Nose2Loader
 from loader.methods.pytest import PytestLoader

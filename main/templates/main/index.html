@@ -14,15 +14,13 @@
 
 <div class="ui grid">
 
-	<div class="sixteen wide column">
+    <div class="sixteen wide column">
         <div class="ui  menu">
             <div class="item">
                 <h3><a href="{%  url 'index' %}">TESTGR</a></h3>
             </div>
-            {% comment %}
             <a href="{%  url 'index' %}" class="item active">Monitoring</a>
-            <a href="{%  url 'search' %}" class="item">Search</a>
-            {% endcomment %}
+            <a href="{%  url 'history' %}" class="item">History</a>
             <div class="right menu" id="main_right_menu">
                 <div class="" id="running_jobs_count">
                 </div>
@@ -38,7 +36,7 @@
             <thead>
             <tr>
                 <th colspan="4">
-                    <h3>{% comment %}Job History{% endcomment %}Last 10 jobs</h3>
+                    <h3>Last 10 jobs</h3>
                 </th>
             </tr>
             </thead>
@@ -218,17 +216,20 @@
             success : function(json) {
                 $("#running_jobs tr").remove();
                 $.each(json, function (k, v) {
-                    let status = v['status'];
+                   let status = v['status'];
                    if(status === 2){
                         status = "<a href=\job\\" + v['uuid'] + " class=\"ui green basic label\">Passed</a>"
-                    }
-                    else if (status === 3){
+                   }
+                   else if (status === 3){
                         status = "<a href=\job\\" + v['uuid'] + " class=\"ui red basic label\">Failed</a>"
-                    }
-                    else if (status === 1){
+                   }
+                   else if (status === 1){
                         status = "<a href=\job\\" + v['uuid'] + " class=\"ui blue basic label\">Running</a>"
-                    }
-                    $("#running_jobs").append(
+                   }
+                   if(v['env'] == null){
+                        v['env'] = "not set";
+                   }
+                   $("#running_jobs").append(
                         '<tr>' +
                         '<td><a href="job/' + v['uuid'] + '">' + v['start_time'] + '</a></td>' +
                         '<td><a href="job/' + v['uuid'] + '">' + v['env'] + '</a></td>' +

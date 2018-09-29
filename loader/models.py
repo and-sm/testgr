@@ -23,6 +23,18 @@ class TestJobs(models.Model):
         except BaseException:
             return None
 
+    def get_start_time(self):
+        return self.start_time.strftime('%H:%M:%S %d-%b-%Y')
+
+    def get_stop_time(self):
+        return self.stop_time.strftime('%H:%M:%S %d-%b-%Y')
+
+    def get_env(self):
+        if self.env is not None:
+            return self.env
+        else:
+            return 'not set'
+
 
 class Tests(models.Model):
     uuid = models.CharField(max_length=256)

@@ -19,6 +19,9 @@ There you can observe status of your test execution.
 
 ### Example of passed test:
 ![Passed test](https://i.imgur.com/6hg3tzQ.png)
+
+### Job history:
+![Job history](https://i.imgur.com/e50mXxv.png)
 ### Requirements:
 **Testgr** was developed an tested using the following software:
 * Python 3.6.5
