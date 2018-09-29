@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^', include('loader.urls')),
     url(r'^', include('main.urls')),
     url(r'^', include('api.urls')),
+    url(r'^', include('history.urls'))
 ]
 
 urlpatterns += staticfiles_urlpatterns()

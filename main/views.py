@@ -12,9 +12,9 @@ def job(request, job_uuid):
 
     job_object = TestJobs.objects.get(uuid=job_uuid)
     uuid = job_object.uuid
-    start_time = job_object.start_time.strftime('%H:%M:%S %d-%b-%Y')
+    start_time = job_object.get_start_time()
     if job_object.stop_time:
-        stop_time = job_object.stop_time.strftime('%H:%M:%S %d-%b-%Y')
+        stop_time = job_object.get_stop_time()
     else:
         stop_time = None
     if job_object.time_taken:

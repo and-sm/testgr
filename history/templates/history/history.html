@@ -1,0 +1,187 @@
+<html>
+
+<head>
+
+<title>TESTGR</title>
+
+{% load static %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.css">
+
+</head>
+
+<body>
+
+<div class="ui grid">
+
+    <div class="sixteen wide column">
+        <div class="ui  menu">
+            <div class="item">
+                <h3><a href="{%  url 'index' %}">TESTGR</a></h3>
+            </div>
+            <a href="{%  url 'index' %}" class="item">Monitoring</a>
+            <a href="{%  url 'history' %}" class="item active">History</a>
+            <div class="right menu" id="main_right_menu">
+                <div class="" id="running_jobs_count">
+                </div>
+                <div class="item">
+                    <a href="https://github.com/and-sm/testgr" target="_blank">Github</a>
+                </div>
+            </div>
+        </div>
+	</div>
+
+    <div class="one wide column">
+    </div>
+
+    <div class="fourteen wide column"><h3>History</h3>
+                <div class="ui divider"></div>
+    </div>
+
+    <div class="one wide column">
+    </div>
+
+
+    <div class="one wide column">
+    </div>
+
+    <div class="fourteen wide column">
+
+        <div class="eight wide column history-table">
+        <table class="ui padded selectable celled table">
+            <thead>
+            <tr>
+                <th>Stop date</th>
+                <th>Time taken (sec)</th>
+                <th>Environment</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody id="latest_jobs">
+            {% for job in job_objects %}
+            <tr>
+                <td><a href="{% url 'job' job_uuid=job.uuid %}" target="_blank">{{ job.get_stop_time }}</a></td>
+                <td><a href="{% url 'job' job_uuid=job.uuid %}" target="_blank">{{ job.get_time_taken }}</a></td>
+                <td><a href="{% url 'job' job_uuid=job.uuid %}" target="_blank">{{ job.get_env }}</a></td>
+                <td>
+                    {% if job.status == 2 %}<a href="{% url 'job' job_uuid=job.uuid %}" target="_blank"
+                                               class="ui green basic label">Passed</a>
+                    {% elif job.status == 3 %}<a href="{% url 'job' job_uuid=job.uuid %}" target="_blank"
+                                                 class="ui red basic label">Failed</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+            <tfoot>
+            {% if job_objects.has_other_pages %}
+                <tr><th colspan="5">
+                    <div class="ui left floated pagination menu">
+                        {% if job_objects.has_previous %}
+                            <a class="icon item" href="?page=1">
+                                <i class="angle double left icon"></i>
+                            </a>
+                            <a class="icon item" href="?page={{ job_objects.previous_page_number }}">
+                                <i class="angle left icon"></i>
+                            </a>
+                        {% else %}
+                            <a class="icon item disabled">
+                                <i class="angle double left icon"></i>
+                            </a>
+                            <a class="icon item disabled">
+                                <i class="angle left icon"></i>
+                            </a>
+                        {% endif %}
+
+                        {% for i in job_objects.paginator.page_range %}
+                            {% if job_objects.number == i %}
+                                <a class="item"><strong>{{ i }}</strong></a>
+                            {% else %}
+                                <!-- Show current page and +-3 pages -->
+                                {% if i|add:"-2" <= job_objects.number and job_objects.number <= i|add:"2" %}
+                                    <a class="item" href="?page={{ i }}">{{ i }}</a>
+                                {% elif i == job_objects.paginator.num_pages %}
+                                    <a class="item" href="?page={{ i }}">{{ i }}</a>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if job_objects.has_next %}
+                            <a class="icon item" href="?page={{ job_objects.next_page_number }}">
+                                <i class="angle right icon"></i>
+                            </a>
+                            <a class="icon item" href="?page={{ job_objects.paginator.num_pages }}">
+                                <i class="angle double right icon"></i>
+                            </a>
+                        {% else %}
+                            <a class="icon item disabled">
+                                <i class="angle right icon"></i>
+                            </a>
+                            <a class="icon item disabled">
+                                <i class="angle double right icon"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </th>
+                </tr>
+            {% endif %}
+            </tfoot>
+        </table>
+    </div>
+
+    </div>
+
+    <div class="one wide column">
+    </div>
+
+</div>
+
+</body>
+
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.js"></script>
+
+
+<script>
+    $(document).ready(function running_jobs_count() {
+        $.ajax({
+            url : "{% url 'jobs_running_count' %}",
+            type : "GET",
+            success : function(json) {
+                $("#running_jobs_count span").remove();
+                $.each(json, function (k, v) {
+                   if(v > 0){
+                       $("#running_jobs_count").attr('class', 'item').append("<span>Currently running jobs: " +
+                           "<strong>" + v + "</strong></span>");
+                    }
+                });
+            }
+        });
+    }, 3000);
+</script>
+
+<script>
+    setInterval(function running_jobs_count() {
+        $.ajax({
+            url : "{% url 'jobs_running_count' %}",
+            type : "GET",
+            success : function(json) {
+                $("#running_jobs_count span").remove();
+                $.each(json, function (k, v) {
+                   if(v > 0){
+                       $("#running_jobs_count").attr('class', 'item').append("<span>Currently running jobs: " +
+                           "<strong>" + v + "</strong></span>");
+                    }
+                    else{
+                        $("#running_jobs_count").attr('class', '');
+                   }
+                });
+            }
+        });
+    }, 3000);
+</script>
+
+</html>
