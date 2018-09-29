@@ -16,5 +16,7 @@ services:
     volumes:
       - .:/code
     build: .
+    environment:
+      - SECRET_KEY=changeonprod
     command: python /code/manage.py migrate
 
