@@ -28,5 +28,9 @@ services:
     environment:
       - SECRET_KEY=changeonprod
     command: python /code/manage.py makemigrations
+  redis:
+    image: redis:2.8
+    ports:
+      - "6379:6379"
 
 

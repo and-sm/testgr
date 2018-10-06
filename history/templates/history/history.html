@@ -144,44 +144,6 @@
   crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.js"></script>
 
-
-<script>
-    $(document).ready(function running_jobs_count() {
-        $.ajax({
-            url : "{% url 'jobs_running_count' %}",
-            type : "GET",
-            success : function(json) {
-                $("#running_jobs_count span").remove();
-                $.each(json, function (k, v) {
-                   if(v > 0){
-                       $("#running_jobs_count").attr('class', 'item').append("<span>Currently running jobs: " +
-                           "<strong>" + v + "</strong></span>");
-                    }
-                });
-            }
-        });
-    }, 3000);
-</script>
-
-<script>
-    setInterval(function running_jobs_count() {
-        $.ajax({
-            url : "{% url 'jobs_running_count' %}",
-            type : "GET",
-            success : function(json) {
-                $("#running_jobs_count span").remove();
-                $.each(json, function (k, v) {
-                   if(v > 0){
-                       $("#running_jobs_count").attr('class', 'item').append("<span>Currently running jobs: " +
-                           "<strong>" + v + "</strong></span>");
-                    }
-                    else{
-                        $("#running_jobs_count").attr('class', '');
-                   }
-                });
-            }
-        });
-    }, 3000);
-</script>
+<script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>
 
 </html>

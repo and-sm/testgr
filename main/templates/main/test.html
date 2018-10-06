@@ -22,8 +22,14 @@
             <a href="{%  url 'index' %}" class="item active">Monitoring</a>
             <a href="{%  url 'history' %}" class="item">History</a>
             <div class="right menu" id="main_right_menu">
+                {% if running_jobs_count > 0 %}
+                <div class="item" id="running_jobs_count">
+                <span>Currently running jobs: <strong>{{ running_jobs_count }}</strong></span>
+                </div>
+                {% else %}
                 <div class="" id="running_jobs_count">
                 </div>
+                {% endif %}
                 <div class="item">
                     <a href="https://github.com/and-sm/testgr" target="_blank">Github</a>
                 </div>
@@ -81,43 +87,6 @@
   crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.js"></script>
 
-<script>
-    $(document).ready(function running_jobs_count() {
-        $.ajax({
-            url : "{% url 'jobs_running_count' %}",
-            type : "GET",
-            success : function(json) {
-                $("#running_jobs_count span").remove();
-                $.each(json, function (k, v) {
-                   if(v > 0){
-                       $("#running_jobs_count").attr('class', 'item').append("<span>Currently running jobs: " +
-                           "<strong>" + v + "</strong></span>");
-                    }
-                });
-            }
-        });
-    }, 3000);
-</script>
-
-<script>
-    setInterval(function running_jobs_count() {
-        $.ajax({
-            url : "{% url 'jobs_running_count' %}",
-            type : "GET",
-            success : function(json) {
-                $("#running_jobs_count span").remove();
-                $.each(json, function (k, v) {
-                   if(v > 0){
-                       $("#running_jobs_count").attr('class', 'item').append("<span>Currently running jobs: " +
-                           "<strong>" + v + "</strong></span>");
-                    }
-                    else{
-                        $("#running_jobs_count").attr('class', '');
-                   }
-                });
-            }
-        });
-    }, 3000);
-</script>
+<script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>
 
 </html>

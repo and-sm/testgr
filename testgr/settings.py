@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -37,9 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'loader',
     'main',
-    'api',
     'history'
 
 ]
@@ -136,9 +136,20 @@ if not DEBUG:
 
 STATIC_URL = '/static/'
 
-# STATICFILES_DIRS = [
-#    os.path.join(BASE_DIR, 'static/'),
-# ]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static/'),
+ ]
 
 MEDIA_ROOT = ''
 MEDIA_URL = '/media/'
+
+# Channels
+ASGI_APPLICATION = 'testgr.routing.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
