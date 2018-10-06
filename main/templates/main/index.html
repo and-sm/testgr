@@ -22,8 +22,14 @@
             <a href="{%  url 'index' %}" class="item active">Monitoring</a>
             <a href="{%  url 'history' %}" class="item">History</a>
             <div class="right menu" id="main_right_menu">
+                {% if running_jobs_count > 0 %}
+                <div class="item" id="running_jobs_count">
+                <span>Currently running jobs: <strong>{{ running_jobs_count }}</strong></span>
+                </div>
+                {% else %}
                 <div class="" id="running_jobs_count">
                 </div>
+                {% endif %}
                 <div class="item">
                     <a href="https://github.com/and-sm/testgr" target="_blank">Github</a>
                 </div>
@@ -49,12 +55,23 @@
             </tr>
             </thead>
             <tbody id="latest_jobs">
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
+            {% if latest_jobs_items %}
+                {% for job in latest_jobs_items %}
+                <tr>
+                    <td><a href="job/{{ job.uuid }}">{{ job.stop_time }}</a></td>
+                    <td><a href="job/{{ job.uuid }}">{{ job.time_taken }}</a></td>
+                    <td><a href="job/{{ job.uuid }}">{% if job.env == None %}not set{% else %}{{ job.env }}{% endif %}
+                    </a></td>
+                        {% if job.status == 2 %}
+                            <td><a href="job/{{ job.uuid }}" class="ui green basic label">Passed</a></td>
+                        {% elif job.status == 3 %}
+                            <td><a href="job/{{ job.uuid }}" class="ui red basic label">Failed</a></td>
+                        {% endif %}
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr class="center aligned"><td colspan="3">No job was run</td></tr>
+            {% endif %}
             </tbody>
         </table>
     </div>
@@ -76,11 +93,18 @@
             </tr>
             </thead>
             <tbody id="running_jobs">
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
+            {% if running_jobs_items %}
+                {% for job in running_jobs_items %}
+                <tr>
+                    <td><a href="job/{{ job.uuid }}">{{ job.start_time }}</a></td>
+                    <td><a href="job/{{ job.uuid }}">{% if job.env == None %}not set{% else %}{{ job.env }}{% endif %}
+                    </a></td>
+                    <td><a href="job/{{ job.uuid }}" class="ui blue basic label">Running</a></td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr class="center aligned"><td colspan="3">No job is running</td></tr>
+            {% endif %}
             </tbody>
         </table>
     </div>
@@ -111,173 +135,8 @@
   crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.js"></script>
 
-<script>
-    $(document).ready(function get_latest_jobs() {
-        $.ajax({
-            url : "{% url 'jobs_latest' %}",
-            type : "GET",
-            success : function(json) {
-                $("#latest_jobs tr").remove();
-                $.each(json, function (k, v) {
-                    let status = v['status'];
-                    if(status === 2){
-                        status = "<a href=\job\\" + v['uuid'] + " class=\"ui green basic label\">Passed</a>"
-                    }
-                    else if (status === 3){
-                        status = "<a href=\job\\" + v['uuid'] + " class=\"ui red basic label\">Failed</a>"
-                    }
-                    if(v['env'] == null){
-                       v['env'] = "not set";
-                    }
-                    $("#latest_jobs").append(
-                        '<tr>' +
-                        '<td><a href="job/' + v['uuid'] + '">' + v['stop_time'] + '</a></td>' +
-                        '<td><a href="job/' + v['uuid'] + '">' + v['time_taken'] + '</a></td>' +
-                        '<td><a href="job/' + v['uuid'] + '">' + v['env'] + '</a></td>' +
-                        '<td>' + status + '</td>' +
-                        '</tr>');
-                });
-            }
-        });
-    });
-</script>
-
-<script>
-    setInterval(function update_latest_jobs() {
-
-        $.ajax({
-            url : "{% url 'jobs_latest' %}",
-            type : "GET",
-            success : function(json) {
-                $("#latest_jobs tr").remove();
-                $.each(json, function (k, v) {
-                let status = v['status'];
-                if(status === 2){
-                    status = "<a href=\job\\" + v['uuid'] + " class=\"ui green basic label\">Passed</a>"
-                    }
-                else if (status === 3){
-                    status = "<a href=\job\\" + v['uuid'] + " class=\"ui red basic label\">Failed</a>"
-                }
-                if(v['env'] == null){
-                    v['env'] = "not set";
-                }
-                $("#latest_jobs").append(
-                    '<tr>' +
-                    '<td><a href="job/' + v['uuid'] + '">' + v['stop_time'] + '</a></td>' +
-                    '<td><a href="job/' + v['uuid'] + '">' + v['time_taken'] + '</a></td>' +
-                    '<td><a href="job/' + v['uuid'] + '">' + v['env'] + '</a></td>' +
-                    '<td>' + status + '</td>' +
-                    '</tr>');
-                });
-            }
-        });
-    }, 3000);
-</script>
-
-<script>
-    $(document).ready(function get_running_jobs() {
-        $.ajax({
-            url : "{% url 'jobs_running' %}",
-            type : "GET",
-            success : function(json) {
-                $("#running_jobs tr").remove();
-                $.each(json, function (k, v) {
-                    let status = v['status'];
-                    if(status === 2){
-                        status = "<a href=\job\\" + v['uuid'] + " class=\"ui green basic label\">Passed</a>"
-                    }
-                    else if (status === 3){
-                        status = "<a href=\job\\" + v['uuid'] + " class=\"ui red basic label\">Failed</a>"
-                    }
-                    else if (status === 1){
-                        status = "<a href=\job\\" + v['uuid'] + " class=\"ui blue basic label\">Running</a>"
-                    }
-                    if(v['env'] == null){
-                        v['env'] = "not set";
-                    }
-                    $("#running_jobs").append(
-                        '<tr>' +
-                        '<td><a href="job/' + v['uuid'] + '">' + v['start_time'] + '</a></td>' +
-                        '<td><a href="job/' + v['uuid'] + '">' + v['env'] + '</a></td>' +
-                        '<td>' + status + '</td>' +
-                        '</tr>');
-                });
-            }
-        });
-    });
-</script>
-
-
-<script>
-    setInterval(function update_running_jobs() {
-        $.ajax({
-            url : "{% url 'jobs_running' %}",
-            type : "GET",
-            success : function(json) {
-                $("#running_jobs tr").remove();
-                $.each(json, function (k, v) {
-                   let status = v['status'];
-                   if(status === 2){
-                        status = "<a href=\job\\" + v['uuid'] + " class=\"ui green basic label\">Passed</a>"
-                   }
-                   else if (status === 3){
-                        status = "<a href=\job\\" + v['uuid'] + " class=\"ui red basic label\">Failed</a>"
-                   }
-                   else if (status === 1){
-                        status = "<a href=\job\\" + v['uuid'] + " class=\"ui blue basic label\">Running</a>"
-                   }
-                   if(v['env'] == null){
-                        v['env'] = "not set";
-                   }
-                   $("#running_jobs").append(
-                        '<tr>' +
-                        '<td><a href="job/' + v['uuid'] + '">' + v['start_time'] + '</a></td>' +
-                        '<td><a href="job/' + v['uuid'] + '">' + v['env'] + '</a></td>' +
-                        '<td>' + status + '</td>' +
-                        '</tr>');
-                });
-            }
-        });
-    }, 3000);
-</script>
-
-<script>
-    $(document).ready(function running_jobs_count() {
-        $.ajax({
-            url : "{% url 'jobs_running_count' %}",
-            type : "GET",
-            success : function(json) {
-                $("#running_jobs_count span").remove();
-                $.each(json, function (k, v) {
-                   if(v > 0){
-                       $("#running_jobs_count").attr('class', 'item').append("<span>Currently running jobs: " +
-                           "<strong>" + v + "</strong></span>");
-                    }
-                });
-            }
-        });
-    }, 3000);
-</script>
-
-<script>
-    setInterval(function running_jobs_count() {
-        $.ajax({
-            url : "{% url 'jobs_running_count' %}",
-            type : "GET",
-            success : function(json) {
-                $("#running_jobs_count span").remove();
-                $.each(json, function (k, v) {
-                   if(v > 0){
-                       $("#running_jobs_count").attr('class', 'item').append("<span>Currently running jobs: " +
-                           "<strong>" + v + "</strong></span>");
-                    }
-                    else{
-                        $("#running_jobs_count").attr('class', '');
-                   }
-                });
-            }
-        });
-    }, 3000);
-</script>
+<script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>
+<script type="application/javascript" src="{% static 'js/testgr/main/latest_jobs.js' %}"></script>
+<script type="application/javascript" src="{% static 'js/testgr/main/running_jobs.js' %}"></script>
 
 </html>

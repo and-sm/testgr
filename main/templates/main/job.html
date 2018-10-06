@@ -28,8 +28,14 @@
             <a href="{%  url 'index' %}" class="item active">Monitoring</a>
             <a href="{%  url 'history' %}" class="item">History</a>
             <div class="right menu" id="main_right_menu">
+                {% if running_jobs_count > 0 %}
+                <div class="item" id="running_jobs_count">
+                <span>Currently running jobs: <strong>{{ running_jobs_count }}</strong></span>
+                </div>
+                {% else %}
                 <div class="" id="running_jobs_count">
                 </div>
+                {% endif %}
                 <div class="item">
                     <a href="https://github.com/and-sm/testgr" target="_blank">Github</a>
                 </div>
@@ -178,187 +184,12 @@ $(document).ready(function() {
 });
 </script>
 
-<script>
-    setInterval(function get_job_details() {
 
-        let uuid = "{{ uuid }}";
-
-        $.ajax({
-            url : "{% url 'job_details' %}",
-            type : "POST",
-            data: '{"uuid": "' + uuid + '" }',
-            contentType: "application/json",
-            dataType: 'json',
-            success : function(json) {
-                $("#tests_list tr").remove();
-                $.each(json, function (k, v) {
-
-                    // Job status
-                    if(k === 'status'){
-                        let job_status = v;
-                        if(job_status === "1"){
-                            job_status_txt = "Status: <span class=\"ui blue small header\">In Progress</span>";
-                            console.log("job_status: " + job_status + " (In Progress)")
-                        }
-                        else if(job_status === "2"){
-                            job_status_txt = "Status: <span class=\"ui green small header\">Passed</span>";
-                            console.log("job_status: " + job_status + " (Passed)")
-                        }
-                        else if(job_status === "3"){
-                            job_status_txt = "Status: <span class=\"ui red small header\">Failed</span>";
-                            console.log("job_status: " + job_status + " (Failed)")
-                        }
-                        else if(job_status === "4"){
-                            job_status_txt = "Status: <span class=\"ui red small header\">Stopped</span>";
-                            console.log("job_status: " + job_status + " (Stopped)")
-                        }
-                        $("#job_status").html(job_status_txt);
-                    }
-
-                    // Job stop time
-                    if(k === 'stop_time') {
-                        let job_stop_time = v;
-                        if (job_stop_time != null) {
-                            $("#job_stop_timestamp").text(job_stop_time)
-                        }
-                        else {
-                            $("#job_stop_timestamp").text("Pending...")
-                        }
-                    }
-
-                    // Job taken time
-                    if(k === 'time_taken') {
-                        let job_time_taken = v;
-                        if (job_time_taken != null) {
-                            $("#job_time_taken").text(job_time_taken)
-                        }
-                        else {
-                            $("#job_time_taken").text("Pending...")
-                        }
-                    }
-
-                    // Passed
-                    if(k === 'passed') {
-                        $("#job_tests_passed").html("Passed: " + v)
-                    }
-
-                    // Failed
-                    if(k === 'failed') {
-                        let text = '';
-                        if(v > 0){
-                            text = "Failed: <span class=\"test_failed\">" + v + "</span>"
-                        }
-                        else{
-                            text = "Failed: " + v
-                        }
-                        $("#job_tests_failed").html(text)
-                    }
-
-                    // Aborted
-                    if(k === 'aborted') {
-                        let text = '';
-                        if(v > 0){
-                            text = "Aborted: <span class=\"test_failed\">" + v + "</span>"
-                        }
-                        else{
-                            text = "Aborted: " + v
-                        }
-                        $("#job_tests_aborted").html(text)
-                    }
-
-                    // Skipped
-                    if(k === 'skipped') {
-                        $("#job_tests_skipped").html("Skipped: " + v)
-                    }
-
-                    // Not Started
-                    if(k === 'not_started') {
-                        $("#job_tests_not_started").html("Not Started: " + v)
-                    }
-
-                    if(k === 'tests') {
-                        $.each(v, function (k, v) {
-
-                                let uuid = v['uuid'];
-                                let host_domain = "{{ request.scheme }}://{{ request.META.HTTP_HOST }}";
-                                let status = v['status'];
-                                let time_taken = v['time_taken'];
-                                if(time_taken === null){
-                                    time_taken = "Pending..."
-                                }
-                                else{
-                                    time_taken = v['time_taken']
-                                }
-                                if(status === 3){
-                                    status = "<a href=" + host_domain + "/test/" + uuid + " class=\"ui green basic label\">Passed</a>"
-                                }
-                                else if (status === 4){
-                                    status = "<a href=" + host_domain + "/test/" + uuid + " class=\"ui red basic label\">Failed</a>"
-                                }
-                                else if (status === 2){
-                                    status = "<a href=" + host_domain + "/test/" + uuid + " class=\"ui blue basic label\">In Progress</a>"
-                                }
-                                else if (status === 5){
-                                    status = "<a href=" + host_domain + "/test/" + uuid + " class=\"ui yellow basic label\">Skipped</a>"
-                                }
-                                else if (status === 6){
-                                    status = "<a href=" + host_domain + "/test/" + uuid + " class=\"ui red basic label\">Aborted</a>"
-                                }
-                                else if (status === 1){
-                                    status = "<a href=" + host_domain + "/test/" + uuid + " class=\"ui gray basic label\">Not Started</a>"
-                                }
-                                $("#tests_list").append(
-                                    '<tr>' +
-                                    '<td><a href="' + host_domain + '/test/' + v['uuid'] + '" title="' + v['identity'] + '">' + v['short_identity'] + '</a></td>' +
-                                    '<td><a href="' + host_domain + '/test/' + v['uuid'] + '" title="' + v['identity'] + '">' + time_taken + '</a></td>' +
-                                    '<td>' + status + '</td>' +
-                                    '</tr>');
-                            }
-                        )
-                    }
-                });
-            }
-        });
-    }, 3000);
+<script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>
+<script type="application/javascript" id="job_details" data-job-uuid="{{ uuid }}"
+        src="{% static 'js/testgr/main/job_details.js' %}">
 </script>
-
-<script>
-    $(document).ready(function running_jobs_count() {
-        $.ajax({
-            url : "{% url 'jobs_running_count' %}",
-            type : "GET",
-            success : function(json) {
-                $("#running_jobs_count span").remove();
-                $.each(json, function (k, v) {
-                   if(v > 0){
-                       $("#running_jobs_count").attr('class', 'item').append("<span>Currently running jobs: " +
-                           "<strong>" + v + "</strong></span>");
-                    }
-                });
-            }
-        });
-    }, 3000);
+<script type="application/javascript" id="job_tests_details" data-job-uuid="{{ uuid }}"
+        src="{% static 'js/testgr/main/job_tests_details.js' %}">
 </script>
-
-<script>
-    setInterval(function running_jobs_count() {
-        $.ajax({
-            url : "{% url 'jobs_running_count' %}",
-            type : "GET",
-            success : function(json) {
-                $("#running_jobs_count span").remove();
-                $.each(json, function (k, v) {
-                   if(v > 0){
-                       $("#running_jobs_count").attr('class', 'item').append("<span>Currently running jobs: " +
-                           "<strong>" + v + "</strong></span>");
-                    }
-                    else{
-                        $("#running_jobs_count").attr('class', '');
-                   }
-                });
-            }
-        });
-    }, 3000);
-</script>
-
 </html>

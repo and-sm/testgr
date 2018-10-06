@@ -25,7 +25,8 @@ There you can observe status of your test execution.
 ### Requirements:
 **Testgr** was developed an tested using the following software:
 * Python 3.6.5
-* Django 2.1.1
+* Django 2.1.2
+* Redis 2.8, 3.2 or 4
 * SQLite and MySQL 5.7.23
 * Docker (or not, as you wish)
 * docker-compose
