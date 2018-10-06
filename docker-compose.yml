@@ -8,6 +8,7 @@ services:
       - .:/code
     ports:
       - 8000:8000
+      - 6379:6379
     environment:
       - SECRET_KEY=changeonprod
     depends_on:
@@ -29,8 +30,7 @@ services:
       - SECRET_KEY=changeonprod
     command: python /code/manage.py makemigrations
   redis:
-    image: redis:2.8
-    ports:
-      - "6379:6379"
-
-
+    image: redis:4
+    network_mode: "service:web"
+    depends_on: 
+     - web
