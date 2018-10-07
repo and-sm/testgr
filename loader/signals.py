@@ -137,7 +137,7 @@ def get_job_details(created, instance, **kwargs):
     if created:
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
-            "job_details",
+            "job_details" + "-" + instance.uuid,
             {
                 "type": "message",
                 "message": data()
@@ -147,7 +147,7 @@ def get_job_details(created, instance, **kwargs):
     if instance:
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
-            "job_details",
+            "job_details" + "-" + instance.uuid,
             {
                 "type": "message",
                 "message": data()
@@ -190,7 +190,7 @@ def get_job_tests_details(created, instance, **kwargs):
     if created:
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
-            "job_tests_details",
+            "job_tests_details" + "-" + instance.job.uuid,
             {
                 "type": "message",
                 "message": data()
@@ -200,7 +200,7 @@ def get_job_tests_details(created, instance, **kwargs):
     if instance:
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
-            "job_tests_details",
+            "job_tests_details" + "-" + instance.job.uuid,
             {
                 "type": "message",
                 "message": data()

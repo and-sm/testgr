@@ -1,8 +1,8 @@
+var uuid = document.getElementById("job_details").getAttribute("data-job-uuid");
 var chatSocket = new WebSocket(
-    'ws://' + window.location.host +  '/ws/job_details/');
-    chatSocket.onmessage = function(e) {
+    'ws://' + window.location.host +  '/ws/job_details/' + uuid);
+chatSocket.onmessage = function(e) {
 
-    var uuid = document.getElementById("job_details").getAttribute("data-job-uuid");
     var data = JSON.parse(e.data);
     var message = data['message'];
 
@@ -10,16 +10,16 @@ var chatSocket = new WebSocket(
 
     if(message['status'] === "1"){
         status.innerHTML = "Status: <span class=\"ui blue small header\">In Progress</span>";
-        }
+    }
     else if(message['status'] === "2"){
         status.innerHTML = "Status: <span class=\"ui green small header\">Passed</span>";
-        }
+    }
     else if(message['status'] === "3"){
         status.innerHTML = "Status: <span class=\"ui red small header\">Failed</span>";
-        }
+    }
     else if(message['status'] === "4"){
         status.innerHTML = "Status: <span class=\"ui red small header\">Stopped</span>";
-        }
+    }
 
     let job_time_stop = document.getElementById("job_stop_timestamp");
     if(message['stop_time'] != null){

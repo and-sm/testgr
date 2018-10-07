@@ -1,6 +1,7 @@
+var uuid = document.getElementById("job_tests_details").getAttribute("data-job-uuid");
 var chatSocket = new WebSocket(
-    'ws://' + window.location.host +  '/ws/job_tests_details/');
-    chatSocket.onmessage = function(e) {
+    'ws://' + window.location.host +  '/ws/job_tests_details/' + uuid);
+chatSocket.onmessage = function(e) {
 
     var data = JSON.parse(e.data);
     var message = data['message'];
