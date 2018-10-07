@@ -1,7 +1,7 @@
 var uuid = document.getElementById("job_tests_details").getAttribute("data-job-uuid");
-var chatSocket = new WebSocket(
+var socket = new WebSocket(
     'ws://' + window.location.host +  '/ws/job_tests_details/' + uuid);
-chatSocket.onmessage = function(e) {
+socket.onmessage = function(e) {
 
     var data = JSON.parse(e.data);
     var message = data['message'];
@@ -86,6 +86,6 @@ chatSocket.onmessage = function(e) {
         })
     }
 };
-chatSocket.onclose = function(e) {
+socket.onclose = function(e) {
     console.error('Socket closed unexpectedly');
 };

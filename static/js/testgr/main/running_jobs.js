@@ -1,6 +1,6 @@
-var chatSocket = new WebSocket(
+var socket = new WebSocket(
     'ws://' + window.location.host +  '/ws/running_jobs/');
-    chatSocket.onmessage = function(e) {
+    socket.onmessage = function(e) {
     var data = JSON.parse(e.data);
     var message = data['message'];
     var Table = document.getElementById("running_jobs");
@@ -29,6 +29,6 @@ var chatSocket = new WebSocket(
         })
     }
 };
-chatSocket.onclose = function(e) {
+socket.onclose = function(e) {
     console.error('Socket closed unexpectedly');
 };
