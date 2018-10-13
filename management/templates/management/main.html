@@ -1,0 +1,175 @@
+<html>
+
+<head>
+
+<title>TESTGR</title>
+
+{% load static %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.css">
+
+</head>
+
+<body>
+
+<div class="ui grid">
+
+	<div class="sixteen wide column">
+        <div class="ui  menu">
+            <div class="item">
+                <h3><a href="{%  url 'index' %}">TESTGR</a></h3>
+            </div>
+            <a href="{%  url 'index' %}" class="item">Monitoring</a>
+            <a href="{%  url 'history' %}" class="item">History</a>
+            <a href="{%  url 'management' %}" class="item active">Management</a>
+            <div class="right menu" id="main_right_menu">
+                {% if running_jobs_count > 0 %}
+                <div class="item" id="running_jobs_count">
+                <span>Currently running jobs: <strong>{{ running_jobs_count }}</strong></span>
+                </div>
+                {% else %}
+                <div class="" id="running_jobs_count">
+                </div>
+                {% endif %}
+                <div class="item">
+                    <a href="https://github.com/and-sm/testgr" target="_blank">Github</a>
+                </div>
+            </div>
+        </div>
+	</div>
+
+    <div class="one wide column">
+    </div>
+
+    <div class="three wide column">
+        <h3>Management</h3>
+        <div class="ui divider"></div>
+        <div class="ui secondary vertical menu">
+            <a class="active item">Environments</a>
+        </div>
+    </div>
+
+    <div class="eleven wide column">
+        <h3>Environments</h3>
+        <div class="ui divider"></div>
+
+        <div class="ui message">
+            Here you can remap your <strong>environments</strong>
+            names. Original name will remain untouched and can be restored.
+        </div>
+
+        <table class="ui very basic collapsing celled table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Remapped name</th>
+            </tr></thead>
+            <tbody>
+            {% for env in envs %}
+            <tr>
+                <td>
+                    <h4 class="ui image header">
+                        <div class="content">
+                            {{ env.name }}
+                        </div>
+                    </h4>
+                </td>
+                <td data-id="remapped_name_{{ env.pk }}">
+                <h4 class="ui image header">
+                    {% if not env.remapped_name %}
+                        <div class="field">
+                            <div class="ui action input">
+                                <div class="ui button" data-create-btn="{{ env.pk }}">Create mapped name</div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="field">
+                            <div class="ui action input">
+                                <input type="text" data-rename-input="{{ env.pk }}" value="{{ env.remapped_name }}"
+                                       placeholder="{{ env.remapped_name }}"/>
+                                <div class="ui button" data-rename-btn="{{ env.pk }}">Rename</div>
+                                <div class="ui button" data-delete-btn="{{ env.pk }}">Delete</div>
+                            </div>
+
+                        </div>
+                    {% endif %}
+                </h4>
+                </td>
+            <td>
+
+
+
+            </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="one wide column">
+    </div>
+
+</div>
+
+</body>
+
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.js"></script>
+
+<script>
+$("div[data-create-btn]").click(function () {
+    var button_id = $(this).data("create-btn");
+    $(this).before("<input type=\"text\" data-create-input=" + button_id + " placeholder=\" \"/>");
+    $(this).after("<div class=\"ui button\" data-save-btn=" + button_id + ">Rename</div>");
+    $(this).attr( "data-create-btn-to-delete", "0" );
+    $(this).removeAttr("data-create-btn");
+    $("div[data-create-btn-to-delete]").remove();
+    $("div[data-save-btn]").click(function () {
+        var new_name = $("input[data-create-input=" + button_id + "]").val();
+        $.ajax({
+            url: "{% url 'api_remap_env' %}",
+            type: "POST",
+            data: {'id': button_id, 'new_name': new_name},
+            success : function() {
+                alert("Saved!");
+                location.reload();
+            }
+        });
+    });
+})
+</script>
+<script>
+$("div[data-rename-btn]").click(function () {
+    var button_id = $(this).data("rename-btn");
+    var new_name = $("input[data-rename-input=" + button_id + "]").val();
+    $.ajax({
+        url : "{% url 'api_remap_env' %}",
+        type : "POST",
+        data: {'id': button_id, 'new_name': new_name},
+        success : function() {
+            alert("Saved!");
+            location.reload();
+        }
+    });
+});
+</script>
+<script>
+$("div[data-delete-btn]").click(function () {
+    var button_id = $(this).data("delete-btn");
+    $.ajax({
+        url : "{% url 'api_delete_env' %}",
+        type : "POST",
+        data: {'id': button_id},
+        success : function() {
+            alert("Deleted!");
+            location.reload();
+        }
+    });
+});
+</script>
+
+</html>
