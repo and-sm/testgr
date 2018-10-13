@@ -1,7 +1,8 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.exceptions import ObjectDoesNotExist
 
-from loader.models import TestJobs, Tests, TestsStorage
+from loader.models import TestJobs, Tests, TestsStorage, Environments
 
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -49,7 +50,14 @@ def get_running_jobs(created, instance, **kwargs):
             job_item['uuid'] = job.uuid
             job_item['start_time'] = job.start_time.strftime('%H:%M:%S %d-%b-%Y')
             job_item['status'] = job.status
-            job_item['env'] = job.env
+            try:
+                obj = Environments.objects.get(name=job.env)
+                if obj.remapped_name is not None:
+                    job_item['env'] = obj.remapped_name
+                else:
+                    job_item['env'] = job.env
+            except ObjectDoesNotExist:
+                job_item['env'] = job.env
             result.append(job_item)
         result.reverse()  # For correct ordering in JS
         return result
@@ -87,7 +95,14 @@ def get_latest_jobs(created, instance, **kwargs):
             job_item['time_taken'] = job.get_time_taken()
             job_item['stop_time'] = job.stop_time.strftime('%H:%M:%S %d-%b-%Y')
             job_item['status'] = job.status
-            job_item['env'] = job.env
+            try:
+                obj = Environments.objects.get(name=job.env)
+                if obj.remapped_name is not None:
+                    job_item['env'] = obj.remapped_name
+                else:
+                    job_item['env'] = job.env
+            except ObjectDoesNotExist:
+                job_item['env'] = job.env
             result.append(job_item)
         result.reverse()  # For correct ordering in JS
         return result
