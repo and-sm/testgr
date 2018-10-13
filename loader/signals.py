@@ -1,7 +1,8 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.exceptions import ObjectDoesNotExist
 
-from loader.models import TestJobs, Tests
+from loader.models import TestJobs, Tests, TestsStorage, Environments
 
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -49,7 +50,14 @@ def get_running_jobs(created, instance, **kwargs):
             job_item['uuid'] = job.uuid
             job_item['start_time'] = job.start_time.strftime('%H:%M:%S %d-%b-%Y')
             job_item['status'] = job.status
-            job_item['env'] = job.env
+            try:
+                obj = Environments.objects.get(name=job.env)
+                if obj.remapped_name is not None:
+                    job_item['env'] = obj.remapped_name
+                else:
+                    job_item['env'] = job.env
+            except ObjectDoesNotExist:
+                job_item['env'] = job.env
             result.append(job_item)
         result.reverse()  # For correct ordering in JS
         return result
@@ -87,7 +95,14 @@ def get_latest_jobs(created, instance, **kwargs):
             job_item['time_taken'] = job.get_time_taken()
             job_item['stop_time'] = job.stop_time.strftime('%H:%M:%S %d-%b-%Y')
             job_item['status'] = job.status
-            job_item['env'] = job.env
+            try:
+                obj = Environments.objects.get(name=job.env)
+                if obj.remapped_name is not None:
+                    job_item['env'] = obj.remapped_name
+                else:
+                    job_item['env'] = job.env
+            except ObjectDoesNotExist:
+                job_item['env'] = job.env
             result.append(job_item)
         result.reverse()  # For correct ordering in JS
         return result
@@ -166,13 +181,23 @@ def get_job_tests_details(created, instance, **kwargs):
         tests = []
         for test in job_object.tests.all():
             test_item = dict()
+            if test.start_time:  # Initial Tests post_save signal will not have start_time for test item
+                test_item['start_time'] = test.get_start_time()
             if job_object.fw_type == 1:
                 test_item['short_identity'] = test.get_test_method_for_nose()
             elif job_object.fw_type == 2:
                 test_item['short_identity'] = test.get_test_method_for_pytest()
             test_item['identity'] = test.identity
             test_item['uuid'] = test.uuid
-            test_item['time_taken'] = test.get_time_taken()
+            if test.time_taken:
+                test_item['time_taken'] = test.get_time_taken()
+            else:
+                test_item['time_taken'] = None
+            try:
+                obj = TestsStorage.objects.get(identity=test.identity)
+                test_item['time_taken_eta'] = obj.get_time_taken_eta()
+            except:
+                test_item['time_taken_eta'] = None
             test_item['status'] = test.status
             tests.append(test_item)
         tests.reverse()  # For correct ordering in JS

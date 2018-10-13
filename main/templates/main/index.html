@@ -21,6 +21,7 @@
             </div>
             <a href="{%  url 'index' %}" class="item active">Monitoring</a>
             <a href="{%  url 'history' %}" class="item">History</a>
+            <a href="{%  url 'management' %}" class="item">Management</a>
             <div class="right menu" id="main_right_menu">
                 {% if running_jobs_count > 0 %}
                 <div class="item" id="running_jobs_count">
@@ -49,7 +50,7 @@
             <thead>
             <tr>
                 <th>Stop date</th>
-                <th>Time taken (sec)</th>
+                <th>Time taken</th>
                 <th>Environment</th>
                 <th>Status</th>
             </tr>

@@ -17,8 +17,8 @@ def unix_time_to_datetime(timestamp):
     return dt
 
 
-def normalize_time_taken(obj):
-    seconds = obj.time_taken.total_seconds()
+def normalize_time(obj):
+    seconds = obj.total_seconds()
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
     seconds = seconds % 60

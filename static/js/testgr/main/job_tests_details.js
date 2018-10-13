@@ -50,10 +50,21 @@ socket.onmessage = function(e) {
     else {
         TestsTable.innerHTML = "";
         message['tests'].forEach(function (obj) {
-            console.log(obj.uuid);
+
+
+            if(obj.start_time == null){
+                obj.start_time = "Pending..."
+            }
 
             if(obj.time_taken == null){
                 obj.time_taken = "Pending..."
+            }
+
+            if(obj.time_taken_eta == null){
+                obj.time_taken_eta = "Pending..."
+            }
+            else{
+                obj.time_taken_eta = "ETA: " + obj.time_taken_eta
             }
 
 
@@ -80,9 +91,16 @@ socket.onmessage = function(e) {
             var cell1 = row.insertCell(0);
             cell1.innerHTML = "<a href=\"/test/" + obj.uuid + "\">" + obj.short_identity + "</a>";
             var cell2 = row.insertCell(1);
-            cell2.innerHTML = "<a href=\"/test/" + obj.uuid + "\">" + obj.time_taken + "</a>";
+            cell2.innerHTML = "<a href=\"/test/" + obj.uuid + "\">" + obj.start_time + "</a>";
             var cell3 = row.insertCell(2);
-            cell3.innerHTML = "<a href=\"/test/" + obj.uuid + "\">" + status + "</a>";
+            if(obj.status === 2){
+                cell3.innerHTML = "<a href=\"/test/" + obj.uuid + "\">" + obj.time_taken_eta + "</a>";
+            }
+            else{
+                cell3.innerHTML = "<a href=\"/test/" + obj.uuid + "\">" + obj.time_taken + "</a>";
+            }
+            var cell4 = row.insertCell(3);
+            cell4.innerHTML = "<a href=\"/test/" + obj.uuid + "\">" + status + "</a>";
         })
     }
 };
