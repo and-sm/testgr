@@ -1,5 +1,6 @@
 from django.db import models
-from tools.tools import normalize_time_taken
+from tools.tools import normalize_time
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class TestJobs(models.Model):
@@ -18,9 +19,9 @@ class TestJobs(models.Model):
 
     def get_time_taken(self):
         try:
-            obj = normalize_time_taken(self)
+            obj = normalize_time(self.time_taken)
             return obj
-        except BaseException:
+        except ObjectDoesNotExist:
             return None
 
     def get_start_time(self):
@@ -67,9 +68,50 @@ class Tests(models.Model):
             return self.identity
         return self.method
 
+    def get_start_time(self):
+        return self.start_time.strftime('%H:%M:%S')
+
     def get_time_taken(self):
         try:
-            obj = normalize_time_taken(self)
+            obj = normalize_time(self.time_taken)
             return obj
-        except BaseException:
+        except ObjectDoesNotExist:
             return None
+
+    def get_time_taken_eta(self):
+        try:
+            obj = TestsStorage.objects.get(identity=self.identity)
+            result = normalize_time(obj.calculated_eta)
+            return result
+        except ObjectDoesNotExist:
+            return None
+
+
+class Environments(models.Model):
+    name = models.TextField(blank=True, null=True)
+    remapped_name = models.TextField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.remapped_name:
+            self.remapped_name = self.remapped_name.strip(" ")
+            super(Environments, self).save(*args, **kwargs)
+        else:
+            super(Environments, self).save(*args, **kwargs)
+
+
+class TestsStorage(models.Model):
+    identity = models.TextField(blank=True, null=True)
+    time_taken = models.DurationField(blank=True, null=True)
+    time_taken2 = models.DurationField(blank=True, null=True)
+    time_taken3 = models.DurationField(blank=True, null=True)
+    calculated_eta = models.DurationField(blank=True, null=True)
+
+    def get_time_taken_eta(self):
+        try:
+            result = normalize_time(self.calculated_eta)
+            return result
+        except ObjectDoesNotExist:
+            return None
+
+
+

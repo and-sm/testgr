@@ -27,6 +27,7 @@
             </div>
             <a href="{%  url 'index' %}" class="item active">Monitoring</a>
             <a href="{%  url 'history' %}" class="item">History</a>
+            <a href="{%  url 'management' %}" class="item">Management</a>
             <div class="right menu" id="main_right_menu">
                 {% if running_jobs_count > 0 %}
                 <div class="item" id="running_jobs_count">
@@ -99,6 +100,7 @@
             <thead>
             <tr>
                 <th>Test Method</th>
+                <th>Start Time</th>
                 <th>Time Taken</th>
                 <th>Status</th>
             </tr>
@@ -113,7 +115,20 @@
                     <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">
                         {{ item.get_test_method_for_pytest }}</a></td>
                     {% endif %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">{% if item.get_time_taken is not None %}{{ item.get_time_taken }}{% else %}Pending...{% endif %}</a></td>
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                        {% if item.get_start_time is not None %}
+                            {{ item.get_start_time }}
+                        {% else %}Pending...
+                        {% endif %}
+                    </a></td>
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                        {% if item.get_time_taken is not None and item.status != 2 %}
+                            {{ item.get_time_taken }}
+                        {% elif item.get_time_taken_eta is not None and item.status == 2 %}
+                            ETA: {{ item.get_time_taken_eta }}
+                        {% else %}Pending...
+                        {% endif %}
+                    </a></td>
                     <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
                         {% if item.status == 1%}<div class="ui gray basic label">Not Started</div>
                         {% elif item.status == 2%}<div class="ui blue basic label">In Progress</div>

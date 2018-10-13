@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from loader.models import TestJobs, Tests
+from loader.models import TestJobs, Tests, TestsStorage
 
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -166,13 +166,23 @@ def get_job_tests_details(created, instance, **kwargs):
         tests = []
         for test in job_object.tests.all():
             test_item = dict()
+            if test.start_time:  # Initial Tests post_save signal will not have start_time for test item
+                test_item['start_time'] = test.get_start_time()
             if job_object.fw_type == 1:
                 test_item['short_identity'] = test.get_test_method_for_nose()
             elif job_object.fw_type == 2:
                 test_item['short_identity'] = test.get_test_method_for_pytest()
             test_item['identity'] = test.identity
             test_item['uuid'] = test.uuid
-            test_item['time_taken'] = test.get_time_taken()
+            if test.time_taken:
+                test_item['time_taken'] = test.get_time_taken()
+            else:
+                test_item['time_taken'] = None
+            try:
+                obj = TestsStorage.objects.get(identity=test.identity)
+                test_item['time_taken_eta'] = obj.get_time_taken_eta()
+            except:
+                test_item['time_taken_eta'] = None
             test_item['status'] = test.status
             tests.append(test_item)
         tests.reverse()  # For correct ordering in JS

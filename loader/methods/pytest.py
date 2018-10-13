@@ -1,8 +1,10 @@
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
-from loader.models import TestJobs, Tests
-from tools.tools import unix_time_to_datetime
 
+from loader.models import TestJobs, Tests, Environments, TestsStorage
+
+from tools.tools import unix_time_to_datetime
+from statistics import median
 import uuid
 
 
@@ -32,6 +34,14 @@ class PytestLoader:
             test_uuid = str(uuid.uuid4())
             test_object = Tests(uuid=test_uuid, identity=test_item['nodeid'], status=1, job=job_object)
             test_object.save()
+
+        # Environment
+        if self.data['env'] is not None:
+            try:
+                Environments.objects.get(name=self.data['env'])
+            except Environments.DoesNotExist:
+                save_env = Environments(name=self.data['env'])
+                save_env.save()
         return HttpResponse(status=200)
 
     def get_stop_test_run(self):
@@ -91,6 +101,33 @@ class PytestLoader:
                 test.time_taken = test.stop_time - test.start_time
                 test.msg = self.data['msg']
                 test.save()
+                # Tests Storage
+                try:
+                    obj = TestsStorage.objects.get(identity=test.identity)
+                    while True:
+                        if obj.time_taken and not obj.time_taken2:
+                            obj.time_taken2 = test.time_taken
+                            obj.calculated_eta = median([obj.time_taken, test.time_taken])
+                            obj.save()
+                            break
+                        if obj.time_taken2 and not obj.time_taken3:
+                            obj.time_taken3 = test.time_taken
+                            obj.calculated_eta = median([obj.time_taken, obj.time_taken2, test.time_taken])
+                            obj.save()
+                            break
+                        if obj.time_taken3:
+                            obj.time_taken3 = obj.time_taken2
+                            obj.time_taken2 = obj.time_taken
+                            obj.time_taken = test.time_taken
+                            obj.calculated_eta = median([obj.time_taken, obj.time_taken2, obj.time_taken3])
+                            break
+                    obj.save()
+                except ObjectDoesNotExist:
+                    obj = TestsStorage(identity=test.identity)
+                    test.refresh_from_db()
+                    obj.time_taken = test.time_taken
+                    obj.calculated_eta = median([test.time_taken])
+                    obj.save()
                 return HttpResponse(status=200)
             except ObjectDoesNotExist:
                 return HttpResponse(status=403)
