@@ -7,12 +7,12 @@ Each test execution generates a job object with list of tests. If some test is r
 ### Main page of Testgr. 
 In the current development phase it has two tables - "Last 10 jobs" and "Running jobs".
 
-![Main page](https://i.imgur.com/THA0YOG.png)
+![Main page](https://i.imgur.com/sR3SMxF.png)
 
 ### Job page. 
 There you can observe status of your test execution. 
 
-![Job page](https://i.imgur.com/lzPGk3V.png)
+![Job page](https://i.imgur.com/Rlhrep5.png)
 
 ### Example of failed test:
 ![Failed test](https://i.imgur.com/Whr8kVG.png)
@@ -21,14 +21,14 @@ There you can observe status of your test execution.
 ![Passed test](https://i.imgur.com/6hg3tzQ.png)
 
 ### Job history:
-![Job history](https://i.imgur.com/e50mXxv.png)
+![Job history](https://i.imgur.com/0hg7Rh8.png)
 ### Requirements:
 **Testgr** was developed an tested using the following software:
 * Python 3.6.5
 * Django 2.1.2
 * Redis 2.8, 3.2 or 4
 * SQLite and MySQL 5.7.23
-* Docker (or not, as you wish)
+* Docker
 * docker-compose
 
 ### Initial setup
@@ -38,6 +38,7 @@ git clone https://github.com/and-sm/testgr.git
 cd testgr
 docker-compose up -d --build
 ```
+Open **Testgr** by using http://127.0.0.1:8000 address.
 
 Stop **Testgr**:
 ```
