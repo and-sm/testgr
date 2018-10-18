@@ -31,8 +31,15 @@ class TestJobs(models.Model):
         return self.stop_time.strftime('%H:%M:%S %d-%b-%Y')
 
     def get_env(self):
-        if self.env is not None:
-            return self.env
+        if self.env:
+            try:
+                obj = Environments.objects.get(name=self.env)
+                if obj.remapped_name:
+                    return obj.remapped_name
+                else:
+                    return self.env
+            except ObjectDoesNotExist:
+                return self.env
         else:
             return 'not set'
 

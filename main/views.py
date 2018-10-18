@@ -1,6 +1,5 @@
 from django.shortcuts import render
-from django.core.exceptions import ObjectDoesNotExist
-from loader.models import TestJobs, Tests, Environments
+from loader.models import TestJobs, Tests
 from django.views.decorators.cache import never_cache
 
 
@@ -17,14 +16,7 @@ def index(request):
         job_item['time_taken'] = job.get_time_taken()
         job_item['stop_time'] = job.stop_time.strftime('%H:%M:%S %d-%b-%Y')
         job_item['status'] = job.status
-        try:
-            obj = Environments.objects.get(name=job.env)
-            if obj.remapped_name is not None:
-                job_item['env'] = obj.remapped_name
-            else:
-                job_item['env'] = job.env
-        except ObjectDoesNotExist:
-            job_item['env'] = job.env
+        job_item['env'] = job.get_env()
         latest_jobs_items.append(job_item)
 
     running_jobs = TestJobs.objects.filter(status='1').order_by('-start_time')
@@ -34,14 +26,7 @@ def index(request):
         job_item['uuid'] = job.uuid
         job_item['start_time'] = job.start_time.strftime('%H:%M:%S %d-%b-%Y')
         job_item['status'] = job.status
-        try:
-            obj = Environments.objects.get(name=job.env)
-            if obj.remapped_name is not None:
-                job_item['env'] = obj.remapped_name
-            else:
-                job_item['env'] = job.env
-        except ObjectDoesNotExist:
-            job_item['env'] = job.env
+        job_item['env'] = job.get_env()
         running_jobs_items.append(job_item)
 
     return render(request, "main/index.html", {"running_jobs_count": running_jobs_count,
@@ -63,11 +48,7 @@ def job(request, job_uuid):
         time_taken = job_object.get_time_taken()
     else:
         time_taken = None
-    try:
-        obj = Environments.objects.get(name=job_object.env)
-        env = obj.remapped_name
-    except ObjectDoesNotExist:
-        env = job.env
+    env = job_object.get_env()
 
     status = job_object.status
     tests = job_object.tests
@@ -119,11 +100,7 @@ def test(request, test_uuid):
         time_taken = test_object.get_time_taken()
     else:
         time_taken = None
-    try:
-        obj = Environments.objects.get(name=test_object.job.env)
-        env = obj.remapped_name
-    except ObjectDoesNotExist:
-        env = test_object.job.env
+    env = test_object.job.get_env()
     status = test_object.status
     msg = test_object.msg
     identity = test_object.identity

@@ -53,8 +53,7 @@
             {% elif status == 6 %}<span class="ui red small header">Aborted</span>
             {% endif %}</h5>
         </div><br />
-        {% if env != None %}<div><h5>Environment: &nbsp;<span class="ui middle label">{{ env|upper }}</span></h5></div><br />
-        {% endif %}
+        <div><h5>Environment: &nbsp;<span class="ui middle label">{{ env|upper }}</span></h5></div><br />
         <div><h5>UUID: </h5>{{ uuid }}</div><br />
         <div><h5>Start Date: </h5>{% if start_time is not None %}{{ start_time }}{% else %}Pending...{% endif %}</div><br />
         <div><h5>Stop Date: </h5>{% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}</div><br />
