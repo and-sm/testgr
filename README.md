@@ -26,29 +26,37 @@ There you can observe status of your test execution.
 **Testgr** was developed an tested using the following software:
 * Python 3.6.5
 * Django 2.1.2
-* Redis 2.8, 3.2 or 4
+* Redis 4
 * SQLite and MySQL 5.7.23
 * Docker
 * docker-compose
 
-### Initial setup
-Here is example with a simple docker-compose stack:
+### HowTo deploy
+Docker stack is build on the next components:
+* Nginx as reverse proxy
+* Gunicorn
+* Daphne
+* Redis
+
+You can set up **Testgr** rapidly using docker-compose:
 ```
 git clone https://github.com/and-sm/testgr.git
 cd testgr
 docker-compose up -d --build
 ```
-Open **Testgr** by using http://127.0.0.1:8000 address.
+Open **Testgr** by using http://127.0.0.1 address.
 
 Stop **Testgr**:
 ```
-docker-compose stop
+docker-compose down
 ```
 
 Start **Testgr** again:
 ```
 docker-compose up -d
 ```
+
+Also basic setup can be found in the "docker-simple" folder. It will deploy Django's runserver only.
 
 ### nose2-rt setup
 

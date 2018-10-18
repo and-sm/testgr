@@ -1,36 +1,57 @@
 version: '3.3'
 
 services:
-  web:
-    build: .
-    command: python /code/manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/code
-    ports:
-      - 8000:8000
-      - 6379:6379
-    environment:
-      - SECRET_KEY=changeonprod
-    depends_on:
-     - migration
-  migration:
-    volumes:
-      - .:/code
-    build: .
-    environment:
-      - SECRET_KEY=changeonprod
-    command: python /code/manage.py migrate
-    depends_on: 
-     - make_migrations
+
   make_migrations:
     volumes:
       - .:/code
-    build: .
-    environment:
-      - SECRET_KEY=changeonprod
+    build: ./docker/gunicorn
     command: python /code/manage.py makemigrations
+
+  migration:
+    volumes:
+      - .:/code
+    build: ./docker/gunicorn
+    command: python /code/manage.py migrate
+    depends_on: 
+     - make_migrations
+
+  web:
+    volumes:
+      - .:/code
+    build: ./docker/gunicorn
+    command: gunicorn testgr.wsgi --bind 0.0.0.0:8000
+    ports:
+      - 8000:8000
+      - 9000:9000
+      - 6379:6379
+      - 80:80
+    depends_on:
+     - migration
+
   redis:
-    image: redis:4
+    build: ./docker/redis
     network_mode: "service:web"
     depends_on: 
      - web
+
+  websocket:
+    volumes:
+      - .:/code
+    build: ./docker/daphne
+    command: daphne testgr.asgi:application -p 9000 -b 0.0.0.0
+    network_mode: "service:web"
+    depends_on: 
+     - redis
+
+  nginx:
+    build: ./docker/nginx
+    network_mode: "service:web"
+    depends_on: 
+     - websocket
+
+
+
+
+
+
