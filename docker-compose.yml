@@ -6,32 +6,26 @@ services:
     volumes:
       - .:/code
     build: ./docker/gunicorn
-    environment:
-      - SECRET_KEY=changeonprod
     command: python /code/manage.py makemigrations
 
   migration:
     volumes:
       - .:/code
     build: ./docker/gunicorn
-    environment:
-      - SECRET_KEY=changeonprod
     command: python /code/manage.py migrate
     depends_on: 
      - make_migrations
 
   web:
-    build: ./docker/gunicorn
-    command: gunicorn testgr.wsgi --bind 0.0.0.0:8000
     volumes:
       - .:/code
+    build: ./docker/gunicorn
+    command: gunicorn testgr.wsgi --bind 0.0.0.0:8000
     ports:
       - 8000:8000
       - 9000:9000
       - 6379:6379
       - 80:80
-    environment:
-      - SECRET_KEY=changeonprod
     depends_on:
      - migration
 
