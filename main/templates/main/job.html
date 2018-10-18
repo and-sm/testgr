@@ -57,8 +57,7 @@
             {% elif status == 4 %}<span class="ui yellow small header">Stopped</span>
             {% endif %}</h5>
         </div><br />
-        {% if env != None %}<div><h5>Environment: &nbsp;<span class="ui middle label">{{ env|upper }}</span></h5></div><br />
-        {% endif %}
+        <div><h5>Environment: &nbsp;<span class="ui middle label">{{ env|upper }}</span></h5></div><br />
         <div><h5>UUID: </h5>{{ uuid }}</div><br />
         <div><h5>Start Date: </h5>{{ start_time }}</div><br />
         <p><strong>Stop Date: </strong><br /><span id="job_stop_timestamp">{% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}</span></p>
