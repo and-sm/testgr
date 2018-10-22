@@ -58,25 +58,5 @@ docker-compose up -d
 
 Also basic setup can be found in the "docker-simple" folder. It will deploy Django's runserver only.
 
-### nose2-rt setup
-
-In nose2.cfg find **[rt]** section and configure "endpoint" setting
-
-Example: 
-```
-[unittest]
-plugins = nose2.plugins.nose2-rt.rt
-
-[rt]
-endpoint = http://127.0.0.1/loader
-show_errors = True
-```
-
-### pytest-rt setup
-
-In conftest.py enable following settings:
-```
-pytest_plugins = "pytest_rt"
-endpoint = "http://127.0.0.1/loader"
-show_errors = True
-```
+### API plugins setup
+Depending on your test framework (nose2 or pytest) you can choose [**nose2-rt**](https://github.com/and-sm/nose2rt) or [**pytest-rt**](https://github.com/and-sm/pytest-rt).
