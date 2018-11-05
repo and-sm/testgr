@@ -18,7 +18,7 @@ socket.onmessage = function(e) {
         status.innerHTML = "Status: <span class=\"ui red small header\">Failed</span>";
     }
     else if(message['status'] === "4"){
-        status.innerHTML = "Status: <span class=\"ui red small header\">Stopped</span>";
+        status.innerHTML = "Status: <span class=\"ui yellow small header\">Stopped</span>";
     }
 
     let job_time_stop = document.getElementById("job_stop_timestamp");

@@ -6,7 +6,7 @@
 
 {% load static %}
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.css">
 
 </head>
 
@@ -67,6 +67,8 @@
                             <td><a href="job/{{ job.uuid }}" class="ui green basic label">Passed</a></td>
                         {% elif job.status == 3 %}
                             <td><a href="job/{{ job.uuid }}" class="ui red basic label">Failed</a></td>
+                        {% elif job.status == 4 %}
+                            <td><a href="job/{{ job.uuid }}" class="ui yellow basic label">Stopped</a></td>
                         {% endif %}
                 </tr>
                 {% endfor %}

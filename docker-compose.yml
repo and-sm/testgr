@@ -28,6 +28,8 @@ services:
       - 80:80
     depends_on:
      - migration
+    env_file:
+     - conf.env
 
   redis:
     build: ./docker/redis

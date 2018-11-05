@@ -6,7 +6,7 @@
 
 {% load static %}
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.css">
 
 <style>
     .test_failed {
@@ -62,6 +62,8 @@
         <div><h5>Start Date: </h5>{{ start_time }}</div><br />
         <p><strong>Stop Date: </strong><br /><span id="job_stop_timestamp">{% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}</span></p>
         <p><strong>Time Taken: </strong><br /><span id="job_time_taken">{% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}</span></p>
+        <p><strong>Type: </strong>
+        {% if fw == 1 %}nose2{% elif fw == 2 %}pytest{% else %}unknown type of tests{% endif %}</p>
         {% if status != 1 %}
             <div><h5>Chart:</h5></div>
             <div><canvas id="myChart" width="250" height="250"></canvas></div>
@@ -71,8 +73,10 @@
     <div class="ten wide column">
         <div class="ui grid">
             <div class="eight wide column"><h3>Tests: {{ test_count }}</h3></div>
-            <div class="eight wide column right aligned"><h3><div class="ui grey label">
-                {% if fw == 1 %}nose2{% elif fw == 2 %}pytest{% else %}unknown type of tests{% endif %}</div></h3>
+            <div class="eight wide column right aligned">
+                {% if status == 1 %}
+                <h3><a class="ui red label" id="force_stop_job" data-job-id="{{ uuid }}" data-job-force-stop-url=
+                        "{% url 'job_force_stop' %}">Force Stop</a></h3>{% endif %}
             </div>
         </div>
 
@@ -155,7 +159,7 @@
   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
   crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js"></script>
 
 <script>
     let passed = {{ passed }};
@@ -199,6 +203,7 @@ $(document).ready(function() {
 </script>
 
 
+<script type="application/javascript" src="{% static 'js/testgr/main/job_stop.js' %}"></script>
 <script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>
 <script type="application/javascript" id="job_details" data-job-uuid="{{ uuid }}"
         src="{% static 'js/testgr/main/job_details.js' %}">

@@ -7,6 +7,8 @@ from tools.tools import unix_time_to_datetime
 from statistics import median
 import uuid
 
+from loader.email.email import SendJobReport
+
 
 class Nose2Loader:
 
@@ -21,6 +23,7 @@ class Nose2Loader:
     def get_start_test_run(self):
         # print("DBG: startTestRun")
         # print(self.data)
+
         if TestJobs.objects.filter(uuid=self.data['job_id']):
             return HttpResponse(status=409)
         job_object = TestJobs(uuid=self.data['job_id'],
@@ -62,6 +65,8 @@ class Nose2Loader:
             job_object.stop_time = unix_time_to_datetime(self.data['stopTime'])
             job_object.time_taken = job_object.stop_time - job_object.start_time
             job_object.save()
+            if self.data['send_report'] == "1":
+                SendJobReport(job_object).send()
             return HttpResponse(status=200)
         except ObjectDoesNotExist:
             return HttpResponse(status=403)
@@ -71,13 +76,16 @@ class Nose2Loader:
         # print(self.data)
         try:
             job_object = TestJobs.objects.get(uuid=self.data['job_id'])
-            try:
-                test = Tests.objects.get(identity=self.data['test'], job=job_object)
-                test.status = 2
-                test.start_time = unix_time_to_datetime(self.data['startTime'])
-                test.save()
-                return HttpResponse(status=200)
-            except ObjectDoesNotExist:
+            if job_object.status == 1:
+                try:
+                    test = Tests.objects.get(identity=self.data['test'], job=job_object)
+                    test.status = 2
+                    test.start_time = unix_time_to_datetime(self.data['startTime'])
+                    test.save()
+                    return HttpResponse(status=200)
+                except ObjectDoesNotExist:
+                    return HttpResponse(status=403)
+            else:
                 return HttpResponse(status=403)
         except ObjectDoesNotExist:
             return HttpResponse(status=403)
@@ -87,49 +95,52 @@ class Nose2Loader:
         # print(self.data)
         try:
             job_object = TestJobs.objects.get(uuid=self.data['job_id'])
-            try:
-                test = Tests.objects.get(identity=self.data['test'], job=job_object)
-                if self.data['status'] == "passed":
-                    test.status = 3
-                elif self.data['status'] == "error":
-                    test.status = 4
-                elif self.data['status'] == "failed":
-                    test.status = 4
-                elif self.data['status'] == "skipped":
-                    test.status = 5
-                test.stop_time = unix_time_to_datetime(self.data['stopTime'])
-                test.time_taken = test.stop_time - test.start_time
-                test.msg = str(self.data['msg']).replace("\\n", "\n")
-                test.save()
-                # Tests Storage
+            if job_object.status == 1:
                 try:
-                    obj = TestsStorage.objects.get(identity=test.identity)
-                    while True:
-                        if obj.time_taken and not obj.time_taken2:
-                            obj.time_taken2 = test.time_taken
-                            obj.calculated_eta = median([obj.time_taken, test.time_taken])
-                            obj.save()
-                            break
-                        if obj.time_taken2 and not obj.time_taken3:
-                            obj.time_taken3 = test.time_taken
-                            obj.calculated_eta = median([obj.time_taken, obj.time_taken2, test.time_taken])
-                            obj.save()
-                            break
-                        if obj.time_taken3:
-                            obj.time_taken3 = obj.time_taken2
-                            obj.time_taken2 = obj.time_taken
-                            obj.time_taken = test.time_taken
-                            obj.calculated_eta = median([obj.time_taken, obj.time_taken2, obj.time_taken3])
-                            break
-                    obj.save()
+                    test = Tests.objects.get(identity=self.data['test'], job=job_object)
+                    if self.data['status'] == "passed":
+                        test.status = 3
+                    elif self.data['status'] == "error":
+                        test.status = 4
+                    elif self.data['status'] == "failed":
+                        test.status = 4
+                    elif self.data['status'] == "skipped":
+                        test.status = 5
+                    test.stop_time = unix_time_to_datetime(self.data['stopTime'])
+                    test.time_taken = test.stop_time - test.start_time
+                    test.msg = str(self.data['msg']).replace("\\n", "\n")
+                    test.save()
+                    # Tests Storage
+                    try:
+                        obj = TestsStorage.objects.get(identity=test.identity)
+                        while True:
+                            if obj.time_taken and not obj.time_taken2:
+                                obj.time_taken2 = test.time_taken
+                                obj.calculated_eta = median([obj.time_taken, test.time_taken])
+                                obj.save()
+                                break
+                            if obj.time_taken2 and not obj.time_taken3:
+                                obj.time_taken3 = test.time_taken
+                                obj.calculated_eta = median([obj.time_taken, obj.time_taken2, test.time_taken])
+                                obj.save()
+                                break
+                            if obj.time_taken3:
+                                obj.time_taken3 = obj.time_taken2
+                                obj.time_taken2 = obj.time_taken
+                                obj.time_taken = test.time_taken
+                                obj.calculated_eta = median([obj.time_taken, obj.time_taken2, obj.time_taken3])
+                                break
+                        obj.save()
+                    except ObjectDoesNotExist:
+                        obj = TestsStorage(identity=test.identity)
+                        test.refresh_from_db()
+                        obj.time_taken = test.time_taken
+                        obj.calculated_eta = median([test.time_taken])
+                        obj.save()
+                    return HttpResponse(status=200)
                 except ObjectDoesNotExist:
-                    obj = TestsStorage(identity=test.identity)
-                    test.refresh_from_db()
-                    obj.time_taken = test.time_taken
-                    obj.calculated_eta = median([test.time_taken])
-                    obj.save()
+                    return HttpResponse(status=403)
+            else:
                 return HttpResponse(status=200)
-            except ObjectDoesNotExist:
-                return HttpResponse(status=403)
         except ObjectDoesNotExist:
             return HttpResponse(status=403)
