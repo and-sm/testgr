@@ -159,8 +159,8 @@ CHANNEL_LAYERS = {
 # Mail  (Configure MAILGUN_API_KEY and MAILGUN_SENDER_DOMAIN or use other email backend)
 ANYMAIL = {
     # (exact settings here depend on your ESP...)
-    "MAILGUN_API_KEY": "",
-    "MAILGUN_SENDER_DOMAIN": "",  # your Mailgun domain, if needed
+    "MAILGUN_API_KEY": os.getenv('MAILGUN_API_KEY'),
+    "MAILGUN_SENDER_DOMAIN": os.getenv('MAILGUN_SENDER_DOMAIN'),  # your Mailgun domain, if needed
 }
 EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"  # or sendgrid.EmailBackend, or...
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
