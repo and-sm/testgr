@@ -25,7 +25,7 @@ There you can observe status of your test execution.
 ### Requirements:
 **Testgr** was developed an tested using the following software:
 * Python 3.6.5
-* Django 2.1.2
+* Django 2.1+
 * Redis 4
 * SQLite and MySQL 5.7.23
 * Docker
@@ -42,21 +42,23 @@ You can set up **Testgr** rapidly using docker-compose:
 ```
 git clone https://github.com/and-sm/testgr.git
 cd testgr
+```
+Set up email configuration in **conf.env** file. Docker-compose stack use Mailgun as default backend. 
+Configure **testgr/settings.py** file if more advanced email setup  or time settings needed.
+```
 docker-compose up -d --build
 ```
 Open **Testgr** by using http://127.0.0.1 address.
 
-Stop **Testgr**:
+How to stop **Testgr**:
 ```
 docker-compose down
 ```
 
-Start **Testgr** again:
+How to start **Testgr** again:
 ```
 docker-compose up -d
 ```
-
-Also basic setup can be found in the "docker-simple" folder. It will deploy Django's runserver only.
 
 ### API plugins setup
 Depending on your test framework (nose2 or pytest) you can choose [**nose2-rt**](https://github.com/and-sm/nose2rt) or [**pytest-rt**](https://github.com/and-sm/pytest-rt).

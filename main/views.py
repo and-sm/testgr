@@ -1,6 +1,11 @@
 from django.shortcuts import render
 from loader.models import TestJobs, Tests
 from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponseForbidden, JsonResponse
+from datetime import timezone, datetime
+from tools.tools import unix_time_to_datetime
+import json
 
 
 @never_cache
@@ -117,3 +122,28 @@ def test(request, test_uuid):
                                               'msg': msg,
                                               'identity': identity,
                                               'running_jobs_count': running_jobs_count})
+
+
+@csrf_exempt
+def job_force_stop(request):
+
+    if request.method == "POST":
+        body_unicode = request.body.decode('utf-8')
+        print(body_unicode)
+        data = json.loads(body_unicode)
+        uuid = data['uuid']
+    else:
+        return HttpResponseForbidden()
+    job_object = TestJobs.objects.get(uuid=uuid)
+    job_object.status = 4
+    job_object.stop_time = unix_time_to_datetime(int(datetime.now(tz=timezone.utc).timestamp() * 1000))
+    job_object.time_taken = job_object.stop_time - job_object.start_time
+    job_object.save()
+
+    # Tests
+    for test in job_object.tests.all():
+        if test.status == 1 or test.status == 2:
+            test.status = 6
+            test.save()
+
+    return JsonResponse({"status": "ok"})

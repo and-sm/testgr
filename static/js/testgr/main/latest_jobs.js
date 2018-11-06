@@ -18,6 +18,9 @@ var socket = new WebSocket(
             else if(obj.status === 3){
                 status = "<a href=job/" + obj.uuid + " class=\"ui ui red basic label\">Failed</a>";
             }
+            else if(obj.status === 4){
+                status = "<a href=job/" + obj.uuid + " class=\"ui ui yellow basic label\">Stopped</a>";
+            }
             if(obj.env == null){
                 env = "not set"
             }
