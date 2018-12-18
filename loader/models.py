@@ -47,6 +47,7 @@ class TestJobs(models.Model):
 class Tests(models.Model):
     uuid = models.CharField(max_length=256)
     identity = models.TextField(blank=True, null=True)
+    test = models.TextField(blank=True, null=True)
     start_time = models.DateTimeField(blank=True, null=True)
     stop_time = models.DateTimeField(blank=True, null=True)
     time_taken = models.DurationField(blank=True, null=True)
@@ -58,7 +59,7 @@ class Tests(models.Model):
     def get_test_method_for_nose(self):
         try:
             self.method = self.identity.split('.')
-            self.method = self.method[-1] + " [" + self.method[-2] + "]"
+            self.method = self.method[-1]  # + " [" + self.method[-2] + "]"
         except BaseException:  # if for some reason we haven't full identity - for example "test_method".
             return self.identity
         return self.method
@@ -67,10 +68,10 @@ class Tests(models.Model):
         try:
             if "()" in self.identity:
                 self.method = self.identity.split('::')
-                self.method = self.method[-1] + " [" + self.method[1] + "]"
+                self.method = self.method[-1]  # + " [" + self.method[1] + "]"
             else:
                 self.method = self.identity.split('::')
-                self.method = self.method[-1] + " [" + self.method[0] + "]"
+                self.method = self.method[-1]  # + " [" + self.method[0] + "]"
         except BaseException:  # if for some reason we haven't full identity - for example "test_method".
             return self.identity
         return self.method

@@ -1,0 +1,240 @@
+<html>
+
+<head>
+
+<title>TESTGR</title>
+
+{% load static %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.semanticui.min.css">
+
+</head>
+
+<body>
+
+<div class="ui grid">
+
+	<div class="sixteen wide column">
+        <div class="ui  menu">
+            <div class="item">
+                <h3><a href="{%  url 'index' %}">TESTGR</a></h3>
+            </div>
+            <a href="{%  url 'index' %}" class="item">Monitoring</a>
+            <a href="{%  url 'search' %}" class="item active">Search</a>
+            <a href="{%  url 'history' %}" class="item">History</a>
+            <a href="{%  url 'management' %}" class="item">Management</a>
+            <div class="right menu" id="main_right_menu">
+                {% if running_jobs_count > 0 %}
+                <div class="item" id="running_jobs_count">
+                <span>Currently running jobs: <strong>{{ running_jobs_count }}</strong></span>
+                </div>
+                {% else %}
+                <div class="" id="running_jobs_count">
+                </div>
+                {% endif %}
+                <div class="item">
+                    <a href="https://github.com/and-sm/testgr" target="_blank">Github</a>
+                </div>
+            </div>
+        </div>
+	</div>
+
+    <div class="one wide column">
+    </div>
+
+    <div class="fourteen wide column"><h3>Search</h3>
+                <div class="ui divider"></div>
+    </div>
+
+    <div class="one wide column">
+    </div>
+
+
+
+
+
+
+    <div class="one wide column">
+    </div>
+
+    <div class="fourteen wide column">
+
+        <!--<div class="ui raised segment">-->
+
+            <div class="ui grid">
+
+                <div class="two wide column">
+                    <div class="ui form"><div class="field"><label for="environments">Environment</label>
+                        <select id="environments" class="ui fluid dropdown">
+                            <option value="">Select Environment</option>
+                            <option value="all">ALL</option>
+                            {% for item in environments %}
+                                {%  if item.remapped_name %}
+                                <option value="{{ item.name }}">{{ item.remapped_name }}</option>
+                                {% else %}
+                                <option value="{{ item.name }}">{{ item.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div></div>
+                </div>
+
+                <div class="four wide column"><div class="ui form">
+                    <div class="field"><label for="tests">Test</label>
+                        <select id="tests" class="ui fluid dropdown">
+                            <option value="">Select Test</option>
+                            <option value="all">ALL</option>
+                            {% for item in tests %}
+                                <option value="{{ item.test }}">{{ item.test }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                </div>
+
+                <div class="ten wide column"></div>
+
+                {% comment %}
+
+                <!-- http://jsfiddle.net/how84rzj/27 -->
+
+                <div class="four wide column"><div class="ui form">
+                    <div class="field"><label>Select Test statuses</label>
+                        <button class="ui green tiny button">Passed</button>
+                        <button class="ui red tiny button">Failed</button>
+                        <button class="ui yellow tiny button">Skipped</button>
+                        <button class="ui red tiny button">Aborted</button>
+                    </div>
+                </div>
+                </div>
+                {% endcomment %}
+
+            </div>
+
+    </div>
+
+
+    <div class="one wide column">
+    </div>
+
+
+    <div class="sixteen wide column center aligned page grid">
+                    <button class="ui button" id="clear_btn">Clear</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button class="positive ui button" id="filter_btn">Search</button>
+    </div>
+
+    <div class="one wide column">
+    </div>
+
+    <div class="fourteen wide column">
+
+        <table id="filter_results_table" class="ui selectable celled table" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th>Stop Date</th>
+                <th>Time Taken</th>
+                <th>Environment</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+            <tr>
+                <th>Stop Date</th>
+                <th>Time Taken</th>
+                <th>Environment</th>
+                <th>Status</th>
+            </tr>
+            </tfoot>
+        </table>
+
+    </div>
+
+    <div class="one wide column">
+    </div>
+
+
+</div>
+
+</body>
+
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.semanticui.min.js" type="text/javascript"></script>
+
+
+<script>
+$('.ui.dropdown')
+  .dropdown();
+</script>
+
+<script>
+
+$('#filter_btn').click(function(event){
+
+
+    event.preventDefault();
+
+    let environments = $('#environments').val();
+    let tests = $('#tests').val();
+    // let status = $('#status').val();
+
+    let table = $('#filter_results_table').DataTable( {
+            //  "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
+        lengthMenu: [[10, 20, 50], [10, 20, 50]],
+        sorting: false,
+        ordering: false,
+        pageLength: 10,
+        destroy: true,
+        ajax: {
+            "type" : "POST",
+            "url" : "{% url 'filter_data' %}",
+            "data": {
+                'environments': environments,
+                'tests': tests,
+                //'status': status
+            },
+            "dataSrc": function ( json ) {
+                //Make your callback here.
+                return json.data;
+            }
+        },
+        columns: [
+            { "data": "Stop Date" },
+            { "data": "Time Taken" },
+            { "data": "Environment" },
+            { "data": "Status" }
+        ],
+    {% comment %}
+        "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+            //var id = aData[0];
+            var id = aData.uuid;
+            $(nRow).attr("data-uuid", id);
+            return nRow;
+        },
+    {% endcomment %}
+        columnDefs: [
+            { targets: 'no-sort',
+                orderable: false
+            }
+        ]
+    } );
+
+})
+</script>
+
+<script>
+$('#clear_btn').click(function(event){
+
+    event.preventDefault();
+
+    $('.ui.dropdown').dropdown('clear');
+})
+</script>
+
+</html>

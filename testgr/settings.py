@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'channels',
     'loader',
     'main',
+    'search',
     'history'
 
 ]
