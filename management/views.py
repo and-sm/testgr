@@ -8,7 +8,7 @@ from loader.models import Environments
 
 def main(request):
 
-    envs = Environments.objects.all()
+    envs = Environments.objects.all().exclude(name="")
     return render(request, "management/main.html", {'envs': envs})
 
 

@@ -70,10 +70,13 @@
                             <option value="">Select Environment</option>
                             <option value="all">ALL</option>
                             {% for item in environments %}
-                                {%  if item.remapped_name %}
+                                {% if item.name %}
+                                {% if item.remapped_name %}
                                 <option value="{{ item.name }}">{{ item.remapped_name }}</option>
                                 {% else %}
                                 <option value="{{ item.name }}">{{ item.name }}</option>
+                                {% endif %}
+                                {% else %}
                                 {% endif %}
                             {% endfor %}
                         </select>
