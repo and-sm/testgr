@@ -56,7 +56,6 @@ class PytestLoader:
             test_uuid = str(uuid.uuid4())
             test_object = Tests(uuid=test_uuid,
                                 status=1,
-                                fw_type=2,
                                 job=job_object,
                                 test=test_storage_item)
             test_object.save()

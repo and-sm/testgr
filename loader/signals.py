@@ -51,11 +51,11 @@ def get_running_jobs(created, instance, **kwargs):
             job_item['start_time'] = job.start_time.strftime('%H:%M:%S %d-%b-%Y')
             job_item['status'] = job.status
             try:
-                obj = Environments.objects.get(name=job.env)
+                obj = Environments.objects.get(name=job.env.name)
                 if obj.remapped_name is not None:
                     job_item['env'] = obj.remapped_name
                 else:
-                    job_item['env'] = job.env
+                    job_item['env'] = obj.name
             except ObjectDoesNotExist:
                 job_item['env'] = job.env
             result.append(job_item)
@@ -96,11 +96,11 @@ def get_latest_jobs(created, instance, **kwargs):
             job_item['stop_time'] = job.stop_time.strftime('%H:%M:%S %d-%b-%Y')
             job_item['status'] = job.status
             try:
-                obj = Environments.objects.get(name=job.env)
+                obj = Environments.objects.get(name=job.env.name)
                 if obj.remapped_name is not None:
                     job_item['env'] = obj.remapped_name
                 else:
-                    job_item['env'] = job.env
+                    job_item['env'] = obj.name
             except ObjectDoesNotExist:
                 job_item['env'] = job.env
             result.append(job_item)
