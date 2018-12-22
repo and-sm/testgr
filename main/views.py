@@ -108,7 +108,7 @@ def test(request, test_uuid):
     env = test_object.job.get_env()
     status = test_object.status
     msg = test_object.msg
-    identity = test_object.identity
+    identity = test_object.test.identity
 
     # Running jobs count
     running_jobs_count = TestJobs.objects.filter(status='1').count()

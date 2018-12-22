@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from loader.models import TestJobs, Tests, Environments
+from loader.models import TestJobs, TestsStorage, Environments
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -10,7 +10,7 @@ def search(request):
     job_count = TestJobs.objects.all().count()
 
     environments = Environments.objects.all()
-    tests = Tests.objects.values("test").distinct()
+    tests = TestsStorage.objects.all()
 
     return render(request, "search/search.html", {"job_count": job_count,
                                                   "environments": environments,
@@ -25,12 +25,12 @@ def filter_data(request):
 
     args_list = []
     if environments and environments != 'all':
-        Q1 = Q(env=environments)
+        Q1 = Q(env__name=environments)
         args_list.append(Q1)
     else:
         Q1 = ''
     if tests and tests != 'all':
-        Q2 = Q(tests__test=tests)
+        Q2 = Q(tests__test__test=tests)  # TestJobs -> Tests.test -> TestsStorage.test
         args_list.append(Q2)
     else:
         Q2 = ''

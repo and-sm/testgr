@@ -184,10 +184,10 @@ def get_job_tests_details(created, instance, **kwargs):
             if test.start_time:  # Initial Tests post_save signal will not have start_time for test item
                 test_item['start_time'] = test.get_start_time()
             if job_object.fw_type == 1:
-                test_item['short_identity'] = test.get_test_method_for_nose()
+                test_item['short_identity'] = test.test.get_test_method_for_nose()
             elif job_object.fw_type == 2:
-                test_item['short_identity'] = test.get_test_method_for_pytest()
-            test_item['identity'] = test.identity
+                test_item['short_identity'] = test.test.get_test_method_for_pytest()
+            test_item['identity'] = test.test.identity
             test_item['uuid'] = test.uuid
             if test.time_taken:
                 test_item['time_taken'] = test.get_time_taken()

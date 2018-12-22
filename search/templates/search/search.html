@@ -63,7 +63,8 @@
         <!--<div class="ui raised segment">-->
 
             <div class="ui grid">
-
+                {% comment %}
+                OLD Select
                 <div class="two wide column">
                     <div class="ui form"><div class="field"><label for="environments">Environment</label>
                         <select id="environments" class="ui fluid dropdown">
@@ -82,7 +83,34 @@
                         </select>
                     </div></div>
                 </div>
+                {% endcomment %}
 
+                <div class="two wide column">
+                    <div class="ui form">
+                        <div class="field"><label>Environment</label>
+                            <div class="ui fluid search selection dropdown">
+                                <input type="hidden" name="environments">
+                                <i class="dropdown icon"></i>
+                                <div class="default text">Select environment</div>
+                                <div class="menu">
+                                    <div class="item" data-value="all">ALL</div>
+                                    {% for item in environments %}
+                                        {% if item.name %}
+                                            {% if item.remapped_name %}
+                                                <div class="item" data-value="{{ item.name }}">{{ item.remapped_name }}</div>
+                                            {% else %}
+                                                 <div class="item" data-value="{{ item.name }}">{{ item.name }}</div>
+                                            {% endif %}
+                                        {% else %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% comment %}
                 <div class="four wide column"><div class="ui form">
                     <div class="field"><label for="tests">Test</label>
                         <select id="tests" class="ui fluid dropdown">
@@ -94,6 +122,25 @@
                         </select>
                     </div>
                 </div>
+                </div>
+                {% endcomment %}
+
+                <div class="four wide column">
+                    <div class="ui form">
+                        <div class="field"><label>Test</label>
+                            <div class="ui fluid search selection dropdown">
+                                <input type="hidden" name="tests">
+                                <i class="dropdown icon"></i>
+                                <div class="default text">Select test</div>
+                                <div class="menu">
+                                    <div class="item" data-value="all">ALL</div>
+                                    {% for item in tests %}
+                                        <div class="item" data-value="{{ item.test }}">{{ item.test }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="ten wide column"></div>
@@ -183,8 +230,10 @@ $('#filter_btn').click(function(event){
 
     event.preventDefault();
 
-    let environments = $('#environments').val();
-    let tests = $('#tests').val();
+    //let environments = $('#environments').val();
+    let environments = $('input[name=environments]').val();
+    let tests = $('input[name=tests]').val();
+    // let tests = $('#tests').val();
     // let status = $('#status').val();
 
     let table = $('#filter_results_table').DataTable( {
