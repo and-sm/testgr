@@ -51,11 +51,11 @@ def get_running_jobs(created, instance, **kwargs):
             job_item['start_time'] = job.start_time.strftime('%H:%M:%S %d-%b-%Y')
             job_item['status'] = job.status
             try:
-                obj = Environments.objects.get(name=job.env)
+                obj = Environments.objects.get(name=job.env.name)
                 if obj.remapped_name is not None:
                     job_item['env'] = obj.remapped_name
                 else:
-                    job_item['env'] = job.env
+                    job_item['env'] = obj.name
             except ObjectDoesNotExist:
                 job_item['env'] = job.env
             result.append(job_item)
@@ -96,11 +96,11 @@ def get_latest_jobs(created, instance, **kwargs):
             job_item['stop_time'] = job.stop_time.strftime('%H:%M:%S %d-%b-%Y')
             job_item['status'] = job.status
             try:
-                obj = Environments.objects.get(name=job.env)
+                obj = Environments.objects.get(name=job.env.name)
                 if obj.remapped_name is not None:
                     job_item['env'] = obj.remapped_name
                 else:
-                    job_item['env'] = job.env
+                    job_item['env'] = obj.name
             except ObjectDoesNotExist:
                 job_item['env'] = job.env
             result.append(job_item)
@@ -184,10 +184,10 @@ def get_job_tests_details(created, instance, **kwargs):
             if test.start_time:  # Initial Tests post_save signal will not have start_time for test item
                 test_item['start_time'] = test.get_start_time()
             if job_object.fw_type == 1:
-                test_item['short_identity'] = test.get_test_method_for_nose()
+                test_item['short_identity'] = test.test.get_test_method_for_nose()
             elif job_object.fw_type == 2:
-                test_item['short_identity'] = test.get_test_method_for_pytest()
-            test_item['identity'] = test.identity
+                test_item['short_identity'] = test.test.get_test_method_for_pytest()
+            test_item['identity'] = test.test.identity
             test_item['uuid'] = test.uuid
             if test.time_taken:
                 test_item['time_taken'] = test.get_time_taken()

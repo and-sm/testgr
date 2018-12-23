@@ -26,6 +26,7 @@
                 <h3><a href="{%  url 'index' %}">TESTGR</a></h3>
             </div>
             <a href="{%  url 'index' %}" class="item active">Monitoring</a>
+            <a href="{%  url 'search' %}" class="item">Search</a>
             <a href="{%  url 'history' %}" class="item">History</a>
             <a href="{%  url 'management' %}" class="item">Management</a>
             <div class="right menu" id="main_right_menu">
@@ -113,10 +114,10 @@
                 <tr>
                     {% if fw == 1 %}
                     <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">
-                        {{ item.get_test_method_for_nose }}</a></td>
+                        {{ item.test.get_test_method_for_nose }}</a></td>
                     {% elif fw == 2 %}
                     <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">
-                        {{ item.get_test_method_for_pytest }}</a></td>
+                        {{ item.test.get_test_method_for_pytest }}</a></td>
                     {% endif %}
                     <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
                         {% if item.get_start_time is not None %}

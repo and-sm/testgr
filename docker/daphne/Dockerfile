@@ -11,12 +11,12 @@ WORKDIR /code
 
 # Install dependencies
 RUN pip install --upgrade pip
-RUN pip install django==2.1.3
-RUN pip install django-anymail==4.3
-RUN pip install channels==2.1.5
-RUN pip install channels-redis==2.3.1
-RUN pip install daphne==2.2.2
-RUN pip install requests==2.20.0
+RUN pip install django==2.1.4
+RUN pip install django-anymail==5.0
+RUN pip install channels==2.1.6
+RUN pip install channels-redis==2.3.2
+RUN pip install daphne==2.2.4
+RUN pip install requests==2.21.0
 
 # Copy project
 COPY . /code/

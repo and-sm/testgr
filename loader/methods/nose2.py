@@ -23,19 +23,41 @@ class Nose2Loader:
     def get_start_test_run(self):
         # print("DBG: startTestRun")
         # print(self.data)
-
         if TestJobs.objects.filter(uuid=self.data['job_id']):
             return HttpResponse(status=409)
+
+        try:
+            env = Environments.objects.get(name=self.data['env'])
+        except ObjectDoesNotExist:
+            env = Environments(name=self.data['env'])
+            env.save()
+
         job_object = TestJobs(uuid=self.data['job_id'],
                               status=1,
                               fw_type=1,
                               start_time=unix_time_to_datetime(self.data['startTime']),
-                              env=self.data['env'])
+                              env=env)
         job_object.save()
         # Tests
         for k, identity in self.data['tests'].items():
             test_uuid = self.generate_uuid()
-            test_object = Tests(uuid=test_uuid, identity=identity, status=1, job=job_object)
+
+            # Tests
+            try:
+                test_storage_item = TestsStorage.objects.get(identity=identity)
+                if not test_storage_item.test:
+                    test_storage_item.test = identity.split('.')[-1]
+                    test_storage_item.save()
+            except ObjectDoesNotExist:
+                test_storage_item = TestsStorage(identity=identity,
+                                   test=identity.split('.')[-1])
+                test_storage_item.save()
+
+            # Tests for Job
+            test_object = Tests(uuid=test_uuid,
+                                status=1,
+                                job=job_object,
+                                test=test_storage_item)
             test_object.save()
 
         # Environment
@@ -78,7 +100,7 @@ class Nose2Loader:
             job_object = TestJobs.objects.get(uuid=self.data['job_id'])
             if job_object.status == 1:
                 try:
-                    test = Tests.objects.get(identity=self.data['test'], job=job_object)
+                    test = Tests.objects.get(test__identity=self.data['test'], job=job_object)
                     test.status = 2
                     test.start_time = unix_time_to_datetime(self.data['startTime'])
                     test.save()
@@ -97,7 +119,7 @@ class Nose2Loader:
             job_object = TestJobs.objects.get(uuid=self.data['job_id'])
             if job_object.status == 1:
                 try:
-                    test = Tests.objects.get(identity=self.data['test'], job=job_object)
+                    test = Tests.objects.get(test__identity=self.data['test'], job=job_object)
                     if self.data['status'] == "passed":
                         test.status = 3
                     elif self.data['status'] == "error":
@@ -111,36 +133,25 @@ class Nose2Loader:
                     test.msg = str(self.data['msg']).replace("\\n", "\n")
                     test.save()
                     # Tests Storage
-                    try:
-                        obj = TestsStorage.objects.get(identity=test.identity)
-                        while True:
-                            if obj.time_taken and not obj.time_taken2:
-                                obj.time_taken2 = test.time_taken
-                                obj.calculated_eta = median([obj.time_taken, test.time_taken])
-                                obj.save()
-                                break
-                            if obj.time_taken2 and not obj.time_taken3:
-                                obj.time_taken3 = test.time_taken
-                                obj.calculated_eta = median([obj.time_taken, obj.time_taken2, test.time_taken])
-                                obj.save()
-                                break
-                            if obj.time_taken3:
-                                obj.time_taken3 = obj.time_taken2
-                                obj.time_taken2 = obj.time_taken
-                                obj.time_taken = test.time_taken
-                                obj.calculated_eta = median([obj.time_taken, obj.time_taken2, obj.time_taken3])
-                                break
+                    obj = TestsStorage.objects.get(identity=test.test.identity)
+                    if obj.time_taken and not obj.time_taken2:
+                        obj.time_taken2 = test.time_taken
+                        obj.calculated_eta = median([obj.time_taken, test.time_taken])
                         obj.save()
-                    except ObjectDoesNotExist:
-                        obj = TestsStorage(identity=test.identity)
-                        test.refresh_from_db()
+                    if obj.time_taken2 and not obj.time_taken3:
+                        obj.time_taken3 = test.time_taken
+                        obj.calculated_eta = median([obj.time_taken, obj.time_taken2, test.time_taken])
+                        obj.save()
+                    if obj.time_taken3:
+                        obj.time_taken3 = obj.time_taken2
+                        obj.time_taken2 = obj.time_taken
                         obj.time_taken = test.time_taken
-                        obj.calculated_eta = median([test.time_taken])
+                        obj.calculated_eta = median([obj.time_taken, obj.time_taken2, obj.time_taken3])
                         obj.save()
                     return HttpResponse(status=200)
                 except ObjectDoesNotExist:
                     return HttpResponse(status=403)
             else:
-                return HttpResponse(status=200)
+                return HttpResponse(status=403)
         except ObjectDoesNotExist:
             return HttpResponse(status=403)

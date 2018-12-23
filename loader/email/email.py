@@ -37,9 +37,9 @@ class SendJobReport:
             if test.status == 4:
                 failed += 1
                 if self.job.fw_type == 1:
-                    method = test.get_test_method_for_nose()
+                    method = test.test.get_test_method_for_nose()
                 elif self.job.fw_type == 2:
-                    method = test.get_test_method_for_pytest()
+                    method = test.test.get_test_method_for_pytest()
                 else:
                     method = ''
                 tests_data.append(str("<tr><td style='padding: 8px;text-align: left;border-bottom: 1px solid #ddd;'>"
