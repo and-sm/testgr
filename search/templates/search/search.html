@@ -63,6 +63,7 @@
         <!--<div class="ui raised segment">-->
 
             <div class="ui grid">
+
                 {% comment %}
                 OLD Select
                 <div class="two wide column">
@@ -85,7 +86,7 @@
                 </div>
                 {% endcomment %}
 
-                <div class="two wide column">
+                <div class="four wide column">
                     <div class="ui form">
                         <div class="field"><label>Environment</label>
                             <div class="ui fluid search selection dropdown">
@@ -230,11 +231,8 @@ $('#filter_btn').click(function(event){
 
     event.preventDefault();
 
-    //let environments = $('#environments').val();
     let environments = $('input[name=environments]').val();
     let tests = $('input[name=tests]').val();
-    // let tests = $('#tests').val();
-    // let status = $('#status').val();
 
     let table = $('#filter_results_table').DataTable( {
             //  "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
