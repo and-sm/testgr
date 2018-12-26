@@ -9,6 +9,14 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.css">
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.semanticui.min.css">
 
+<style>
+
+.table{
+ display:none;
+}
+
+</style>
+
 </head>
 
 <body>
@@ -214,7 +222,7 @@
   src="https://code.jquery.com/jquery-3.3.1.min.js"
   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
   crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.0/dist/semantic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
 <script src="https://cdn.datatables.net/1.10.19/js/dataTables.semanticui.min.js" type="text/javascript"></script>
 
@@ -234,7 +242,7 @@ $('#filter_btn').click(function(event){
     let environments = $('input[name=environments]').val();
     let tests = $('input[name=tests]').val();
 
-    let table = $('#filter_results_table').DataTable( {
+    let table = $('#filter_results_table').show().DataTable( {
             //  "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
         lengthMenu: [[10, 20, 50], [10, 20, 50]],
         sorting: false,
