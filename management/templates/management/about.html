@@ -1,0 +1,75 @@
+<html>
+
+<head>
+
+<title>TESTGR</title>
+
+{% load static %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.css">
+
+</head>
+
+<body>
+
+<div class="ui grid">
+
+	<div class="sixteen wide column">
+        <div class="ui  menu">
+            <div class="item">
+                <h3><a href="{%  url 'index' %}">TESTGR</a></h3>
+            </div>
+            <a href="{%  url 'index' %}" class="item">Monitoring</a>
+            <a href="{%  url 'search' %}" class="item">Search</a>
+            <a href="{%  url 'history' %}" class="item">History</a>
+            <a href="{%  url 'management' %}" class="item active">Management</a>
+            <div class="right menu" id="main_right_menu">
+                {% if running_jobs_count > 0 %}
+                <div class="item" id="running_jobs_count">
+                <span>Currently running jobs: <strong>{{ running_jobs_count }}</strong></span>
+                </div>
+                {% else %}
+                <div class="" id="running_jobs_count">
+                </div>
+                {% endif %}
+                <div class="item">
+                    <a href="https://github.com/and-sm/testgr" target="_blank">Github</a>
+                </div>
+            </div>
+        </div>
+	</div>
+
+    <div class="one wide column">
+    </div>
+
+    <div class="three wide column">
+        <h3>Management</h3>
+        <div class="ui divider"></div>
+        <div class="ui secondary vertical menu">
+            <a class="item" href="{% url 'management' %}">Environments</a>
+            <a class="active item">About</a>
+        </div>
+    </div>
+
+    <div class="eleven wide column">
+        <h3>About</h3>
+        <div class="ui divider"></div>
+
+        <strong>Version:</strong> {{ version }}
+
+    </div>
+
+    <div class="one wide column">
+    </div>
+
+</div>
+
+</body>
+
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.js"></script>
+
+</html>

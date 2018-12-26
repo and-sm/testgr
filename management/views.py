@@ -12,6 +12,12 @@ def main(request):
     return render(request, "management/main.html", {'envs': envs})
 
 
+def about(request):
+
+    version = "0.8.1"
+    return render(request, "management/about.html", {"version": version})
+
+
 @csrf_exempt
 def api_remap_env(request):
 
