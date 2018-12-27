@@ -22,7 +22,7 @@ var socket = new WebSocket(
                 status = "<a href=job/" + obj.uuid + " class=\"ui ui yellow basic label\">Stopped</a>";
             }
             if(obj.env == null){
-                env = "not set"
+                env = "None"
             }
             else{
                 env = obj.env

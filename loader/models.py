@@ -49,7 +49,7 @@ class TestJobs(models.Model):
             except ObjectDoesNotExist:
                 return self.env.name
         else:
-            return 'not set'
+            return 'None'
 
 
 class TestsStorage(models.Model):

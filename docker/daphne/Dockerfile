@@ -17,6 +17,7 @@ RUN pip install channels==2.1.6
 RUN pip install channels-redis==2.3.2
 RUN pip install daphne==2.2.4
 RUN pip install requests==2.21.0
+RUN pip install mysqlclient==1.3.14
 
 # Copy project
 COPY . /code/
