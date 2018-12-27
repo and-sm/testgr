@@ -29,8 +29,15 @@ class PytestLoader:
         try:
             env = Environments.objects.get(name=self.data['env'])
         except ObjectDoesNotExist:
-            env = Environments(name=self.data['env'])
-            env.save()
+            if self.data['env'] is not None:
+                env = Environments(name=self.data['env'])
+                env.save()
+            else:
+                try:
+                    env = Environments.objects.get(name="None")
+                except ObjectDoesNotExist:
+                    env = Environments(name="None")
+                    env.save()
 
         job_object = TestJobs(uuid=self.data['job_id'],
                               status=1,
@@ -60,13 +67,6 @@ class PytestLoader:
                                 test=test_storage_item)
             test_object.save()
 
-        # Environment
-        if self.data['env'] is not None:
-            try:
-                Environments.objects.get(name=self.data['env'])
-            except Environments.DoesNotExist:
-                save_env = Environments(name=self.data['env'])
-                save_env.save()
         return HttpResponse(status=200)
 
     def get_stop_test_run(self):
