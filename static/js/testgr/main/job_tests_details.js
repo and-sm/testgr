@@ -67,6 +67,7 @@ socket.onmessage = function(e) {
                 obj.time_taken_eta = "ETA: " + obj.time_taken_eta
             }
 
+            let tr_class = "";
 
             if(obj.status === 1){
                 status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui ui gray basic label\">Not Started</a>";
@@ -76,20 +77,25 @@ socket.onmessage = function(e) {
             }
             else if(obj.status === 3){
                 status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui ui green basic label\">Passed</a>";
+                tr_class = "ui positive";
             }
             else if(obj.status === 4){
                 status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui ui red basic label\">Failed</a>";
+                tr_class = "ui negative";
             }
             else if(obj.status === 5){
                 status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui ui yellow basic label\">Skipped</a>";
+                tr_class = "ui warning";
             }
             else if(obj.status === 6){
                 status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui ui red basic label\">Aborted</a>";
+                tr_class = "ui negative";
             }
 
             var row = TestsTable.insertRow(0);
+            row.className = tr_class;
             var cell1 = row.insertCell(0);
-            cell1.innerHTML = "<a href=\"/test/" + obj.uuid + "\">" + obj.short_identity + "</a>";
+            cell1.innerHTML = "<a href=\"/test/" + obj.uuid + "\">&nbsp;&nbsp;" + obj.short_identity + "</a>";
             var cell2 = row.insertCell(1);
             cell2.innerHTML = "<a href=\"/test/" + obj.uuid + "\">" + obj.start_time + "</a>";
             var cell3 = row.insertCell(2);

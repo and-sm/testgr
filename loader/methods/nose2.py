@@ -39,6 +39,10 @@ class Nose2Loader:
                     env = Environments(name="None")
                     env.save()
 
+        # We should not create a job without tests
+        if len(self.data['tests']) == 0:
+            return HttpResponse(status=403)
+
         job_object = TestJobs(uuid=self.data['job_id'],
                               status=1,
                               fw_type=1,
@@ -74,22 +78,36 @@ class Nose2Loader:
         # print(self.data)
         try:
             job_object = TestJobs.objects.get(uuid=self.data['job_id'])
-            # in case if 'stopTestRun' was caught, by some running test exists
-            if job_object.tests.filter(status=2).first():
-                job_object.tests.filter(status=2).update(status=6)  # 'In progress' tests become 'Aborted'
-                job_object.status = 3
-            # in case if 'stopTestRun' was caught and at least one test is failed
-            elif job_object.tests.filter(status=4).first():
-                job_object.status = 3
-            # if no tests with 'failed' or 'running' states after 'stopTestRun' signal - mark job as 'Passed'
+            if job_object.status == 1:
+                # in case if 'stopTestRun' was caught, but some running test exists
+                if job_object.tests.filter(status=2).first():
+                    tests = job_object.tests.filter(status=2)  # 'In progress' tests become 'Aborted'
+                    for test in tests:
+                        test.status = 6
+                        test.save()
+                    job_object.status = 3
+                # in case if 'stopTestRun' was caught and at least one test was failed
+                elif job_object.tests.filter(status=4).first():
+                    job_object.status = 3
+                # in case if 'stopTestRun' was caught and at least one test was aborted
+                elif job_object.tests.filter(status=6).first():
+                    job_object.status = 3
+                # in case if 'stopTestRun' was caught and some tests remain not started
+                else:
+                    if job_object.tests.filter(status=1).first():
+                        job_object.status = 3
+                    else:
+                        # if no tests with 'failed', 'aborted' or 'running' states after 'stopTestRun' signal -
+                        # mark job as 'Passed'
+                        job_object.status = 2
+                job_object.stop_time = unix_time_to_datetime(self.data['stopTime'])
+                job_object.time_taken = job_object.stop_time - job_object.start_time
+                job_object.save()
+                if self.data['send_report'] == "1":
+                    SendJobReport(job_object).send()
+                return HttpResponse(status=200)
             else:
-                job_object.status = 2
-            job_object.stop_time = unix_time_to_datetime(self.data['stopTime'])
-            job_object.time_taken = job_object.stop_time - job_object.start_time
-            job_object.save()
-            if self.data['send_report'] == "1":
-                SendJobReport(job_object).send()
-            return HttpResponse(status=200)
+                return HttpResponse(status=403)
         except ObjectDoesNotExist:
             return HttpResponse(status=403)
 

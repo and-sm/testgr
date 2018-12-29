@@ -83,27 +83,28 @@
 
         <div class="ui horizontal segments">
             <div class="ui segment">
-                <h4 id="job_tests_passed">Passed: {{ passed }}</h4>
+                <h4 id="job_tests_passed"><a href="#table_positive_tests">Passed: {{ passed }}</a></h4>
             </div>
             <div class="ui segment">
-                <h4 id="job_tests_failed">Failed: <span class="{% if failed > 0 %}test_failed{% else %}{% endif %}">{{ failed }}</span></h4>
+                <h4 id="job_tests_failed"><a href="#table_negative_tests">Failed: <span class="{% if failed > 0 %}test_failed{% else %}{% endif %}">{{ failed }}</span></a></h4>
             </div>
             <div class="ui segment">
-                <h4 id="job_tests_aborted">Aborted: <span class="{% if aborted > 0 %}test_failed{% else %}{% endif %}">{{ aborted }}</span></h4>
+                <h4 id="job_tests_aborted"><a href="#table_negative_tests">Aborted: <span class="{% if aborted > 0 %}test_failed{% else %}{% endif %}">{{ aborted }}</span></a></h4>
             </div>
             <div class="ui segment">
-                <h4 id="job_tests_skipped">Skipped: {{ skipped }}</h4>
+                <h4 id="job_tests_skipped"><a href="#table_skipped_tests">Skipped: {{ skipped }}</a></h4>
             </div>
             <div class="ui segment">
-                <h4 id="job_tests_not_started">Not Started: {{ not_started }}</h4>
+                <h4 id="job_tests_not_started"><a href="#table_not_started_tests">Not Started: {{ not_started }}</a></h4>
             </div>
         </div>
 
+        {% if status == 1 %}
         <div class="ui divider"></div>
         <table class="ui very basic table">
             <thead>
             <tr>
-                <th>Test Method</th>
+                <th>&nbsp;&nbsp;Test Method</th>
                 <th>Start Time</th>
                 <th>Time Taken</th>
                 <th>Status</th>
@@ -111,12 +112,14 @@
             </thead>
             <tbody id="tests_list">
             {% for item in tests.all %}
-                <tr>
+                <tr class="ui {% if item.status == 1%}
+                {% elif item.status == 2%}{% elif item.status == 3%}positive{% elif item.status == 4%}negative
+                {% elif item.status == 5%}warning{% elif item.status == 6%}negative{% endif %}">
                     {% if fw == 1 %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
                         {{ item.test.get_test_method_for_nose }}</a></td>
                     {% elif fw == 2 %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
                         {{ item.test.get_test_method_for_pytest }}</a></td>
                     {% endif %}
                     <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
@@ -146,6 +149,197 @@
             {% endfor %}
             </tbody>
         </table>
+
+        {% endif %}
+
+    {% if status != 1 %}
+        {% if negative_tests > 0 %}
+        <div class="ui divider"></div><a class="ui red ribbon label" id="table_negative_tests">Negative tests: {{ negative_tests }}</a>
+        <table class="ui very basic table">
+            <thead>
+            <tr>
+                <th>&nbsp;&nbsp;Test Method</th>
+                <th>Start Time</th>
+                <th>Time Taken</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody id="tests_list">
+            {% for item in tests.all %}
+                {% if item.status != 3 and item.status != 1 and item.status != 5 %}
+                <tr class="ui negative">
+                    {% if fw == 1 %}
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_nose }}</a></td>
+                    {% elif fw == 2 %}
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_pytest }}</a></td>
+                    {% endif %}
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                        {% if item.get_start_time is not None %}
+                            {{ item.get_start_time }}
+                        {% else %}0s
+                        {% endif %}
+                    </a></td>
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                        {% if item.get_time_taken is not None %}
+                            {{ item.get_time_taken }}
+                        {% else %}0s
+                        {% endif %}
+                    </a></td>
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                        {% if item.status == 4 %}<span class="ui red basic label">Failed</span>
+                        {% elif item.status == 6 %}<div class="ui red basic label">Aborted</div>
+                        {% endif %}
+                    </a></td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+        {% if passed > 0 %}
+        <div class="ui divider"></div><a class="ui green ribbon label" id="table_positive_tests">Positive tests: {{ passed }}</a>
+        <table class="ui very basic table">
+            <thead>
+            <tr>
+                <th>&nbsp;&nbsp;Test Method</th>
+                <th>Start Time</th>
+                <th>Time Taken</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody id="tests_list">
+            {% for item in tests.all %}
+                {% if item.status == 3 %}
+                <tr class="ui positive">
+                    {% if fw == 1 %}
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_nose }}</a></td>
+                    {% elif fw == 2 %}
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_pytest }}</a></td>
+                    {% endif %}
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                        {% if item.get_start_time is not None %}
+                            {{ item.get_start_time }}
+                        {% else %}Pending...
+                        {% endif %}
+                    </a></td>
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                        {% if item.get_time_taken is not None %}
+                            {{ item.get_time_taken }}
+                        {% else %}0s
+                        {% endif %}
+                    </a></td>
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                        <div class="ui green basic label">Passed</div>
+                    </a></td>
+                </tr>
+            {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+        {% if skipped > 0 %}
+        <div class="ui divider"></div><a class="ui yellow ribbon label" id="table_skipped_tests">Skipped tests: {{ skipped }}</a>
+        <table class="ui very basic table">
+            <thead>
+            <tr>
+                <th>&nbsp;&nbsp;Test Method</th>
+                <th>Start Time</th>
+                <th>Time Taken</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody id="tests_list">
+            {% for item in tests.all %}
+                {% if item.status == 5 %}
+                <tr class="ui warning">
+                    {% if fw == 1 %}
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_nose }}</a></td>
+                    {% elif fw == 2 %}
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_pytest }}</a></td>
+                    {% endif %}
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                        {% if item.get_start_time is not None %}
+                            {{ item.get_start_time }}
+                        {% else %}0s
+                        {% endif %}
+                    </a></td>
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                        {% if item.get_time_taken is not None %}
+                            {{ item.get_time_taken }}
+                        {% else %}0s
+                        {% endif %}
+                    </a></td>
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                        {% if item.status == 1%}<div class="ui gray basic label">Not Started</div>
+                        {% elif item.status == 2%}<div class="ui blue basic label">In Progress</div>
+                        {% elif item.status == 3%}<div class="ui green basic label">Passed</div>
+                        {% elif item.status == 4 %}<span class="ui red basic label">Failed</span>
+                        {% elif item.status == 5 %}<div class="ui yellow basic label">Skipped</div>
+                        {% elif item.status == 6 %}<div class="ui red basic label">Aborted</div>
+                        {% endif %}
+                    </a></td>
+                </tr>
+            {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+        {% if not_started > 0 %}
+        <div class="ui divider"></div><a class="ui grey ribbon label" id="table_not_started_tests">Not started tests: {{ not_started }}</a>
+        <table class="ui very basic table">
+            <thead>
+            <tr>
+                <th>&nbsp;&nbsp;Test Method</th>
+                <th>Start Time</th>
+                <th>Time Taken</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody id="tests_list">
+            {% for item in tests.all %}
+                {% if item.status == 1 %}
+                <tr>
+                    {% if fw == 1 %}
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_nose }}</a></td>
+                    {% elif fw == 2 %}
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_pytest }}</a></td>
+                    {% endif %}
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                        {% if item.get_start_time is not None %}
+                            {{ item.get_start_time }}
+                        {% else %}0s
+                        {% endif %}
+                    </a></td>
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                        {% if item.get_time_taken is not None %}
+                            {{ item.get_time_taken }}
+                        {% else %}0s
+                        {% endif %}
+                    </a></td>
+                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                        <div class="ui gray basic label">Not Started</div>
+                    </a></td>
+                </tr>
+            {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+
+        {% endif %}
+
     </div>
 
     <div class="one wide column">
