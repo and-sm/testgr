@@ -66,6 +66,8 @@ def job(request, job_uuid):
     skipped = tests.filter(status=5).count()
     aborted = tests.filter(status=6).count()
 
+    negative_tests = failed + aborted
+
     # Framework type
     fw = job_object.fw_type
 
@@ -85,6 +87,7 @@ def job(request, job_uuid):
                                              'skipped': skipped,
                                              'not_started': not_started,
                                              'aborted': aborted,
+                                             'negative_tests': negative_tests,
                                              'fw': fw,
                                              'running_jobs_count': running_jobs_count})
 
@@ -129,7 +132,6 @@ def job_force_stop(request):
 
     if request.method == "POST":
         body_unicode = request.body.decode('utf-8')
-        print(body_unicode)
         data = json.loads(body_unicode)
         uuid = data['uuid']
     else:
@@ -139,11 +141,10 @@ def job_force_stop(request):
     job_object.stop_time = unix_time_to_datetime(int(datetime.now(tz=timezone.utc).timestamp() * 1000))
     job_object.time_taken = job_object.stop_time - job_object.start_time
     job_object.save()
-
     # Tests
-    for test in job_object.tests.all():
-        if test.status == 1 or test.status == 2:
-            test.status = 6
-            test.save()
+    for test_item in job_object.tests.all():
+        if test_item.status == 1 or test_item.status == 2:
+            test_item.status = 6
+            test_item.save()
 
     return JsonResponse({"status": "ok"})

@@ -60,6 +60,10 @@
             {% if latest_jobs_items %}
                 {% for job in latest_jobs_items %}
                 <tr>
+                {% comment %}
+                <tr class="ui {% if job.status == 2%}positive{% elif job.status == 3%}negative
+                {% elif job.status == 4%}warning{% endif %}">
+                {% endcomment %}
                     <td><a href="job/{{ job.uuid }}">{{ job.stop_time }}</a></td>
                     <td><a href="job/{{ job.uuid }}">{{ job.time_taken }}</a></td>
                     <td><a href="job/{{ job.uuid }}">{{ job.env }}
