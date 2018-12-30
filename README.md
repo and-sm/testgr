@@ -11,7 +11,11 @@ If some test is running, passed, failed or skipped - plugin will send updated da
 ### Job page. 
 There you can review status of your finished or live test execution. 
 
-![Job page](https://i.imgur.com/Rlhrep5.png)
+**Job in progress status:**
+![Job page](https://i.imgur.com/gVfTZWW.png)
+
+**Finished job:**
+![Finished_job](https://i.imgur.com/QyVvzjn.png)
 
 ### Example of failed test:
 ![Failed test](https://i.imgur.com/Whr8kVG.png)
