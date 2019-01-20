@@ -50,6 +50,11 @@ def get_running_jobs(created, instance, **kwargs):
             job_item['uuid'] = job.uuid
             job_item['start_time'] = job.start_time.strftime('%H:%M:%S %d-%b-%Y')
             job_item['status'] = job.status
+            job_item['tests_passed'] = job.tests_passed
+            job_item['tests_failed'] = job.tests_failed
+            job_item['tests_aborted'] = job.tests_aborted
+            job_item['tests_skipped'] = job.tests_skipped
+            job_item['tests_not_started'] = job.tests_not_started
             try:
                 obj = Environments.objects.get(name=job.env.name)
                 if obj.remapped_name is not None:
@@ -95,6 +100,12 @@ def get_latest_jobs(created, instance, **kwargs):
             job_item['time_taken'] = job.get_time_taken()
             job_item['stop_time'] = job.stop_time.strftime('%H:%M:%S %d-%b-%Y')
             job_item['status'] = job.status
+            job_item['tests_passed'] = job.tests_passed
+            job_item['tests_failed'] = job.tests_failed
+            job_item['tests_aborted'] = job.tests_aborted
+            job_item['tests_skipped'] = job.tests_skipped
+            job_item['tests_not_started'] = job.tests_not_started
+            job_item['tests_percentage'] = job.tests_percentage()
             try:
                 obj = Environments.objects.get(name=job.env.name)
                 if obj.remapped_name is not None:

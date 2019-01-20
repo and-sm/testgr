@@ -22,6 +22,12 @@ def index(request):
         job_item['stop_time'] = job.stop_time.strftime('%H:%M:%S %d-%b-%Y')
         job_item['status'] = job.status
         job_item['env'] = job.get_env()
+        job_item['tests_passed'] = job.tests_passed
+        job_item['tests_failed'] = job.tests_failed
+        job_item['tests_aborted'] = job.tests_aborted
+        job_item['tests_skipped'] = job.tests_skipped
+        job_item['tests_not_started'] = job.tests_not_started
+        job_item['tests_percentage'] = job.tests_percentage()
         latest_jobs_items.append(job_item)
 
     running_jobs = TestJobs.objects.filter(status='1').order_by('-start_time')
@@ -32,6 +38,11 @@ def index(request):
         job_item['start_time'] = job.start_time.strftime('%H:%M:%S %d-%b-%Y')
         job_item['status'] = job.status
         job_item['env'] = job.get_env()
+        job_item['tests_passed'] = job.tests_passed
+        job_item['tests_failed'] = job.tests_failed
+        job_item['tests_aborted'] = job.tests_aborted
+        job_item['tests_skipped'] = job.tests_skipped
+        job_item['tests_not_started'] = job.tests_not_started
         running_jobs_items.append(job_item)
 
     return render(request, "main/index.html", {"running_jobs_count": running_jobs_count,
@@ -89,7 +100,9 @@ def job(request, job_uuid):
                                              'aborted': aborted,
                                              'negative_tests': negative_tests,
                                              'fw': fw,
-                                             'running_jobs_count': running_jobs_count})
+                                             'running_jobs_count': running_jobs_count,
+                                             # 'tests_percentage': job_object.tests_percentage()
+                                             })
 
 
 def test(request, test_uuid):
