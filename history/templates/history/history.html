@@ -72,6 +72,8 @@
                                                  class="ui red basic label">Failed</a>
                     {% elif job.status == 4 %}<a href="{% url 'job' job_uuid=job.uuid %}" target="_blank"
                                                  class="ui yellow basic label">Stopped</a>
+                    {% elif job.status == 5 %}<a href="{% url 'job' job_uuid=job.uuid %}" target="_blank"
+                                                 class="ui yellow basic label">Skipped</a>
                     {% endif %}
                 </td>
             </tr>

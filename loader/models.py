@@ -24,6 +24,12 @@ class TestJobs(models.Model):
     status = models.SmallIntegerField(blank=True, null=True)
     env = models.ForeignKey(Environments, on_delete=models.CASCADE, related_name='environment')
     fw_type = models.SmallIntegerField(blank=True, null=True)
+    tests_passed = models.SmallIntegerField(blank=True, null=True)
+    tests_failed = models.SmallIntegerField(blank=True, null=True)
+    tests_skipped = models.SmallIntegerField(blank=True, null=True)
+    tests_aborted = models.SmallIntegerField(blank=True, null=True)
+    tests_not_started = models.SmallIntegerField(blank=True, null=True)
+    tests_in_progress = models.SmallIntegerField(blank=True, null=True)
 
     def get_time_taken(self):
         try:
@@ -50,6 +56,34 @@ class TestJobs(models.Model):
                 return self.env.name
         else:
             return 'None'
+
+    def tests_percentage(self):
+
+        tests_passed = (0 if self.tests_passed is None else self.tests_passed)
+        tests_failed = (0 if self.tests_failed is None else self.tests_failed)
+        tests_aborted = (0 if self.tests_aborted is None else self.tests_aborted)
+        tests_skipped = (0 if self.tests_skipped is None else self.tests_skipped)
+        tests_not_started = (0 if self.tests_not_started is None else self.tests_not_started)
+
+        tests_count = tests_passed + tests_not_started + tests_aborted + tests_failed + tests_skipped
+
+        passed_percent = float(0 if tests_passed == 0 else ((tests_passed * 100) / tests_count))
+        failed_percent = float(0 if tests_failed == 0 else ((tests_failed * 100) / tests_count))
+        aborted_percent = float(0 if tests_aborted == 0 else ((tests_aborted * 100) / tests_count))
+        skipped_percent = float(0 if tests_skipped == 0 else ((tests_skipped * 100) / tests_count))
+        not_started_percent = float(0 if tests_not_started == 0 else ((tests_not_started * 100) / tests_count))
+
+        return{"passed_percent": passed_percent,
+               "failed_percent": failed_percent,
+               "aborted_percent": aborted_percent,
+               "skipped_percent": skipped_percent,
+               "not_started_percent": not_started_percent,
+               "passed_percent_float": format(passed_percent, ".2f"),
+               "failed_percent_float": format(failed_percent, ".2f"),
+               "aborted_percent_float": format(aborted_percent, ".2f"),
+               "skipped_percent_float": format(skipped_percent, ".2f"),
+               "not_started_percent_float": format(not_started_percent, ".2f")
+               }
 
 
 class TestsStorage(models.Model):

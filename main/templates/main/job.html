@@ -8,11 +8,47 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.css">
 
+{% comment %}
 <style>
+
     .test_failed {
         color: red;
     }
+
+
+    .progress {
+        width: 100%;
+        position: relative;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+    .progress div {
+        width: 100%;
+        left: 0;
+        top: 0;
+        bottom: 0;
+    }
+
+    .table_progress { border-collapse: collapse; width: 100%; table-layout: fixed; height:5px; }
+
+    .ui.horizontal.segments{
+        border-top:0 !important;
+        border-bottom:0 !important;
+        border-left:0 !important;
+        border-right:0 !important;
+        box-shadow: 0 0 0 0;
+    }
+
+    .ui.segment{
+        border-top:0 !important;
+        border-bottom:0 !important;
+        border-left:0 !important;
+        border-right:0 !important;
+    }
+
+
 </style>
+{% endcomment %}
 
 </head>
 
@@ -49,13 +85,14 @@
     </div>
 
     <div class="four wide column">
-        <h3>Job Details</h3>
+        <h4>Job Details</h4>
         <div class="ui divider"></div>
         <div><h5 id="job_status">Status:
             {% if status == 1 %}<span class="ui blue small header">In Progress</span>
             {% elif status == 2 %}<span class="ui green small header">Passed</span>
             {% elif status == 3 %}<span class="ui red small header">Failed</span>
             {% elif status == 4 %}<span class="ui yellow small header">Stopped</span>
+            {% elif status == 5 %}<span class="ui yellow small header">Skipped</span>
             {% endif %}</h5>
         </div><br />
         <div><h5>Environment: &nbsp;<span class="ui middle label">{{ env|upper }}</span></h5></div><br />
@@ -72,35 +109,105 @@
     </div>
 
     <div class="ten wide column">
-        <div class="ui grid">
-            <div class="eight wide column"><h3>Tests: {{ test_count }}</h3></div>
-            <div class="eight wide column right aligned">
-                {% if status == 1 %}
-                <h3><a class="ui red label" id="force_stop_job" data-job-id="{{ uuid }}" data-job-force-stop-url=
-                        "{% url 'job_force_stop' %}">Force Stop</a></h3>{% endif %}
+
+        {% comment %}
+        <div class="progress">
+            <div>
+                <table class="table_progress">
+                    <tr>
+                        {% if tests_percentage.passed_percent > 0 %}
+                            <td style="width:{{ tests_percentage.passed_percent }}%;background-color: #5bcd5b"></td>
+                        {% endif %}
+                        {% if tests_percentage.failed_percent > 0 %}
+                            <td style="width:{{ tests_percentage.failed_percent }}%;background-color: #e74c54"></td>
+                        {% endif %}
+                        {% if tests_percentage.aborted_percent > 0 %}
+                            <td style="width:{{ tests_percentage.aborted_percent }}%;background-color: #b41f1f"></td>
+                        {% endif %}
+                        {% if tests_percentage.skipped_percent > 0 %}
+                            <td style="width:{{ tests_percentage.skipped_percent }}%;background-color: #e8e616"></td>
+                        {% endif %}
+                        {% if tests_percentage.not_started_percent > 0 %}
+                            <td style="width:{{ tests_percentage.not_started_percent }}%;background-color: #747576"></td>
+                        {% endif %}
+                    </tr>
+                </table>
+
             </div>
         </div>
+        {% endcomment %}
 
-        <div class="ui horizontal segments">
-            <div class="ui segment">
-                <h4 id="job_tests_passed"><a href="#table_positive_tests">Passed: {{ passed }}</a></h4>
+        <div class="ui center aligned grid">
+            <div class="three column row">
+                <div class="three wide left aligned column">
+                    <div class="item">
+                        <h4>Tests: {{ test_count }}</h4>
+                    </div>
+                </div>
+
+                <div class="ten wide center aligned column">
+                    <div class="item"><h4>
+                    <span id="job_tests_passed">
+                    {% if status != 1 %}
+                        <a href="#table_positive_tests">Passed: {{ passed }}</a>
+                    {% else %}
+                        Passed: {{ passed }}
+                    {% endif %}
+                    </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <span id="job_tests_failed">
+                    {% if status != 1 %}
+                        <a href="#table_negative_tests">Failed: <span class="{% if failed > 0 %}test_failed{% else %}{% endif %}">{{ failed }}</span></a>
+                    {% else %}
+                        Failed: <span class="{% if failed > 0 %}test_failed{% else %}{% endif %}">{{ failed }}</span>
+                    {% endif %}
+                    </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <span id="job_tests_aborted">
+                    {% if status != 1 %}
+                        <a href="#table_negative_tests">Aborted: <span class="{% if aborted > 0 %}test_failed{% else %}{% endif %}">{{ aborted }}</span></a>
+                    {% else %}
+                        Aborted: <span class="{% if aborted > 0 %}test_failed{% else %}{% endif %}">{{ aborted }}</span>
+                    {% endif %}
+                    </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <span id="job_tests_skipped">
+                    {% if status != 1 %}
+                        <a href="#table_skipped_tests">Skipped: {{ skipped }}</a>
+                    {% else %}
+                        Skipped: {{ skipped }}
+                    {% endif %}
+                    </span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <span id="job_tests_not_started">
+                    {% if status != 1 %}
+                        <a href="#table_not_started_tests">Not Started: {{ not_started }}</a>
+                    {% else %}
+                        Not Started: {{ not_started }}
+                    {% endif %}
+                    </span>
+                    </h4></div>
+                </div>
+
+                <div class="three wide right aligned column"></div>
+
             </div>
-            <div class="ui segment">
-                <h4 id="job_tests_failed"><a href="#table_negative_tests">Failed: <span class="{% if failed > 0 %}test_failed{% else %}{% endif %}">{{ failed }}</span></a></h4>
-            </div>
-            <div class="ui segment">
-                <h4 id="job_tests_aborted"><a href="#table_negative_tests">Aborted: <span class="{% if aborted > 0 %}test_failed{% else %}{% endif %}">{{ aborted }}</span></a></h4>
-            </div>
-            <div class="ui segment">
-                <h4 id="job_tests_skipped"><a href="#table_skipped_tests">Skipped: {{ skipped }}</a></h4>
-            </div>
-            <div class="ui segment">
-                <h4 id="job_tests_not_started"><a href="#table_not_started_tests">Not Started: {{ not_started }}</a></h4>
+
+        </div>
+
+        <div class="sixteen wide column">
+            <div class="ui divider"></div>
+        </div>
+
+
+        <div class="ui grid">
+            <div class="ui fourteen wide column"></div>
+            <div class="ui two wide column right aligned">
+                <div class="header item">
+                    {% if status == 1 %}
+                        <a class="ui red label" id="force_stop_job" data-job-id="{{ uuid }}" data-job-force-stop-url=
+                                "{% url 'job_force_stop' %}">Force Stop</a>{% endif %}
+                </div>
             </div>
         </div>
 
         {% if status == 1 %}
-        <div class="ui divider"></div>
         <table class="ui very basic table">
             <thead>
             <tr>
@@ -154,7 +261,7 @@
 
     {% if status != 1 %}
         {% if negative_tests > 0 %}
-        <div class="ui divider"></div><a class="ui red ribbon label" id="table_negative_tests">Negative tests: {{ negative_tests }}</a>
+        <a class="ui red ribbon label" id="table_negative_tests">Negative tests: {{ negative_tests }}</a>
         <table class="ui very basic table">
             <thead>
             <tr>
@@ -200,7 +307,7 @@
         {% endif %}
 
         {% if passed > 0 %}
-        <div class="ui divider"></div><a class="ui green ribbon label" id="table_positive_tests">Positive tests: {{ passed }}</a>
+        <a class="ui green ribbon label" id="table_positive_tests">Positive tests: {{ passed }}</a>
         <table class="ui very basic table">
             <thead>
             <tr>
@@ -244,7 +351,7 @@
         {% endif %}
 
         {% if skipped > 0 %}
-        <div class="ui divider"></div><a class="ui yellow ribbon label" id="table_skipped_tests">Skipped tests: {{ skipped }}</a>
+        <a class="ui yellow ribbon label" id="table_skipped_tests">Skipped tests: {{ skipped }}</a>
         <table class="ui very basic table">
             <thead>
             <tr>
@@ -278,13 +385,7 @@
                         {% endif %}
                     </a></td>
                     <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
-                        {% if item.status == 1%}<div class="ui gray basic label">Not Started</div>
-                        {% elif item.status == 2%}<div class="ui blue basic label">In Progress</div>
-                        {% elif item.status == 3%}<div class="ui green basic label">Passed</div>
-                        {% elif item.status == 4 %}<span class="ui red basic label">Failed</span>
-                        {% elif item.status == 5 %}<div class="ui yellow basic label">Skipped</div>
-                        {% elif item.status == 6 %}<div class="ui red basic label">Aborted</div>
-                        {% endif %}
+                        <div class="ui yellow basic label">Skipped</div>
                     </a></td>
                 </tr>
             {% endif %}
@@ -294,7 +395,7 @@
         {% endif %}
 
         {% if not_started > 0 %}
-        <div class="ui divider"></div><a class="ui grey ribbon label" id="table_not_started_tests">Not started tests: {{ not_started }}</a>
+        <a class="ui grey ribbon label" id="table_not_started_tests">Not started tests: {{ not_started }}</a>
         <table class="ui very basic table">
             <thead>
             <tr>

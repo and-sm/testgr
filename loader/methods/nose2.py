@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Count
 
 from loader.models import TestJobs, Tests, Environments, TestsStorage
 
@@ -53,7 +54,7 @@ class Nose2Loader:
         for k, identity in self.data['tests'].items():
             test_uuid = self.generate_uuid()
 
-            # Tests
+            # Tests Storage
             try:
                 test_storage_item = TestsStorage.objects.get(identity=identity)
                 if not test_storage_item.test:
@@ -71,6 +72,9 @@ class Nose2Loader:
                                 test=test_storage_item)
             test_object.save()
 
+        job_object.tests_not_started = job_object.tests.count()
+        job_object.save()
+
         return HttpResponse(status=200)
 
     def get_stop_test_run(self):
@@ -82,10 +86,13 @@ class Nose2Loader:
                 # in case if 'stopTestRun' was caught, but some running test exists
                 if job_object.tests.filter(status=2).first():
                     tests = job_object.tests.filter(status=2)  # 'In progress' tests become 'Aborted'
+                    aborted_tests = 0
                     for test in tests:
                         test.status = 6
                         test.save()
+                        aborted_tests += 1
                     job_object.status = 3
+                    job_object.tests_aborted = aborted_tests
                 # in case if 'stopTestRun' was caught and at least one test was failed
                 elif job_object.tests.filter(status=4).first():
                     job_object.status = 3
@@ -95,7 +102,14 @@ class Nose2Loader:
                 # in case if 'stopTestRun' was caught and some tests remain not started
                 else:
                     if job_object.tests.filter(status=1).first():
+                        tests = job_object.tests.filter(status=1)
+                        tests_not_started = 0
+                        for test in tests:
+                            tests_not_started += 1
+                        job_object.tests_not_started = tests_not_started
                         job_object.status = 3
+                    if job_object.tests.filter(status=5).all():
+                        job_object.status = 5
                     else:
                         # if no tests with 'failed', 'aborted' or 'running' states after 'stopTestRun' signal -
                         # mark job as 'Passed'
@@ -116,6 +130,8 @@ class Nose2Loader:
         # print(self.data)
         try:
             job_object = TestJobs.objects.get(uuid=self.data['job_id'])
+            job_object.tests_not_started -= 1
+            job_object.save()
             if job_object.status == 1:
                 try:
                     test = Tests.objects.get(test__identity=self.data['test'], job=job_object)
@@ -140,12 +156,29 @@ class Nose2Loader:
                     test = Tests.objects.get(test__identity=self.data['test'], job=job_object)
                     if self.data['status'] == "passed":
                         test.status = 3
+                        if not job_object.tests_passed:
+                            job_object.tests_passed = 1
+                        else:
+                            job_object.tests_passed += 1
                     elif self.data['status'] == "error":
                         test.status = 4
+                        if not job_object.tests_failed:
+                            job_object.tests_failed = 1
+                        else:
+                            job_object.tests_failed += 1
                     elif self.data['status'] == "failed":
                         test.status = 4
+                        if not job_object.tests_failed:
+                            job_object.tests_failed = 1
+                        else:
+                            job_object.tests_failed += 1
                     elif self.data['status'] == "skipped":
                         test.status = 5
+                        if not job_object.tests_skipped:
+                            job_object.tests_skipped = 1
+                        else:
+                            job_object.tests_skipped += 1
+                    job_object.save()
                     test.stop_time = unix_time_to_datetime(self.data['stopTime'])
                     test.time_taken = test.stop_time - test.start_time
                     test.msg = str(self.data['msg']).replace("\\n", "\n")

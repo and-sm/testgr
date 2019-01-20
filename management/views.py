@@ -14,7 +14,7 @@ def main(request):
 
 def about(request):
 
-    version = "0.9.0"
+    version = "0.10.0"
     return render(request, "management/about.html", {"version": version})
 
 

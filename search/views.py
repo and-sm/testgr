@@ -77,6 +77,9 @@ def filter_data(request):
         elif status == 4:
             status = "<td><a href=\"job/" + item.uuid + "\" class=\"ui yellow basic label\" target=\"_blank\">" \
                                                         "Stopped</a></td>"
+        elif status == 5:
+            status = "<td><a href=\"job/" + item.uuid + "\" class=\"ui yellow basic label\" target=\"_blank\">" \
+                                                        "Skipped</a></td>"
 
         uuid = item.uuid
 

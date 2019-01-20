@@ -1,12 +1,13 @@
 # Testgr
-Web service which provides a monitoring and data store for nose2 or Pytest tests execution results.
+Web service which provides monitoring and data store for nose2 or Pytest tests execution results.
 # How it works
-nose2 and Pytest have several methods for providing details of test runs and tests before and after test execution. **Testgr** service collects all data produced by nose2-rt or pytest-rt plugins and store it in the database.
-If some test is running, passed, failed or skipped - plugin will send updated data to **Testgr** and user will see test execution status in real-time.
+nose2 and Pytest frameworks have several methods for providing details of test runs and tests before and after test execution. To connect **Testgr** and these frameworks - you need to use [**nose2-rt**](https://github.com/and-sm/nose2rt) or [**pytest-rt**](https://github.com/and-sm/pytest-rt) plugins (depending on your framework).
+ **Testgr** service collects all data produced by plugins and store it in the database.
+If some test is in running, passed, failed or skipped state - plugin will send updated data to **Testgr** and user will see test execution status in real-time.
 
 ### Main page of Testgr. 
 
-![Main page](https://i.imgur.com/S3oZKlw.png)
+![Main page](https://i.imgur.com/0UG3gK0.png)
 
 ### Job page. 
 There you can review status of your finished or live test execution. 
@@ -15,7 +16,7 @@ There you can review status of your finished or live test execution.
 ![Job page](https://i.imgur.com/gVfTZWW.png)
 
 **Finished job:**
-![Finished_job](https://i.imgur.com/QyVvzjn.png)
+![Finished_job](https://i.imgur.com/D5WREt6.png)
 
 ### Example of failed test:
 ![Failed test](https://i.imgur.com/Whr8kVG.png)
@@ -37,6 +38,10 @@ There you can review status of your finished or live test execution.
 * SQLite and MySQL 5.7.23
 * Docker
 * docker-compose
+
+### API plugins setup
+Depending on your test framework (nose2 or pytest) you can choose [**nose2-rt**](https://github.com/and-sm/nose2rt) or [**pytest-rt**](https://github.com/and-sm/pytest-rt).
+
 
 ### HowTo deploy
 Docker stack components:
@@ -66,6 +71,3 @@ How to start **Testgr** again:
 ```
 docker-compose up -d
 ```
-
-### API plugins setup
-Depending on your test framework (nose2 or pytest) you can choose [**nose2-rt**](https://github.com/and-sm/nose2rt) or [**pytest-rt**](https://github.com/and-sm/pytest-rt).
