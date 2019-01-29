@@ -124,7 +124,7 @@ class TestsStorage(models.Model):
 
 
 class Tests(models.Model):
-    uuid = models.CharField(max_length=256)
+    uuid = models.CharField(max_length=36)
     start_time = models.DateTimeField(blank=True, null=True)
     stop_time = models.DateTimeField(blank=True, null=True)
     time_taken = models.DurationField(blank=True, null=True)

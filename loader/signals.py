@@ -205,7 +205,7 @@ def get_job_tests_details(created, instance, **kwargs):
             else:
                 test_item['time_taken'] = None
             try:
-                obj = TestsStorage.objects.get(identity=test.identity)
+                obj = TestsStorage.objects.get(pk=test.test_id)
                 test_item['time_taken_eta'] = obj.get_time_taken_eta()
             except:
                 test_item['time_taken_eta'] = None
@@ -213,14 +213,12 @@ def get_job_tests_details(created, instance, **kwargs):
             tests.append(test_item)
         tests.reverse()  # For correct ordering in JS
         result['tests'] = tests
-
         result['test_count'] = str(job_object.tests.count())
         result['not_started'] = str(job_object.tests.filter(status=1).count())
         result['passed'] = str(job_object.tests.filter(status=3).count())
         result['failed'] = str(job_object.tests.filter(status=4).count())
         result['skipped'] = str(job_object.tests.filter(status=5).count())
         result['aborted'] = str(job_object.tests.filter(status=6).count())
-
         return result
 
     if created:

@@ -56,39 +56,28 @@ socket.onmessage = function(e) {
                 obj.start_time = "Pending..."
             }
 
-            if(obj.time_taken == null){
-                obj.time_taken = "Pending..."
-            }
-
-            if(obj.time_taken_eta == null){
-                obj.time_taken_eta = "Pending..."
-            }
-            else{
-                obj.time_taken_eta = "ETA: " + obj.time_taken_eta
-            }
-
             let tr_class = "";
 
             if(obj.status === 1){
-                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui ui gray basic label\">Not Started</a>";
+                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui gray basic label\">Not Started</a>";
             }
             else if(obj.status === 2){
-                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui ui blue basic label\">In Progress</a>";
+                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui blue basic label\">In Progress</a>";
             }
             else if(obj.status === 3){
-                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui ui green basic label\">Passed</a>";
+                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui green basic label\">Passed</a>";
                 tr_class = "ui positive";
             }
             else if(obj.status === 4){
-                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui ui red basic label\">Failed</a>";
+                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui red basic label\">Failed</a>";
                 tr_class = "ui negative";
             }
             else if(obj.status === 5){
-                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui ui yellow basic label\">Skipped</a>";
+                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui yellow basic label\">Skipped</a>";
                 tr_class = "ui warning";
             }
             else if(obj.status === 6){
-                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui ui red basic label\">Aborted</a>";
+                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui red basic label\">Aborted</a>";
                 tr_class = "ui negative";
             }
 
@@ -99,11 +88,21 @@ socket.onmessage = function(e) {
             var cell2 = row.insertCell(1);
             cell2.innerHTML = "<a href=\"/test/" + obj.uuid + "\">" + obj.start_time + "</a>";
             var cell3 = row.insertCell(2);
-            if(obj.status === 2){
-                cell3.innerHTML = "<a href=\"/test/" + obj.uuid + "\">" + obj.time_taken_eta + "</a>";
+            if(obj.status === 1 || obj.status === 2){
+                if(obj.time_taken_eta !== null ){
+                    cell3.innerHTML = "<a href=\"/test/" + obj.uuid + "\">ETA: " + obj.time_taken_eta + "</a>";
+                }
+                else{
+                    cell3.innerHTML = "<a href=\"/test/" + obj.uuid + "\">Pending...</a>";
+                }
             }
             else{
+                if(obj.time_taken !== null){
                 cell3.innerHTML = "<a href=\"/test/" + obj.uuid + "\">" + obj.time_taken + "</a>";
+                }
+                else{
+                    cell3.innerHTML = "<a href=\"/test/" + obj.uuid + "\">Pending...</a>";
+                }
             }
             var cell4 = row.insertCell(3);
             cell4.innerHTML = "<a href=\"/test/" + obj.uuid + "\">" + status + "</a>";
