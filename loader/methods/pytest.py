@@ -53,6 +53,7 @@ class PytestLoader:
         # Tests
         tests = []
         for test_item in self.data['tests']:
+            test_uuid = self.generate_uuid()
 
             # Tests Storage
             try:
@@ -62,7 +63,7 @@ class PytestLoader:
                     test_storage_item.save()
             except ObjectDoesNotExist:
                 test_storage_item = TestsStorage(identity=test_item['nodeid'],
-                                   test=test_item['nodeid'].split('::')[-1])
+                                                 test=test_item['nodeid'].split('::')[-1])
                 test_storage_item.save()
 
             # Tests for Job
