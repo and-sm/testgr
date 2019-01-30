@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
                 ('stop_time', models.DateTimeField(blank=True, null=True)),
                 ('time_taken', models.DurationField(blank=True, null=True)),
                 ('status', models.SmallIntegerField(blank=True, null=True)),
-                ('msg', models.TextField(blank=True)),
+                ('msg', models.TextField(blank=True, null=True)),
                 ('job', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tests', to='loader.TestJobs')),
             ],
         ),

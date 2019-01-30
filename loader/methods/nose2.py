@@ -71,8 +71,8 @@ class Nose2Loader:
         # Tests.objects.bulk_create(tests)
         with connection.cursor() as cursor:
             for test in tests:
-                cursor.execute("INSERT INTO loader_tests "
-                               "VALUES(id, %s,start_time, stop_time, time_taken, 1, msg, %s,%s)",
+                cursor.execute("INSERT INTO loader_tests (`uuid`, `status`, `job_id`, `test_id`)"
+                               "VALUES(%s, 1, %s, %s)",
                                [test['test_uuid'], test['job'], test['test']])
             cursor.fetchone()
 

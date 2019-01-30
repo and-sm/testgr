@@ -130,7 +130,7 @@ class Tests(models.Model):
     time_taken = models.DurationField(blank=True, null=True)
     # status: 1 -   "Not started" 2 - "In progress", 3 - "Passed", 4 - "Failed", 5 - "Skipped", 6 - "Aborted"
     status = models.SmallIntegerField(blank=True, null=True)
-    msg = models.TextField(blank=True)
+    msg = models.TextField(blank=True, null=True)
     job = models.ForeignKey(TestJobs, on_delete=models.CASCADE, related_name='tests')
     test = models.ForeignKey(TestsStorage, on_delete=models.CASCADE, related_name='test_storage')
 
