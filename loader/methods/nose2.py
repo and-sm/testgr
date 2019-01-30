@@ -1,7 +1,6 @@
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count
-
+from django.db import connection
 from loader.models import TestJobs, Tests, Environments, TestsStorage
 
 from tools.tools import unix_time_to_datetime
@@ -24,9 +23,9 @@ class Nose2Loader:
     def get_start_test_run(self):
         # print("DBG: startTestRun")
         # print(self.data)
-        if TestJobs.objects.filter(uuid=self.data['job_id']):
+        job = TestJobs.objects.filter(uuid=self.data['job_id'])
+        if job.exists():
             return HttpResponse(status=409)
-
         try:
             env = Environments.objects.get(name=self.data['env'])
         except ObjectDoesNotExist:
@@ -50,7 +49,9 @@ class Nose2Loader:
                               start_time=unix_time_to_datetime(self.data['startTime']),
                               env=env)
         job_object.save()
+
         # Tests
+        tests = []
         for k, identity in self.data['tests'].items():
             test_uuid = self.generate_uuid()
 
@@ -61,20 +62,22 @@ class Nose2Loader:
                     test_storage_item.test = identity.split('.')[-1]
                     test_storage_item.save()
             except ObjectDoesNotExist:
-                test_storage_item = TestsStorage(identity=identity,
-                                   test=identity.split('.')[-1])
+                test_storage_item = TestsStorage(identity=identity, test=identity.split('.')[-1])
                 test_storage_item.save()
 
             # Tests for Job
-            test_object = Tests(uuid=test_uuid,
-                                status=1,
-                                job=job_object,
-                                test=test_storage_item)
-            test_object.save()
+            tests.append({'test_uuid': test_uuid, 'status': 1, 'job': job_object.pk, 'test': test_storage_item.pk})
+
+        # Tests.objects.bulk_create(tests)
+        with connection.cursor() as cursor:
+            for test in tests:
+                cursor.execute("INSERT INTO loader_tests (`uuid`, `status`, `job_id`, `test_id`)"
+                               "VALUES(%s, 1, %s, %s)",
+                               [test['test_uuid'], test['job'], test['test']])
+            cursor.fetchone()
 
         job_object.tests_not_started = job_object.tests.count()
         job_object.save()
-
         return HttpResponse(status=200)
 
     def get_stop_test_run(self):
@@ -184,22 +187,29 @@ class Nose2Loader:
                     test.msg = str(self.data['msg']).replace("\\n", "\n")
                     test.save()
                     # Tests Storage
-                    obj = TestsStorage.objects.get(identity=test.test.identity)
-                    if obj.time_taken and not obj.time_taken2:
-                        obj.time_taken2 = test.time_taken
+                    obj = TestsStorage.objects.get(pk=test.test_id)
+                    if not obj.time_taken:
+                        obj.time_taken = test.time_taken
                         obj.calculated_eta = median([obj.time_taken, test.time_taken])
                         obj.save()
+                        return HttpResponse(status=200)
+                    if obj.time_taken and not obj.time_taken2:
+                        obj.time_taken2 = test.time_taken
+                        obj.calculated_eta = median([obj.time_taken, obj.time_taken2])
+                        obj.save()
+                        return HttpResponse(status=200)
                     if obj.time_taken2 and not obj.time_taken3:
                         obj.time_taken3 = test.time_taken
-                        obj.calculated_eta = median([obj.time_taken, obj.time_taken2, test.time_taken])
+                        obj.calculated_eta = median([obj.time_taken, obj.time_taken2, obj.time_taken3])
                         obj.save()
+                        return HttpResponse(status=200)
                     if obj.time_taken3:
                         obj.time_taken3 = obj.time_taken2
                         obj.time_taken2 = obj.time_taken
                         obj.time_taken = test.time_taken
                         obj.calculated_eta = median([obj.time_taken, obj.time_taken2, obj.time_taken3])
                         obj.save()
-                    return HttpResponse(status=200)
+                        return HttpResponse(status=200)
                 except ObjectDoesNotExist:
                     return HttpResponse(status=403)
             else:

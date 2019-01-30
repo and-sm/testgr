@@ -236,11 +236,24 @@
                         {% endif %}
                     </a></td>
                     <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
-                        {% if item.get_time_taken is not None and item.status != 2 %}
-                            {{ item.get_time_taken }}
-                        {% elif item.get_time_taken_eta is not None and item.status == 2 %}
-                            ETA: {{ item.get_time_taken_eta }}
-                        {% else %}Pending...
+                        {% if item.status == 2 %}
+                            {% if item.test.get_time_taken_eta is not None %}
+                                ETA: {{ item.test.get_time_taken_eta }}
+                            {% else %}
+                                Pending...
+                            {% endif %}
+                        {% elif item.status == 1 %}
+                            {% if item.test.get_time_taken_eta is not None %}
+                                ETA: {{ item.test.get_time_taken_eta }}
+                            {% else %}
+                                Pending...
+                            {% endif %}
+                        {% else %}
+                            {% if item.get_time_taken is not None %}
+                                {{ item.get_time_taken }}
+                            {% else %}
+                                Pending...
+                            {% endif %}
                         {% endif %}
                     </a></td>
                     <td><a href="{%  url 'test' test_uuid=item.uuid  %}">

@@ -20,7 +20,6 @@ def index(request):
         job_item['uuid'] = job.uuid
         job_item['time_taken'] = job.get_time_taken()
         job_item['stop_time'] = job.stop_time.strftime('%H:%M:%S %d-%b-%Y')
-        job_item['status'] = job.status
         job_item['env'] = job.get_env()
         job_item['tests_passed'] = job.tests_passed
         job_item['tests_failed'] = job.tests_failed
@@ -36,7 +35,6 @@ def index(request):
         job_item = dict()
         job_item['uuid'] = job.uuid
         job_item['start_time'] = job.start_time.strftime('%H:%M:%S %d-%b-%Y')
-        job_item['status'] = job.status
         job_item['env'] = job.get_env()
         job_item['tests_passed'] = job.tests_passed
         job_item['tests_failed'] = job.tests_failed
