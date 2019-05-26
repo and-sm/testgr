@@ -7,33 +7,28 @@ If some test is in running, passed, failed or skipped state - plugin will send u
 
 ### Main page of Testgr. 
 
-![Main page](https://i.imgur.com/0UG3gK0.png)
+![Main page](https://i.lensdump.com/i/WzoouF.png)
 
 ### Job page. 
 There you can review status of your finished or live test execution. 
 
 **Job in progress status:**
-![Job page](https://i.imgur.com/gVfTZWW.png)
+![Job page](https://i.lensdump.com/i/WzoeTz.png)
 
 **Finished job:**
-![Finished_job](https://i.imgur.com/D5WREt6.png)
+![Finished_job](https://i.lensdump.com/i/WzonOT.png)
 
-### Example of failed test:
-![Failed test](https://i.imgur.com/Whr8kVG.png)
-
-### Example of passed test:
-![Passed test](https://i.imgur.com/6hg3tzQ.png)
+### Example of finished test:
+![Failed test](https://i.lensdump.com/i/WzovUb.png)
 
 ### Search:
-![Search](https://i.imgur.com/cOFdWjX.png)
+![Search](https://i.lensdump.com/i/WzoMZ7.png)
 
-### Job history:
-![Job History](https://i.imgur.com/ba01FKI.png)
 
 ### Requirements:
 **Testgr** was developed an tested using the following software:
-* Python 3.6.5
-* Django 2.1+
+* Python 3.7
+* Django 2.2
 * Redis 4
 * SQLite and MySQL 5.7.23
 * Docker
@@ -43,7 +38,7 @@ There you can review status of your finished or live test execution.
 Depending on your test framework (nose2 or pytest) you can choose [**nose2-rt**](https://github.com/and-sm/nose2rt) or [**pytest-rt**](https://github.com/and-sm/pytest-rt).
 
 
-### HowTo deploy
+### Deploy
 Docker stack components:
 * Nginx as reverse proxy
 * Gunicorn
@@ -71,3 +66,7 @@ How to start **Testgr** again:
 ```
 docker-compose up -d
 ```
+
+
+
+

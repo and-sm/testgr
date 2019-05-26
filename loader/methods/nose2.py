@@ -23,9 +23,11 @@ class Nose2Loader:
     def get_start_test_run(self):
         # print("DBG: startTestRun")
         # print(self.data)
-        job = TestJobs.objects.filter(uuid=self.data['job_id'])
-        if job.exists():
+        try:
+            TestJobs.objects.get(uuid=self.data['job_id'])
             return HttpResponse(status=409)
+        except ObjectDoesNotExist:
+            pass
         try:
             env = Environments.objects.get(name=self.data['env'])
         except ObjectDoesNotExist:
@@ -38,11 +40,9 @@ class Nose2Loader:
                 except ObjectDoesNotExist:
                     env = Environments(name="None")
                     env.save()
-
         # We should not create a job without tests
         if len(self.data['tests']) == 0:
             return HttpResponse(status=403)
-
         job_object = TestJobs(uuid=self.data['job_id'],
                               status=1,
                               fw_type=1,
@@ -54,7 +54,6 @@ class Nose2Loader:
         tests = []
         for k, identity in self.data['tests'].items():
             test_uuid = self.generate_uuid()
-
             # Tests Storage
             try:
                 test_storage_item = TestsStorage.objects.get(identity=identity)
@@ -64,18 +63,14 @@ class Nose2Loader:
             except ObjectDoesNotExist:
                 test_storage_item = TestsStorage(identity=identity, test=identity.split('.')[-1])
                 test_storage_item.save()
-
             # Tests for Job
             tests.append({'test_uuid': test_uuid, 'status': 1, 'job': job_object.pk, 'test': test_storage_item.pk})
-
-        # Tests.objects.bulk_create(tests)
         with connection.cursor() as cursor:
             for test in tests:
                 cursor.execute("INSERT INTO loader_tests (`uuid`, `status`, `job_id`, `test_id`)"
                                "VALUES(%s, 1, %s, %s)",
                                [test['test_uuid'], test['job'], test['test']])
             cursor.fetchone()
-
         job_object.tests_not_started = job_object.tests.count()
         job_object.save()
         return HttpResponse(status=200)
