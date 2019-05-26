@@ -274,7 +274,7 @@
 
     {% if status != 1 %}
         {% if negative_tests > 0 %}
-        <a class="ui red ribbon label" id="table_negative_tests">Negative tests: {{ negative_tests }}</a>
+        <a class="ui red ribbon label" id="table_negative_tests">Failed tests: {{ negative_tests }}</a>
         <table class="ui very basic table">
             <thead>
             <tr>
@@ -320,7 +320,7 @@
         {% endif %}
 
         {% if passed > 0 %}
-        <a class="ui green ribbon label" id="table_positive_tests">Positive tests: {{ passed }}</a>
+        <a class="ui green ribbon label" id="table_positive_tests">Passed tests: {{ passed }}</a>
         <table class="ui very basic table">
             <thead>
             <tr>

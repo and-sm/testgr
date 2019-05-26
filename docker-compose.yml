@@ -2,19 +2,11 @@ version: '3.3'
 
 services:
 
-  make_migrations:
-    volumes:
-      - .:/code
-    build: ./docker/gunicorn
-    command: python /code/manage.py makemigrations
-
   migration:
     volumes:
       - .:/code
     build: ./docker/gunicorn
     command: python /code/manage.py migrate
-    depends_on: 
-     - make_migrations
 
   web:
     volumes:

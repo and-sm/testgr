@@ -1,5 +1,5 @@
 # Pull base image
-FROM python:3.6
+FROM python:3.7.3
 
 # Set environment varibles
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -11,13 +11,13 @@ WORKDIR /code
 
 # Install dependencies
 RUN pip install --upgrade pip
-RUN pip install django==2.1.4
-RUN pip install django-anymail==5.0
-RUN pip install channels==2.1.6
-RUN pip install channels-redis==2.3.2
-RUN pip install daphne==2.2.4
-RUN pip install requests==2.21.0
-RUN pip install mysqlclient==1.3.14
+RUN pip install django==2.2.1
+RUN pip install django-anymail==6.0.1
+RUN pip install channels==2.2.0
+RUN pip install channels-redis==2.4.0
+RUN pip install daphne==2.3.0
+RUN pip install requests==2.22.0
+RUN pip install mysqlclient==1.4.2.post1
 
 # Copy project
 COPY . /code/
