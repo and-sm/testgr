@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
-
 from loader.models import Environments
+import requests
 
 
 def main(request):
@@ -14,8 +14,16 @@ def main(request):
 
 def about(request):
 
-    version = "0.10.2"
-    return render(request, "management/about.html", {"version": version})
+    version = "0.10.3"
+    response = requests.get(f"https://api.github.com/repos/and-sm/testgr/releases/latest",
+                            headers={"Content-Type": "application/json", "User-Agent": "testgr"})
+
+    if response.status_code != 200:
+        latest_version = "Unknown"
+    else:
+        latest_version = response.json()['tag_name']
+
+    return render(request, "management/about.html", {"version": version, "latest_version": latest_version})
 
 
 @csrf_exempt
