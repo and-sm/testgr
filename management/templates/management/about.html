@@ -55,7 +55,14 @@
         <h3>About</h3>
         <div class="ui divider"></div>
 
-        <strong>Version:</strong> {{ version }}
+        <p><strong>Build version:</strong> {{ version }}</p>
+        {% if latest_version != version %}
+        <p><strong>Latest version: </strong><strong>
+            <a href="https://github.com/and-sm/testgr" target="_blank">{{ latest_version }}</a>.
+            <label style="color: indianred"> Update if needed.</label></strong></p>
+        {% else %}
+        <p><strong>Latest version: </strong>{{ latest_version }}</p>
+        {% endif %}
 
     </div>
 
