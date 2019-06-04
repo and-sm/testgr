@@ -64,7 +64,7 @@ class SendJobReport:
 
     def send(self):
         email = EmailMessage(
-            subject=settings.EMAIL_SUBJECT,
+            subject=str("Automation report: Passed ") + str(self.job.tests.filter(status=3).count()) + ", Failed " + str(self.job.tests.filter(status=4).count()) + ", Skipped " + str(self.job.tests.filter(status=1).count()),
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[settings.EMAIL_RECEIVER],
             body=self.message()
