@@ -16,7 +16,7 @@ class SendJobReport:
         return "<h2 style='color: #2e6c80;'>" \
                "<a href='" + settings.TESTGR_URL + "/job/" + self.job.uuid + "'>Automation Report</a></h2>" \
                "<hr />" \
-               "<p class='small'><strong>Environment: </strong>" + str(self.job.env) + "</p>" \
+               "<p class='small'><strong>Environment: </strong>" + str(self.job.get_env()) + "</p>" \
                "<p class='small'><strong>Date Started: </strong>" \
                "" + str(self.job.get_start_time()) + "</p>" \
                "<p class='small'><strong>Date Finished: </strong>" \
@@ -64,7 +64,7 @@ class SendJobReport:
 
     def send(self):
         email = EmailMessage(
-            subject=settings.EMAIL_SUBJECT,
+            subject=str("Automation report: Passed ") + str(self.job.tests.filter(status=3).count()) + ", Failed " + str(self.job.tests.filter(status=4).count()) + ", Skipped " + str(self.job.tests.filter(status=1).count()),
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[settings.EMAIL_RECEIVER],
             body=self.message()
