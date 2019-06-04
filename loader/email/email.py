@@ -16,7 +16,7 @@ class SendJobReport:
         return "<h2 style='color: #2e6c80;'>" \
                "<a href='" + settings.TESTGR_URL + "/job/" + self.job.uuid + "'>Automation Report</a></h2>" \
                "<hr />" \
-               "<p class='small'><strong>Environment: </strong>" + str(self.job.env) + "</p>" \
+               "<p class='small'><strong>Environment: </strong>" + str(self.job.get_env()) + "</p>" \
                "<p class='small'><strong>Date Started: </strong>" \
                "" + str(self.job.get_start_time()) + "</p>" \
                "<p class='small'><strong>Date Finished: </strong>" \
