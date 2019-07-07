@@ -4,8 +4,9 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseForbidden, JsonResponse
 from datetime import timezone, datetime
-from tools.tools import unix_time_to_datetime
+from tools.tools import unix_time_to_datetime, get_hash
 import json
+import redis
 
 
 @never_cache
@@ -13,20 +14,24 @@ def index(request):
 
     running_jobs_count = TestJobs.objects.filter(status='1').count()
 
-    latest_jobs = TestJobs.objects.all().order_by('-stop_time').exclude(status='1')[:10]
+    latest_jobs = TestJobs.objects.select_related('env').order_by('-stop_time').exclude(status='1')[:10]
+
     latest_jobs_items = []
+
     for job in latest_jobs:
         job_item = dict()
         job_item['uuid'] = job.uuid
         job_item['time_taken'] = job.get_time_taken()
         job_item['stop_time'] = job.stop_time.strftime('%H:%M:%S %d-%b-%Y')
-        job_item['env'] = job.get_env()
+        job_item['status'] = job.status
         job_item['tests_passed'] = job.tests_passed
         job_item['tests_failed'] = job.tests_failed
         job_item['tests_aborted'] = job.tests_aborted
         job_item['tests_skipped'] = job.tests_skipped
         job_item['tests_not_started'] = job.tests_not_started
         job_item['tests_percentage'] = job.tests_percentage()
+        job_item['env'] = job.get_env()
+        job_item['status'] = job.status
         latest_jobs_items.append(job_item)
 
     running_jobs = TestJobs.objects.filter(status='1').order_by('-start_time')
@@ -65,7 +70,7 @@ def job(request, job_uuid):
     env = job_object.get_env()
 
     status = job_object.status
-    tests = job_object.tests
+    tests = job_object.tests.select_related('test')
 
     # Statistics
     test_count = tests.count()
@@ -147,6 +152,14 @@ def job_force_stop(request):
         uuid = data['uuid']
     else:
         return HttpResponseForbidden()
+
+    # Redis
+    # Remove job uuid from "running_jobs" key immediately
+    r = redis.StrictRedis(host='localhost', port=6379)
+    job = "job_" + uuid
+    r.lrem("running_jobs", 0, job)
+    r.delete("job_" + uuid)
+
     job_object = TestJobs.objects.get(uuid=uuid)
     job_object.status = 4
     job_object.stop_time = unix_time_to_datetime(int(datetime.now(tz=timezone.utc).timestamp() * 1000))

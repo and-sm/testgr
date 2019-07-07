@@ -16,7 +16,7 @@ class Environments(models.Model):
 
 
 class TestJobs(models.Model):
-    uuid = models.CharField(max_length=256)
+    uuid = models.CharField(max_length=255, db_index=True)
     # status: 1 "In progress", 2 - "Passed", 3 - "Failed", 4 - "Stopped"
     start_time = models.DateTimeField(blank=True, null=True)
     stop_time = models.DateTimeField(blank=True, null=True)
@@ -45,17 +45,9 @@ class TestJobs(models.Model):
         return self.stop_time.strftime('%H:%M:%S %d-%b-%Y')
 
     def get_env(self):
-        if self.env:
-            try:
-                obj = Environments.objects.get(name=self.env.name)
-                if obj.remapped_name:
-                    return obj.remapped_name
-                else:
-                    return self.env.name
-            except ObjectDoesNotExist:
-                return self.env.name
-        else:
-            return 'None'
+        if self.env.remapped_name:
+            return self.env.remapped_name
+        return self.env.name
 
     def tests_percentage(self):
 
@@ -87,7 +79,7 @@ class TestJobs(models.Model):
 
 
 class TestsStorage(models.Model):
-    identity = models.TextField(blank=True, null=True)
+    identity = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     test = models.TextField(blank=True, null=True)
     fw_type = models.SmallIntegerField(blank=True, null=True)
     time_taken = models.DurationField(blank=True, null=True)
@@ -114,17 +106,16 @@ class TestsStorage(models.Model):
         try:
             if "()" in self.identity:
                 self.method = self.identity.split('::')
-                self.method = self.method[-1]  # + " [" + self.method[1] + "]"
             else:
                 self.method = self.identity.split('::')
-                self.method = self.method[-1]  # + " [" + self.method[0] + "]"
+            self.method = self.method[-1]  # + " [" + self.method[0] + "]"
         except BaseException:  # if for some reason we haven't full identity - for example "test_method".
             return self.identity
         return self.method
 
 
 class Tests(models.Model):
-    uuid = models.CharField(max_length=36)
+    uuid = models.CharField(max_length=36, db_index=True)
     start_time = models.DateTimeField(blank=True, null=True)
     stop_time = models.DateTimeField(blank=True, null=True)
     time_taken = models.DurationField(blank=True, null=True)

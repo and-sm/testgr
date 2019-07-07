@@ -202,7 +202,7 @@
                 <div class="header item">
                     {% if status == 1 %}
                         <a class="ui red label" id="force_stop_job" data-job-id="{{ uuid }}" data-job-force-stop-url=
-                                "{% url 'job_force_stop' %}">Force Stop</a>{% endif %}
+                                "{% url 'job_force_stop' %}">Stop server job</a>{% endif %}
                 </div>
             </div>
         </div>
@@ -219,9 +219,7 @@
             </thead>
             <tbody id="tests_list">
             {% for item in tests.all %}
-                <tr class="ui {% if item.status == 1%}
-                {% elif item.status == 2%}{% elif item.status == 3%}positive{% elif item.status == 4%}negative
-                {% elif item.status == 5%}warning{% elif item.status == 6%}negative{% endif %}">
+                <tr class="ui {% if item.status == 1%}{% endif %}{% if item.status == 2%}{% endif %}{% if item.status == 3%}positive{% endif %}{% if item.status == 4%}negative{% endif %}{% if item.status == 5%}warning{% endif %}{% if item.status == 6%}negative{% endif %}" data-tr-test="{{ item.uuid }}">
                     {% if fw == 1 %}
                     <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
                         {{ item.test.get_test_method_for_nose }}</a></td>
@@ -229,13 +227,13 @@
                     <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
                         {{ item.test.get_test_method_for_pytest }}</a></td>
                     {% endif %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    <td data-td-start-time="{{ item.uuid }}"><a href="{%  url 'test' test_uuid=item.uuid  %}">
                         {% if item.get_start_time is not None %}
                             {{ item.get_start_time }}
                         {% else %}Pending...
                         {% endif %}
                     </a></td>
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    <td data-td-eta="{{ item.uuid }}"><a href="{%  url 'test' test_uuid=item.uuid  %}">
                         {% if item.status == 2 %}
                             {% if item.test.get_time_taken_eta is not None %}
                                 ETA: {{ item.test.get_time_taken_eta }}
@@ -256,7 +254,7 @@
                             {% endif %}
                         {% endif %}
                     </a></td>
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    <td data-td-status="{{ item.uuid }}"><a href="{%  url 'test' test_uuid=item.uuid  %}">
                         {% if item.status == 1%}<div class="ui gray basic label">Not Started</div>
                         {% elif item.status == 2%}<div class="ui blue basic label">In Progress</div>
                         {% elif item.status == 3%}<div class="ui green basic label">Passed</div>

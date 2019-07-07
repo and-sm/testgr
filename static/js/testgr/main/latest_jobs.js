@@ -11,6 +11,7 @@ var socket = new WebSocket(
     let tests_skipped = "";
     let tests_not_started = "";
     let tests_info = "";
+    let stopped = "";
     if(message == null){
         Table.innerHTML = ""
     }
@@ -18,17 +19,18 @@ var socket = new WebSocket(
         Table.innerHTML = "";
         message.forEach(function (obj) {
             if(obj.env == null){env = "None"}else{env = obj.env}
-            if(obj.tests_passed == null){tests_passed = ""}else{tests_passed = "<a href=job/" + obj.uuid +
-                " class=\"ui green basic label\">" + obj.tests_passed + "</a>"}
-            if(obj.tests_failed == null){tests_failed = ""}else{tests_failed = "<a href=job/" + obj.uuid +
-                " class=\"ui red basic label\">" + obj.tests_failed + "</a>"}
-            if(obj.tests_aborted == null){tests_aborted = ""}else{tests_aborted = "<a href=job/" + obj.uuid +
-                " class=\"ui darkred basic label\">" + obj.tests_aborted + "</a>"}
-            if(obj.tests_skipped == null){tests_skipped = ""}else{tests_skipped = "<a href=job/" + obj.uuid +
-                " class=\"ui yellow basic label\">" + obj.tests_skipped + "</a>"}
-            if(obj.tests_not_started == null || obj.tests_not_started === 0)
-            {tests_not_started = ""}else{tests_not_started = "<a href=job/" + obj.uuid +
-                " class=\"ui grey basic label\">" + obj.tests_not_started + "</a>"}
+            if(obj.tests_passed != null){tests_passed = "<a href=job/" + obj.uuid +
+                " class=\"ui green basic label\">" + obj.tests_passed + "</a>"}else{tests_passed = ""}
+            if(obj.tests_failed != null){tests_failed = "<a href=job/" + obj.uuid +
+                " class=\"ui red basic label\">" + obj.tests_failed + "</a>"}else{tests_failed = ""}
+            if(obj.tests_aborted != null){tests_aborted = "<a href=job/" + obj.uuid +
+                " class=\"ui darkred basic label\">" + obj.tests_aborted + "</a>"}else{tests_aborted = ""}
+            if(obj.tests_skipped != null){tests_skipped = "<a href=job/" + obj.uuid +
+                " class=\"ui yellow basic label\">" + obj.tests_skipped + "</a>"}else{tests_skipped = ""}
+            if(obj.tests_not_started != null){tests_not_started = "<a href=job/" + obj.uuid +
+                " class=\"ui grey basic label\">" + obj.tests_not_started + "</a>"}else{tests_not_started = ""}
+            if(obj.status === 4){stopped = "<a href=job/" + obj.uuid +
+                " class=\"ui yellow basic label\">Stopped</a>"}else{stopped = ""}
 
             let passed_ratio = "";
             if(obj.tests_percentage['passed_percent'] > 0){
@@ -91,7 +93,7 @@ var socket = new WebSocket(
             var cell4 = row.insertCell(3);
             cell4.className = "job_status";
             cell4.setAttribute("data-html", tests_info);
-            cell4.innerHTML = tests_passed + tests_failed + tests_aborted + tests_skipped + tests_not_started;
+            cell4.innerHTML = tests_passed + tests_failed + tests_aborted + tests_skipped + tests_not_started + stopped;
             var cell5 = row.insertCell(4);
             cell5.setAttribute("data-html", "<strong>Ratio:</strong><br>" +
                 "Passed: " + obj.tests_percentage['passed_percent_float'] + "%<br>" +
@@ -111,6 +113,7 @@ var socket = new WebSocket(
                 "                        </div>";
 
             // TODO Rewrite for clean JS
+
             $('.job_status')
                 .popup({
                     on: 'hover'

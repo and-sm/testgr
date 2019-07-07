@@ -18,6 +18,7 @@ RUN pip install channels-redis==2.4.0
 RUN pip install gunicorn==19.9.0
 RUN pip install requests==2.22.0
 RUN pip install mysqlclient==1.4.2.post1
+RUN pip install redis==3.2.1
 
 # Copy project
 COPY . /code/
