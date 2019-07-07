@@ -63,8 +63,14 @@ class SendJobReport:
                self.tests_content_table_footer() + self.footer_content()
 
     def send(self):
+        if settings.EMAIL_SUBJECT:
+            subject = settings.EMAIL_SUBJECT
+        else:
+            subject = str("Automation Report: Passed ") + str(self.job.tests.filter(status=3).count()) \
+                      + ", Failed " + str(self.job.tests.filter(status=4).count()) \
+                      + ", Skipped " + str(self.job.tests.filter(status=1).count())
         email = EmailMessage(
-            subject=str("Automation report: Passed ") + str(self.job.tests.filter(status=3).count()) + ", Failed " + str(self.job.tests.filter(status=4).count()) + ", Skipped " + str(self.job.tests.filter(status=1).count()),
+            subject=subject,
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[settings.EMAIL_RECEIVER],
             body=self.message()

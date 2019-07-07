@@ -1,22 +1,30 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.core.exceptions import ObjectDoesNotExist
 
-from loader.models import TestJobs, Tests, TestsStorage, Environments
+from tools.tools import get_hash, compare_hash
+from loader.models import TestJobs, Tests, TestsStorage
+from loader.redis import Redis
 
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+
+import time
+from operator import itemgetter
 
 
 @receiver(post_save, sender=TestJobs)
 def get_running_jobs_count(created, instance, **kwargs):
 
     def running_jobs_count():
-        count = TestJobs.objects.filter(status='1').count()
+        redis = Redis()
+        job_list_from_redis = redis.lrange("running_jobs", 0, -1)
+        job_list = list()
+        for item in job_list_from_redis:
+            job_list.append(item.decode("utf-8"))
+        count = len(job_list)
         if count > 0:
             return count
-        else:
-            return None
+        return None
 
     if created:
         channel_layer = get_channel_layer()
@@ -43,47 +51,72 @@ def get_running_jobs_count(created, instance, **kwargs):
 def get_running_jobs(created, instance, **kwargs):
 
     def running_jobs():
-        objects = TestJobs.objects.filter(status='1').order_by('-start_time')
-        result = []
-        for job in objects:
-            job_item = dict()
-            job_item['uuid'] = job.uuid
-            job_item['start_time'] = job.start_time.strftime('%H:%M:%S %d-%b-%Y')
-            job_item['status'] = job.status
-            job_item['tests_passed'] = job.tests_passed
-            job_item['tests_failed'] = job.tests_failed
-            job_item['tests_aborted'] = job.tests_aborted
-            job_item['tests_skipped'] = job.tests_skipped
-            job_item['tests_not_started'] = job.tests_not_started
-            try:
-                obj = Environments.objects.get(name=job.env.name)
-                if obj.remapped_name is not None:
-                    job_item['env'] = obj.remapped_name
-                else:
-                    job_item['env'] = obj.name
-            except ObjectDoesNotExist:
-                job_item['env'] = job.env
-            result.append(job_item)
-        result.reverse()  # For correct ordering in JS
-        return result
+        update_running_jobs = None
+        redis = Redis()
+
+        # Checking all *job_ keys
+        data = redis.keys("job_*")
+        active_jobs = list()
+        for job_item in data:
+            data = redis.get_value_from_key_as_str(job_item)
+            active_jobs.append(data)
+        # https://www.geeksforgeeks.org/ways-sort-list-dictionaries-values-python-using-itemgetter/
+
+        result = sorted(active_jobs, key=itemgetter('start_time'))
+
+        # Getting "latest_jobs" key for future time comparison
+        redis_latest_jobs_time = redis.get_value_from_key_as_str("latest_jobs_time")
+        if redis_latest_jobs_time is not None:
+            timestamp = time.time()
+            time_result = timestamp - redis_latest_jobs_time
+            if time_result > 3:
+                redis.set_value("latest_jobs_time", str(time.time()))  # send updated time
+                update_running_jobs = True
+        else:
+            redis_latest_jobs_time = time.time()
+            redis.set_value("latest_jobs_time", str(redis_latest_jobs_time))  # send updated time
+            update_running_jobs = False
+
+        if update_running_jobs is True:
+            return result, True
+        else:
+            return result, False
 
     if created:
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            "running_jobs",
-            {
-                "type": "message",
-                "message": running_jobs()
-            }
-        )
+        running_jobs_result = running_jobs()
+        if running_jobs_result[1] is True:
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "running_jobs",
+                {
+                    "type": "message",
+                    "message": running_jobs_result[0]
+                }
+            )
+        else:
+            pass
 
-    if instance:
+    if instance.status == 1:
+        running_jobs_result = running_jobs()
+        if running_jobs_result[1] is True:
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "running_jobs",
+                {
+                    "type": "message",
+                    "message": running_jobs_result[0]
+                }
+            )
+        else:
+            pass
+
+    if instance.status != 1:
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             "running_jobs",
             {
                 "type": "message",
-                "message": running_jobs()
+                "message": {"job_remove": instance.uuid}
             }
         )
 
@@ -92,51 +125,74 @@ def get_running_jobs(created, instance, **kwargs):
 def get_latest_jobs(created, instance, **kwargs):
 
     def latest_jobs():
-        latest_jobs = TestJobs.objects.all().order_by('-stop_time').exclude(status='1')[:10]
+        # Redis, getting "latest_jobs" key for future hash comparison
+        redis = Redis()
+        redis_latest_jobs_hash = redis.get_value_from_key_as_str("latest_jobs")
+
+        latest_jobs_q = TestJobs.objects.select_related('env').order_by('-stop_time').exclude(status='1')[:10]
         result = []
-        for job in latest_jobs:
+        list_for_hash = []
+        for job in latest_jobs_q:
             job_item = dict()
             job_item['uuid'] = job.uuid
             job_item['time_taken'] = job.get_time_taken()
             job_item['stop_time'] = job.stop_time.strftime('%H:%M:%S %d-%b-%Y')
-            job_item['status'] = job.status
-            job_item['tests_passed'] = job.tests_passed
-            job_item['tests_failed'] = job.tests_failed
-            job_item['tests_aborted'] = job.tests_aborted
-            job_item['tests_skipped'] = job.tests_skipped
-            job_item['tests_not_started'] = job.tests_not_started
+            if job.status == 4:  # special case for show "skipped" label while websocket updates "Last Jobs table"
+                job_item['status'] = 4
+            if job.tests_passed is not None:
+                job_item['tests_passed'] = job.tests_passed
+            if job.tests_failed is not None:
+                job_item['tests_failed'] = job.tests_failed
+            if job.tests_aborted is not None:
+                job_item['tests_aborted'] = job.tests_aborted
+            if job.tests_skipped is not None:
+                job_item['tests_skipped'] = job.tests_skipped
+            if job.tests_not_started != 0:
+                job_item['tests_not_started'] = job.tests_not_started
             job_item['tests_percentage'] = job.tests_percentage()
-            try:
-                obj = Environments.objects.get(name=job.env.name)
-                if obj.remapped_name is not None:
-                    job_item['env'] = obj.remapped_name
-                else:
-                    job_item['env'] = obj.name
-            except ObjectDoesNotExist:
-                job_item['env'] = job.env
+            job_item['env'] = job.get_env()
+            job_item['status'] = job.status
+            list_for_hash.append(job.uuid)  # building list with job uuid's for making local hash of all our latest jobs
             result.append(job_item)
+        result_hash = get_hash(frozenset(list_for_hash))    # hash of local job uuid's
+        redis.set_value("latest_jobs", result_hash)   # send update hash value to Redis
         result.reverse()  # For correct ordering in JS
-        return result
+
+        # Compare between Redis previous hash and  local hash of latest_jobs
+        if compare_hash(redis_latest_jobs_hash, result_hash):
+            # Hash identical
+            return result, True
+        else:
+            # Hash NOT identical
+            return result, False
 
     if created:
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            "latest_jobs",
-            {
-                "type": "message",
-                "message": latest_jobs()
-            }
-        )
+        latest_jobs_result = latest_jobs()
+        if latest_jobs_result[1] is False:     # If hashes are NOT identical - send update via websocket
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "latest_jobs",
+                {
+                    "type": "message",
+                    "message": latest_jobs_result[0]
+                }
+            )
+        else:   # Hashes are identical - no websocket update is needed
+            pass
 
     if instance:
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            "latest_jobs",
-            {
-                "type": "message",
-                "message": latest_jobs()
-            }
-        )
+        latest_jobs_result = latest_jobs()
+        if latest_jobs_result[1] is False:     # If hashes are NOT identical - send update via websocket
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "latest_jobs",
+                {
+                    "type": "message",
+                    "message": latest_jobs_result[0]
+                }
+            )
+        else:   # Hashes are identical - no websocket update is needed
+            pass
 
 
 @receiver(post_save, sender=TestJobs)
@@ -188,31 +244,23 @@ def get_job_tests_details(created, instance, **kwargs):
         job_object = TestJobs.objects.get(uuid=instance.job.uuid)
         result = {}
 
-        # Tests
-        tests = []
-        for test in job_object.tests.all():
-            test_item = dict()
-            if test.start_time:  # Initial Tests post_save signal will not have start_time for test item
-                test_item['start_time'] = test.get_start_time()
-            if job_object.fw_type == 1:
-                test_item['short_identity'] = test.test.get_test_method_for_nose()
-            elif job_object.fw_type == 2:
-                test_item['short_identity'] = test.test.get_test_method_for_pytest()
-            test_item['identity'] = test.test.identity
-            test_item['uuid'] = test.uuid
-            if test.time_taken:
-                test_item['time_taken'] = test.get_time_taken()
-            else:
-                test_item['time_taken'] = None
-            try:
-                obj = TestsStorage.objects.get(pk=test.test_id)
-                test_item['time_taken_eta'] = obj.get_time_taken_eta()
-            except:
-                test_item['time_taken_eta'] = None
-            test_item['status'] = test.status
-            tests.append(test_item)
-        tests.reverse()  # For correct ordering in JS
-        result['tests'] = tests
+        # Test instance update for tests table
+        test_item = dict()
+        test_item['uuid'] = instance.uuid
+        if instance.start_time:  # Initial Tests post_save signal will not have start_time for test item
+            test_item['start_time'] = instance.get_start_time()
+        if instance.time_taken:
+            test_item['time_taken'] = instance.get_time_taken()
+        else:
+            test_item['time_taken'] = None
+        try:
+            obj = TestsStorage.objects.get(pk=instance.test_id)
+            test_item['time_taken_eta'] = obj.get_time_taken_eta()
+        except:
+            test_item['time_taken_eta'] = None
+        test_item['status'] = instance.status
+
+        result['test'] = test_item
         result['test_count'] = str(job_object.tests.count())
         result['not_started'] = str(job_object.tests.filter(status=1).count())
         result['passed'] = str(job_object.tests.filter(status=3).count())

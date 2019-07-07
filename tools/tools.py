@@ -31,3 +31,13 @@ def normalize_time(obj):
     else:
         minutes = str(int(minutes)) + "m "
     return hours + minutes + str(int(seconds)) + "s"
+
+
+def get_hash(obj):
+    return hash(obj)
+
+
+def compare_hash(hash1, hash2):
+    if hash1 == hash2:
+        return True
+    return False

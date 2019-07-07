@@ -1,19 +1,22 @@
+import uuid
+
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection
+
 from loader.models import TestJobs, Tests, Environments, TestsStorage
+from loader.redis import Redis
+from loader.email.email import SendJobReport
 
 from tools.tools import unix_time_to_datetime
 from statistics import median
-import uuid
-
-from loader.email.email import SendJobReport
 
 
 class PytestLoader:
 
     def __init__(self, data):
         self.data = data
+        self.redis = Redis()
 
     @staticmethod
     def generate_uuid() -> str:
@@ -23,26 +26,47 @@ class PytestLoader:
     def get_start_test_run(self):
         # print("DBG: startTestRun")
         # print(self.data)
-        job = TestJobs.objects.filter(uuid=self.data['job_id'])
-        if job.exists():
+        try:
+            TestJobs.objects.get(uuid=self.data['job_id'])
             return HttpResponse(status=409)
+        except ObjectDoesNotExist:
+            pass
+
         try:
             env = Environments.objects.get(name=self.data['env'])
+
+            # Env name for Redis
+            if env.remapped_name is not None:
+                env_name = env.remapped_name
+            else:
+                env_name = env.name
+
         except ObjectDoesNotExist:
             if self.data['env'] is not None:
                 env = Environments(name=self.data['env'])
                 env.save()
+
+                # Env name for Redis
+                if env.remapped_name is not None:
+                    env_name = env.remapped_name
+                else:
+                    env_name = env.name
+
             else:
                 try:
                     env = Environments.objects.get(name="None")
+
+                    # Env name for Redis
+                    env_name = env.name
                 except ObjectDoesNotExist:
                     env = Environments(name="None")
                     env.save()
 
+                    # Env name for Redis
+                    env_name = "None"
         # We should not create a job without tests
         if len(self.data['tests']) == 0:
             return HttpResponse(status=403)
-
         job_object = TestJobs(uuid=self.data['job_id'],
                               status=1,
                               fw_type=2,
@@ -65,11 +89,8 @@ class PytestLoader:
                 test_storage_item = TestsStorage(identity=test_item['nodeid'],
                                                  test=test_item['nodeid'].split('::')[-1])
                 test_storage_item.save()
-
             # Tests for Job
             tests.append({'test_uuid': test_uuid, 'status': 1, 'job': job_object.pk, 'test': test_storage_item.pk})
-
-        # Tests.objects.bulk_create(tests)
         with connection.cursor() as cursor:
             for test in tests:
                 cursor.execute("INSERT INTO loader_tests (`uuid`, `status`, `job_id`, `test_id`)"
@@ -77,16 +98,40 @@ class PytestLoader:
                                [test['test_uuid'], test['job'], test['test']])
             cursor.fetchone()
 
-        job_object.tests_not_started = job_object.tests.count()
+        tests_not_started = job_object.tests.count()
+        job_object.tests_not_started = tests_not_started
         job_object.save()
+
+        # Redis data
+        # We are creating/updating "running_jobs" list in Redis with our new job item
+        job = "job_" + self.data['job_id']
+        self.redis.rpush("running_jobs", job)
+        data = str({
+            "uuid": self.data["job_id"],
+            "status": "1",
+            "start_time": str(unix_time_to_datetime(self.data['startTime']).strftime('%H:%M:%S %d-%b-%Y')),
+            "tests_not_started": str(tests_not_started),
+            "env": str(env_name)
+        })
+        self.redis.set_value("job_" + self.data['job_id'], data)
+
         return HttpResponse(status=200)
 
     def get_stop_test_run(self):
         # print("DBG: stopTestRun")
         # print(self.data)
+
         try:
             job_object = TestJobs.objects.get(uuid=self.data['job_id'])
             if job_object.status == 1:
+
+                # Redis
+                # Remove job uuid from "jobs" key immediately
+
+                job = "job_" + self.data['job_id']
+                self.redis.lrem("running_jobs", 0, job)
+                self.redis.delete("job_" + self.data['job_id'])
+
                 # in case if 'stopTestRun' was caught, but some running test exists
                 if job_object.tests.filter(status=2).first():
                     tests = job_object.tests.filter(status=2)  # 'In progress' tests become 'Aborted'
@@ -120,6 +165,7 @@ class PytestLoader:
                         job_object.status = 2
                 job_object.stop_time = unix_time_to_datetime(self.data['stopTime'])
                 job_object.time_taken = job_object.stop_time - job_object.start_time
+
                 job_object.save()
                 if self.data['send_report'] == "1":
                     SendJobReport(job_object).send()
@@ -133,9 +179,20 @@ class PytestLoader:
         # print("DBG: startTest")
         # print(self.data)
         try:
+
+            # Redis
+            # Job item update
+            data = self.redis.get_value_from_key_as_str("job_" + self.data['job_id'])
+            tests_not_started = int(data["tests_not_started"])
+            tests_not_started -= 1
+            data["tests_not_started"] = str(tests_not_started)
+            data = str(data).encode("utf-8")
+            self.redis.set_value("job_" + self.data['job_id'], data)
+
             job_object = TestJobs.objects.get(uuid=self.data['job_id'])
             job_object.tests_not_started -= 1
             job_object.save()
+
             if job_object.status == 1:
                 try:
                     test = Tests.objects.get(test__identity=self.data['test'], job=job_object)
@@ -154,6 +211,11 @@ class PytestLoader:
         # print("DBG: stopTest")
         # print(self.data)
         try:
+
+            # Redis
+            # Job item update
+            data = self.redis.get_value_from_key_as_str("job_" + self.data['job_id'])
+
             job_object = TestJobs.objects.get(uuid=self.data['job_id'])
             if job_object.status == 1:
                 try:
@@ -162,31 +224,45 @@ class PytestLoader:
                         test.status = 3
                         if not job_object.tests_passed:
                             job_object.tests_passed = 1
+                            data["tests_passed"] = str(1)
                         else:
                             job_object.tests_passed += 1
+                            data["tests_passed"] = str(job_object.tests_passed)
                     elif self.data['status'] == "error":
                         test.status = 4
                         if not job_object.tests_failed:
                             job_object.tests_failed = 1
+                            data["tests_failed"] = str(1)
                         else:
                             job_object.tests_failed += 1
+                            data["tests_failed"] = str(job_object.tests_failed)
                     elif self.data['status'] == "failed":
                         test.status = 4
                         if not job_object.tests_failed:
                             job_object.tests_failed = 1
+                            data["tests_failed"] = str(1)
                         else:
                             job_object.tests_failed += 1
+                            data["tests_failed"] = str(job_object.tests_failed)
                     elif self.data['status'] == "skipped":
                         test.status = 5
                         if not job_object.tests_skipped:
                             job_object.tests_skipped = 1
+                            data["tests_skipped"] = str(1)
                         else:
                             job_object.tests_skipped += 1
+                            data["tests_skipped"] = str(job_object.tests_skipped)
+
+                    data = str(data).encode("utf-8")
+                    self.redis.set_value("job_" + self.data['job_id'], data)
+
                     job_object.save()
+
                     test.stop_time = unix_time_to_datetime(self.data['stopTime'])
                     test.time_taken = test.stop_time - test.start_time
                     test.msg = str(self.data['msg']).replace("\\n", "\n")
                     test.save()
+
                     # Tests Storage
                     obj = TestsStorage.objects.get(pk=test.test_id)
                     if not obj.time_taken:
@@ -211,6 +287,7 @@ class PytestLoader:
                         obj.calculated_eta = median([obj.time_taken, obj.time_taken2, obj.time_taken3])
                         obj.save()
                         return HttpResponse(status=200)
+
                 except ObjectDoesNotExist:
                     return HttpResponse(status=403)
             else:

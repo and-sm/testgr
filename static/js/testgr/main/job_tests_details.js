@@ -1,11 +1,16 @@
 var uuid = document.getElementById("job_tests_details").getAttribute("data-job-uuid");
 var socket = new WebSocket(
     'ws://' + window.location.host +  '/ws/job_tests_details/' + uuid);
-socket.onmessage = function(e) {
+    socket.onmessage = function(e) {
 
     var data = JSON.parse(e.data);
     var message = data['message'];
-    let TestsTable = document.getElementById("tests_list");
+    var test = message['test'];
+    var test_uuid = test['uuid'];
+    var test_start_time = test['start_time'];
+    var test_time_taken = test['time_taken'];
+    var test_time_taken_eta = test['time_taken_eta'];
+    var test_status = test['status'];
 
     let passed = document.getElementById("job_tests_passed");
     let failed = document.getElementById("job_tests_failed");
@@ -13,6 +18,10 @@ socket.onmessage = function(e) {
     let skipped = document.getElementById("job_tests_skipped");
     let not_started = document.getElementById("job_tests_not_started");
 
+    let data_tr_test = document.querySelector('[data-tr-test="' + test_uuid + '"]');
+    let data_td_start_time = document.querySelector('[data-td-start-time="' + test_uuid + '"]');
+    let data_td_eta = document.querySelector('[data-td-eta="' + test_uuid + '"]');
+    let data_td_status = document.querySelector('[data-td-status="' + test_uuid + '"]');
 
     if(message['passed']) {
         passed.innerHTML = "Passed: " + message['passed'];
@@ -44,71 +53,54 @@ socket.onmessage = function(e) {
     }
 
 
-    if(message == null){
-        TestsTable.innerHTML = ""
+    if(test_start_time == null){
+        test_start_time = "Pending..."
     }
-    else {
-        TestsTable.innerHTML = "";
-        message['tests'].forEach(function (obj) {
+    data_td_start_time.innerHTML = "<a href=\"/test/" + test_uuid + "\">" + test_start_time + "</a>";
 
-
-            if(obj.start_time == null){
-                obj.start_time = "Pending..."
-            }
-
-            let tr_class = "";
-
-            if(obj.status === 1){
-                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui gray basic label\">Not Started</a>";
-            }
-            else if(obj.status === 2){
-                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui blue basic label\">In Progress</a>";
-            }
-            else if(obj.status === 3){
-                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui green basic label\">Passed</a>";
-                tr_class = "ui positive";
-            }
-            else if(obj.status === 4){
-                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui red basic label\">Failed</a>";
-                tr_class = "ui negative";
-            }
-            else if(obj.status === 5){
-                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui yellow basic label\">Skipped</a>";
-                tr_class = "ui warning";
-            }
-            else if(obj.status === 6){
-                status = "<a href=\"/test/" + obj.uuid + "\" class=\"ui red basic label\">Aborted</a>";
-                tr_class = "ui negative";
-            }
-
-            var row = TestsTable.insertRow(0);
-            row.className = tr_class;
-            var cell1 = row.insertCell(0);
-            cell1.innerHTML = "<a href=\"/test/" + obj.uuid + "\">&nbsp;&nbsp;" + obj.short_identity + "</a>";
-            var cell2 = row.insertCell(1);
-            cell2.innerHTML = "<a href=\"/test/" + obj.uuid + "\">" + obj.start_time + "</a>";
-            var cell3 = row.insertCell(2);
-            if(obj.status === 1 || obj.status === 2){
-                if(obj.time_taken_eta !== null ){
-                    cell3.innerHTML = "<a href=\"/test/" + obj.uuid + "\">ETA: " + obj.time_taken_eta + "</a>";
-                }
-                else{
-                    cell3.innerHTML = "<a href=\"/test/" + obj.uuid + "\">Pending...</a>";
-                }
-            }
-            else{
-                if(obj.time_taken !== null){
-                cell3.innerHTML = "<a href=\"/test/" + obj.uuid + "\">" + obj.time_taken + "</a>";
-                }
-                else{
-                    cell3.innerHTML = "<a href=\"/test/" + obj.uuid + "\">Pending...</a>";
-                }
-            }
-            var cell4 = row.insertCell(3);
-            cell4.innerHTML = "<a href=\"/test/" + obj.uuid + "\">" + status + "</a>";
-        })
+    /* ETA */
+    if(test_status === 1 || test_status === 2){
+        if(test_time_taken_eta !== null ){
+            data_td_eta.innerHTML = "<a href=\"/test/" + test_uuid + "\">ETA: " + test_time_taken_eta + "</a>";
+        }
+        else{
+            data_td_eta.innerHTML = "<a href=\"/test/" + test_uuid + "\">Pending...</a>";
+        }
     }
+    else{
+        if(test_time_taken !== null){
+            data_td_eta.innerHTML = "<a href=\"/test/" + test_uuid+ "\">" + test_time_taken + "</a>";
+        }
+        else{
+            data_td_eta.innerHTML = "<a href=\"/test/" + test_uuid + "\">Pending...</a>";
+        }
+    }
+
+    /* Status */
+    if(test_status === 1){
+        data_td_status.innerHTML = "<a href=\"/test/" + test_uuid + "\" class=\"ui gray basic label\">Not Started</a>";
+    }
+    else if(test_status === 2){
+        data_td_status.innerHTML = "<a href=\"/test/" + test_uuid+ "\" class=\"ui blue basic label\">In Progress</a>";
+    }
+    else if(test_status === 3){
+        data_tr_test.className = "ui positive";
+        data_td_status.innerHTML = "<a href=\"/test/" + test_uuid + "\" class=\"ui green basic label\">Passed</a>";
+    }
+    else if(test_status === 4){
+        data_td_status.innerHTML = "<a href=\"/test/" + test_uuid + "\" class=\"ui red basic label\">Failed</a>";
+        data_tr_test.className = "ui negative";
+    }
+    else if(test_status === 5){
+        status = "<a href=\"/test/" + test_uuid + "\" class=\"ui yellow basic label\">Skipped</a>";
+        data_tr_test.className = "ui warning";
+    }
+    else if(test_status === 6){
+        data_td_status.innerHTML = "<a href=\"/test/" + test_uuid + "\" class=\"ui red basic label\">Aborted</a>";
+        data_tr_test.className = "ui negative";
+    }
+
 };
-socket.onclose = function(e) {
+socket.onclose = function() {
     console.error('Socket closed unexpectedly');
 };

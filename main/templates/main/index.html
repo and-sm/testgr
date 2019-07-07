@@ -240,32 +240,35 @@
             <tbody id="running_jobs">
             {% if running_jobs_items %}
                 {% for job in running_jobs_items %}
-                <tr>
-                    <td><a href="job/{{ job.uuid }}">{{ job.start_time }}</a></td>
-                    <td><a href="job/{{ job.uuid }}">{{ job.env }}
-                    </a></td>
-					<td>{% spaceless %}
+                <tr data-tr-job="{{ job.uuid }}">
+                    <td data-td-start-time="{{ job.uuid }}"><a href="job/{{ job.uuid }}">{{ job.start_time }}</a></td>
+                    <td data-td-env="{{ job.uuid }}"><a href="job/{{ job.uuid }}">{{ job.env }}</a></td>
+					<td data-td-status="{{ job.uuid }}">{% spaceless %}
                         {% if job.tests_passed %}
-                            <a href="job/{{ job.uuid }}" class="ui green basic label">{{ job.tests_passed }}</a>
+                            <a data-tests-passed="{{ job.uuid }}" href="job/{{ job.uuid }}" class="ui green basic label">{{ job.tests_passed }}</a>
+                         {% comment %}
                         {% else %}
-                            <a href="job/{{ job.uuid }}" class="ui green basic label">0</a>
+                            <a data-tests-passed="{{ job.uuid }}" href="job/{{ job.uuid }}" class="ui green basic label">0</a>
+                        {% endcomment %}
                         {% endif %}
                         {% if job.tests_failed %}
-                            <a href="job/{{ job.uuid }}" class="ui red basic label">{{ job.tests_failed }}</a>
+                            <a data-tests-failed="{{ job.uuid }}" href="job/{{ job.uuid }}" class="ui red basic label">{{ job.tests_failed }}</a>
                         {% endif %}
                         {% if job.tests_aborted %}
-                            <a href="job/{{ job.uuid }}" class="ui darkred basic label">{{ job.tests_aborted }}</a>
+                            <a data-tests-aborted="{{ job.uuid }}" href="job/{{ job.uuid }}" class="ui darkred basic label">{{ job.tests_aborted }}</a>
                         {% endif %}
                         {% if job.tests_skipped %}
-                            <a href="job/{{ job.uuid }}" class="ui yellow basic label">{{ job.tests_skipped }}</a>
+                            <a data-tests-skipped="{{ job.uuid }}" href="job/{{ job.uuid }}" class="ui yellow basic label">{{ job.tests_skipped }}</a>
                         {% endif %}
-                        <a href="job/{{ job.uuid }}" class="ui grey basic label">{{ job.tests_not_started }}</a>
+                        <a data-tests-not-started="{{ job.uuid }}" href="job/{{ job.uuid }}" class="ui grey basic label">{{ job.tests_not_started }}</a>
                     {% endspaceless %}
                     </td>
                 </tr>
                 {% endfor %}
+            {% comment %}
             {% else %}
                 <tr class="center aligned"><td colspan="3">No jobs are running</td></tr>
+            {% endcomment %}
             {% endif %}
             </tbody>
         </table>
@@ -280,10 +283,7 @@
 
 </body>
 
-<script
-  src="https://code.jquery.com/jquery-3.3.1.min.js"
-  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-  crossorigin="anonymous"></script>
+<script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.js"></script>
 
 <script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>
