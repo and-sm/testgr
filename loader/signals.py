@@ -50,6 +50,22 @@ def get_running_jobs_count(created, instance, **kwargs):
 @receiver(post_save, sender=TestJobs)
 def get_running_jobs(created, instance, **kwargs):
 
+    def update_running_jobs():  # fix for newly created job, it should appear in the Running Jobs table right after creation
+        redis = Redis()
+        if redis.exists("update_running_jobs"):
+            redis.delete("update_running_jobs")
+            return True
+
+    def send_data():
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "running_jobs",
+            {
+                "type": "message",
+                "message": running_jobs_result[0]
+            }
+        )
+
     def running_jobs():
         update_running_jobs = None
         redis = Redis()
@@ -85,28 +101,16 @@ def get_running_jobs(created, instance, **kwargs):
     if created:
         running_jobs_result = running_jobs()
         if running_jobs_result[1] is True:
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                "running_jobs",
-                {
-                    "type": "message",
-                    "message": running_jobs_result[0]
-                }
-            )
+            send_data()
         else:
             pass
 
     if instance.status == 1:
         running_jobs_result = running_jobs()
         if running_jobs_result[1] is True:
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                "running_jobs",
-                {
-                    "type": "message",
-                    "message": running_jobs_result[0]
-                }
-            )
+            send_data()
+        elif update_running_jobs():
+            send_data()
         else:
             pass
 
