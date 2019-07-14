@@ -112,7 +112,7 @@ class Nose2Loader:
             "env": str(env_name)
         })
         self.redis.set_value("job_" + self.data['job_id'], data)
-        # r.set("job_" + self.data['job_id'], data)
+        self.redis.set_value("update_running_jobs", "1")
 
         return HttpResponse(status=200)
 
