@@ -13,13 +13,13 @@ If some test is in running, passed, failed or skipped state - plugin will send u
 There you can review status of your finished or live test execution. 
 
 **Job in progress status:**
-![Job page](https://i.lensdump.com/i/WzoeTz.png)
+![Job page](https://i.lensdump.com/i/iAbfNC.png)
 
 **Finished job:**
 ![Finished_job](https://i.lensdump.com/i/WzonOT.png)
 
 ### Example of finished test:
-![Failed test](https://i.lensdump.com/i/WzovUb.png)
+![Failed test](https://i.lensdump.com/i/iAbUW5.png)
 
 ### Search:
 ![Search](https://i.lensdump.com/i/WzoMZ7.png)
@@ -30,7 +30,7 @@ There you can review status of your finished or live test execution.
 * Python 3.7
 * Django 2.2
 * Redis 4
-* SQLite and MySQL 5.7.23
+* SQLite and MySQL 5.7
 * Docker
 * docker-compose
 

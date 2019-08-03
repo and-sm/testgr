@@ -132,7 +132,7 @@ $("div[data-create-btn]").click(function () {
     $("div[data-save-btn]").click(function () {
         var new_name = $("input[data-create-input=" + button_id + "]").val();
         $.ajax({
-            url: "{% url 'api_remap_env' %}",
+            url: "/api/environment/" + button_id + "/",
             type: "POST",
             data: {'id': button_id, 'new_name': new_name},
             success : function() {
@@ -148,7 +148,7 @@ $("div[data-rename-btn]").click(function () {
     var button_id = $(this).data("rename-btn");
     var new_name = $("input[data-rename-input=" + button_id + "]").val();
     $.ajax({
-        url : "{% url 'api_remap_env' %}",
+        url: "/api/environment/" + button_id + "/",
         type : "POST",
         data: {'id': button_id, 'new_name': new_name},
         success : function() {
@@ -162,9 +162,9 @@ $("div[data-rename-btn]").click(function () {
 $("div[data-delete-btn]").click(function () {
     var button_id = $(this).data("delete-btn");
     $.ajax({
-        url : "{% url 'api_delete_env' %}",
+        url: "/api/environment/" + button_id + "/",
         type : "POST",
-        data: {'id': button_id},
+        data: {'id': button_id, 'delete': 'true'},
         success : function() {
             alert("Deleted!");
             location.reload();

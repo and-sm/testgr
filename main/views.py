@@ -129,6 +129,11 @@ def test(request, test_uuid):
     msg = test_object.msg
     identity = test_object.test.identity
 
+    if test_object.test.description:
+        description = test_object.test.description
+    else:
+        description = ""
+
     # Running jobs count
     running_jobs_count = TestJobs.objects.filter(status='1').count()
 
@@ -140,6 +145,7 @@ def test(request, test_uuid):
                                               'status': status,
                                               'msg': msg,
                                               'identity': identity,
+                                              'description': description,
                                               'running_jobs_count': running_jobs_count})
 
 

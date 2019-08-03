@@ -14,7 +14,7 @@ def main(request):
 
 def about(request):
 
-    version = "0.11.2"
+    version = "0.12.0"
     response = requests.get(f"https://api.github.com/repos/and-sm/testgr/releases/latest",
                             headers={"Content-Type": "application/json", "User-Agent": "testgr"})
 

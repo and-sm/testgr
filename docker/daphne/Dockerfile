@@ -19,6 +19,7 @@ RUN pip install daphne==2.3.0
 RUN pip install requests==2.22.0
 RUN pip install mysqlclient==1.4.2.post1
 RUN pip install redis==3.2.1
+RUN pip install djangorestframework==3.10.2
 
 # Copy project
 COPY . /code/

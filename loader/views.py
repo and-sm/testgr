@@ -11,7 +11,7 @@ from loader.methods.pytest import PytestLoader
 def loader(request):
 
     if request.method == 'GET':
-        return HttpResponse("Incorrect request")
+        return HttpResponse(status=403)
     elif request.method == 'POST':
         body_unicode = request.body.decode('utf-8')
         data = json.loads(body_unicode)
