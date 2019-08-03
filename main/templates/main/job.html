@@ -195,14 +195,16 @@
             <div class="ui divider"></div>
         </div>
 
+        <div class="ui yellow message" id="job_finished_message" style="display: none">
+            Job finished, please refresh the page.</div>
 
-        <div class="ui grid">
+        <div class="ui grid" id="force_stop_job_div">
             <div class="ui fourteen wide column"></div>
             <div class="ui two wide column right aligned">
                 <div class="header item">
                     {% if status == 1 %}
                         <a class="ui red label" id="force_stop_job" data-job-id="{{ uuid }}" data-job-force-stop-url=
-                                "{% url 'job_force_stop' %}">Stop server job</a>{% endif %}
+                                "{% url 'job_force_stop' %}">Detach job</a>{% endif %}
                 </div>
             </div>
         </div>

@@ -92,7 +92,7 @@ var socket = new WebSocket(
         data_tr_test.className = "ui negative";
     }
     else if(test_status === 5){
-        status = "<a href=\"/test/" + test_uuid + "\" class=\"ui yellow basic label\">Skipped</a>";
+        data_td_status.innerHTML = "<a href=\"/test/" + test_uuid + "\" class=\"ui yellow basic label\">Skipped</a>";
         data_tr_test.className = "ui warning";
     }
     else if(test_status === 6){

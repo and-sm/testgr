@@ -77,20 +77,34 @@ class PytestLoader:
         # Tests
         tests = []
         for test_item in self.data['tests']:
-            test_uuid = self.generate_uuid()
+            uuid = test_item['uuid']
+            description = test_item['description']
 
             # Tests Storage
             try:
                 test_storage_item = TestsStorage.objects.get(identity=test_item['nodeid'])
+                # If no test obj exists
                 if not test_storage_item.test:
                     test_storage_item.test = test_item['nodeid'].split('::')[-1]
+                    test_storage_item.description = description
                     test_storage_item.save()
+                # If test obj exists with null description
+                elif test_storage_item.test and not test_storage_item.description:
+                    test_storage_item.description = description
+                    test_storage_item.save()
+                # if test obj exists with description
+                elif test_storage_item.test and test_storage_item.description:
+                    if test_storage_item.description == description:
+                        pass
+                    else:
+                        test_storage_item.description = description
+                        test_storage_item.save()
             except ObjectDoesNotExist:
                 test_storage_item = TestsStorage(identity=test_item['nodeid'],
-                                                 test=test_item['nodeid'].split('::')[-1])
+                                                 test=test_item['nodeid'].split('::')[-1], description=description)
                 test_storage_item.save()
             # Tests for Job
-            tests.append({'test_uuid': test_uuid, 'status': 1, 'job': job_object.pk, 'test': test_storage_item.pk})
+            tests.append({'test_uuid': uuid, 'status': 1, 'job': job_object.pk, 'test': test_storage_item.pk})
         with connection.cursor() as cursor:
             for test in tests:
                 cursor.execute("INSERT INTO loader_tests (`uuid`, `status`, `job_id`, `test_id`)"

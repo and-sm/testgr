@@ -5,6 +5,7 @@
 <title>TESTGR</title>
 
 {% load static %}
+{% load urlize_target_blank %}
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.css">
 
@@ -62,17 +63,13 @@
     </div>
 
     <div class="ten wide column">
-        {% if msg %}
         <h3>Additional info</h3>
         <div class="ui divider"></div>
             <h4>Test identity:</h4> {{ identity }}
-            <h4>Error:</h4>{{ msg|escape|linebreaksbr }}
-        {% else %}
-        <h3>Additional info</h3>
-        <div class="ui divider"></div>
-        <h4>Test identity:</h4> {{ identity }}
-        <h3>No errors</h3>
-        {% endif %}
+            {% if description %}
+            <h4>Description:</h4> {{ description|urlize|urlize_target_blank  }}
+            {% endif %}
+            {% if msg %}<h4>Error:</h4>{{ msg|escape|linebreaksbr }}{% else %}<h3>No errors</h3>{% endif %}
     </div>
 
     <div class="one wide column">
