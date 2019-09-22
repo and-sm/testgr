@@ -10,7 +10,7 @@ var socket = new WebSocket(
     }
     else {
         element.className = "item";
-        element.innerHTML = "<span>Currently running jobs: <strong>"
+        element.innerHTML = "<span>Active jobs: <strong>"
             + message + "</strong></span>";
     }
 };

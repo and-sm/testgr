@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from helpers import helpers
 
 
 @login_required()
@@ -14,9 +15,13 @@ def search(request):
     environments = Environments.objects.all()
     tests = TestsStorage.objects.all()
 
+    # Running jobs count
+    running_jobs_count = helpers.running_jobs_count()
+
     return render(request, "search/search.html", {"job_count": job_count,
                                                   "environments": environments,
-                                                  "tests": tests})
+                                                  "tests": tests,
+                                                  "running_jobs_count": running_jobs_count})
 
 
 @login_required()

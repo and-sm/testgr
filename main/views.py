@@ -2,12 +2,12 @@ from django.shortcuts import render, redirect
 from loader.models import TestJobs, Tests
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponseForbidden, JsonResponse, HttpResponseRedirect
+from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib.auth import authenticate, login, logout
-from django.utils.datastructures import MultiValueDictKeyError
 from django.contrib.auth.decorators import login_required
 from datetime import timezone, datetime
 from tools.tools import unix_time_to_datetime
+from helpers import helpers
 
 import json
 import redis
@@ -39,7 +39,7 @@ def logout_view(request):
 @never_cache
 def index(request):
 
-    running_jobs_count = TestJobs.objects.filter(status='1').count()
+    running_jobs_count = helpers.running_jobs_count()
 
     latest_jobs = TestJobs.objects.select_related('env').order_by('-stop_time').exclude(status='1')[:10]
 
@@ -114,7 +114,7 @@ def job(request, job_uuid):
     fw = job_object.fw_type
 
     # Running jobs count
-    running_jobs_count = TestJobs.objects.filter(status='1').count()
+    running_jobs_count = helpers.running_jobs_count()
 
     return render(request, "main/job.html", {'uuid': uuid,
                                              'start_time': start_time,
@@ -164,7 +164,7 @@ def test(request, test_uuid):
         description = ""
 
     # Running jobs count
-    running_jobs_count = TestJobs.objects.filter(status='1').count()
+    running_jobs_count = helpers.running_jobs_count()
 
     return render(request, "main/test.html", {'uuid': uuid,
                                               'start_time': start_time,

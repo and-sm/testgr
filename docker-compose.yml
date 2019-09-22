@@ -18,7 +18,7 @@ services:
     build: ./docker/redis
     network_mode: "service:web"
     depends_on:
-     - web
+      - web
 
   websocket:
     volumes:
@@ -29,7 +29,7 @@ services:
     command: daphne testgr.asgi:application -p 9000 -b 0.0.0.0
     network_mode: "service:web"
     depends_on:
-     - redis
+      - redis
     env_file:
       - config.env
 
@@ -39,4 +39,4 @@ services:
     build: ./docker/nginx/
     network_mode: "service:web"
     depends_on:
-     - websocket
+      - websocket
