@@ -1,0 +1,128 @@
+<html>
+
+<head>
+
+<title>TESTGR</title>
+
+{% load static %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.css">
+
+</head>
+
+<body>
+
+<div class="ui grid">
+
+	<div class="sixteen wide column">
+        <div class="ui  menu">
+            <div class="item">
+                <h3><a href="{%  url 'index' %}">TESTGR</a></h3>
+            </div>
+            <a href="{%  url 'index' %}" class="item">Monitoring</a>
+            <a href="{%  url 'search' %}" class="item">Search</a>
+            <a href="{%  url 'history' %}" class="item">History</a>
+            <a href="{%  url 'management' %}" class="item active">Management</a>
+            <div class="right menu" id="main_right_menu">
+                {% if running_jobs_count > 0 %}
+                <div class="item" id="running_jobs_count">
+                <span>Currently running jobs: <strong>{{ running_jobs_count }}</strong></span>
+                </div>
+                {% else %}
+                <div class="" id="running_jobs_count">
+                </div>
+                {% endif %}
+                <div class="item">
+                    <a href="https://github.com/and-sm/testgr" target="_blank">Github</a>
+                </div>
+            <a href="{%  url 'logout' %}" class="item">Logout</a>
+            </div>
+        </div>
+	</div>
+
+    <div class="one wide column">
+    </div>
+
+    <div class="three wide column">
+        <h3>Management</h3>
+        <div class="ui divider"></div>
+        <div class="ui secondary vertical menu">
+            <a class="item" href="{% url 'management' %}">Environments</a>
+            <a class="item active" href="{% url 'users' %}">Users</a>
+            <a class="item" href="{% url 'about' %}">About</a>
+        </div>
+    </div>
+
+    <div class="eleven wide column">
+        <h3>Users</h3>
+        <div class="ui divider"></div>
+
+        <a href="{% url 'users_add' %}">
+            <button class="ui basic button">
+                <i class="icon user"></i>
+                Add User
+            </button>
+        </a>
+
+        <table class="ui very basic collapsing celled table">
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Type</th>
+               {% comment %} <th>Actions</th> {% endcomment %}
+            </tr></thead>
+            <tbody>
+            {% for user in users %}
+            <tr>
+                <td>
+                    <h4 class="ui image header">
+                        <div class="content">
+                            {{ user.username }}
+                        </div>
+                    </h4>
+                </td>
+                <td>
+                    <h4 class="ui image header">
+                        <div class="content">
+                            {% if user.is_superuser %}
+                            Super user
+                            {% elif user.is_staff %}
+                            Staff
+                            {% else %}
+                            Normal
+                            {% endif %}
+                        </div>
+                    </h4>
+                </td>
+                {% comment %}
+                <td>
+                    <h4 class="ui image header">
+                        <div class="field">
+                            <div class="ui action input">
+                            {% if request.user.is_superuser %}
+                                <div class="ui button {% if user.is_superuser %}disabled{% endif %}"
+                                     data-create-btn="{{ user.pk }}">Delete</div>
+                            {% elif request.user.is_staff %}
+                                <div class="ui button {% if user.is_staff %}disabled{% endif %}"
+                                     data-create-btn="{{ user.pk }}">Delete</div>
+                            {% endif %}
+                            </div>
+                        </div>
+                    </h4>
+                </td>
+                {% endcomment %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="one wide column">
+    </div>
+
+</div>
+
+</body>
+
+</html>

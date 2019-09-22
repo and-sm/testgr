@@ -1,0 +1,105 @@
+<html>
+
+<head>
+
+<title>TESTGR</title>
+<meta http-equiv="Content-Type" content="text/html">
+{% load static %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.css">
+<script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+
+<style type="text/css">
+    body {
+      background-color: #DADADA;
+    }
+    body > .grid {
+      height: 100%;
+    }
+    .image {
+      margin-top: -100px;
+    }
+    .column {
+      max-width: 450px;
+    }
+  </style>
+  <script>
+  $(document)
+    .ready(function() {
+      $('.ui.form')
+        .form({
+          fields: {
+            email: {
+              identifier  : 'username',
+              rules: [
+                {
+                  type   : 'empty',
+                  prompt : 'Please enter your username'
+                },
+              ]
+            },
+            password: {
+              identifier  : 'password',
+              rules: [
+                {
+                  type   : 'empty',
+                  prompt : 'Please enter your password'
+                },
+                {
+                  type   : 'length[8]',
+                  prompt : 'Your password must be at least 9 characters'
+                }
+              ]
+            }
+          }
+        })
+      ;
+    })
+  ;
+  </script>
+
+</head>
+
+<body>
+
+<div class="ui middle aligned center aligned grid">
+  <div class="column">
+    <h2 class="ui blue image header">
+      <div class="content">
+        Log-in to your account
+      </div>
+    </h2>
+    {% if next %}
+    <form class="ui large form" method="post" action="/login/?next={{next}}">
+    {% else %}
+    <form class="ui large form" method="post" action="/login/">
+    {% endif %}
+      {% csrf_token %}
+      <div class="ui stacked segment">
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="user icon"></i>
+            <input type="text" name="username" placeholder="Username">
+          </div>
+        </div>
+        <div class="field">
+          <div class="ui left icon input">
+            <i class="lock icon"></i>
+            <input type="password" name="password" placeholder="Password">
+          </div>
+        </div>
+        <div class="ui fluid large blue submit button">Login</div>
+      </div>
+
+      <div class="ui error message"></div>
+
+    </form>
+
+  </div>
+</div>
+
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.js"></script>
+
+</html>

@@ -1,14 +1,41 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from loader.models import TestJobs, Tests
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponseForbidden, JsonResponse
+from django.http import HttpResponseForbidden, JsonResponse, HttpResponseRedirect
+from django.contrib.auth import authenticate, login, logout
+from django.utils.datastructures import MultiValueDictKeyError
+from django.contrib.auth.decorators import login_required
 from datetime import timezone, datetime
-from tools.tools import unix_time_to_datetime, get_hash
+from tools.tools import unix_time_to_datetime
+
 import json
 import redis
 
 
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('index')
+    else:
+        if request.method == "POST":
+            username = request.POST['username']
+            password = request.POST['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None and user.is_active:
+                login(request, user)
+                return redirect('index')
+            else:
+                return render(request, "main/login.html")
+        else:
+            return render(request, "main/login.html")
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+
+@login_required()
 @never_cache
 def index(request):
 
@@ -53,6 +80,7 @@ def index(request):
                                                "running_jobs_items": running_jobs_items})
 
 
+@login_required()
 @never_cache
 def job(request, job_uuid):
 
@@ -108,6 +136,7 @@ def job(request, job_uuid):
                                              })
 
 
+@login_required()
 def test(request, test_uuid):
 
     test_object = Tests.objects.get(uuid=test_uuid)
@@ -149,6 +178,7 @@ def test(request, test_uuid):
                                               'running_jobs_count': running_jobs_count})
 
 
+@login_required()
 @csrf_exempt
 def job_force_stop(request):
 
