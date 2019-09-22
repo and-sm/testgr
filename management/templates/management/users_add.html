@@ -47,66 +47,61 @@
         <h3>Management</h3>
         <div class="ui divider"></div>
         <div class="ui secondary vertical menu">
-            <a class="item active">Environments</a>
-            {% if user.is_superuser or user.is_staff %}<a class="item" href="{% url 'users' %}">Users</a>{% endif %}
+            <a class="item" href="{% url 'management' %}">Environments</a>
+            <a class="item active" href="{% url 'users' %}">Users</a>
             <a class="item" href="{% url 'about' %}">About</a>
         </div>
     </div>
 
     <div class="eleven wide column">
-        <h3>Environments</h3>
+        <h3>Add user</h3>
         <div class="ui divider"></div>
 
-        <div class="ui message">
-            Here you can remap name of your environments. Original name will remain untouched and can be restored.
-        </div>
+    <div class="ui grid">
+    <div class="six wide column">
 
-        <table class="ui very basic collapsing celled table">
-            <thead>
-            <tr>
-                <th>Name</th>
-                <th>Remapped name</th>
-            </tr></thead>
-            <tbody>
-            {% for env in envs %}
-            <tr>
-                <td>
-                    <h4 class="ui image header">
-                        <div class="content">
-                            {{ env.name }}
-                        </div>
-                    </h4>
-                </td>
-                <td data-id="remapped_name_{{ env.pk }}">
-                <h4 class="ui image header">
-                    {% if not env.remapped_name %}
-                        <div class="field">
-                            <div class="ui action input">
-                                <div class="ui button" data-create-btn="{{ env.pk }}">Create mapped name</div>
-                            </div>
-                        </div>
-                    {% else %}
-                        <div class="field">
-                            <div class="ui action input">
-                                <input type="text" data-rename-input="{{ env.pk }}" value="{{ env.remapped_name }}"
-                                       placeholder="{{ env.remapped_name }}"/>
-                                <div class="ui button" data-rename-btn="{{ env.pk }}">Rename</div>
-                                <div class="ui button" data-delete-btn="{{ env.pk }}">Delete</div>
-                            </div>
-
-                        </div>
-                    {% endif %}
-                </h4>
-                </td>
-            <td>
-
-
-
-            </td>
-            </tr>
+        {% if form.errors %}
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <div class="alert alert-danger">
+                        <strong>{{ error|escape }}</strong>
+                    </div>
+                {% endfor %}
             {% endfor %}
-            </tbody>
-        </table>
+            {% for error in form.non_field_errors %}
+                <div class="alert alert-danger">
+                    <strong>{{ error|escape }}</strong>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" class="ui form">
+            {% csrf_token %}
+            <div class="field">
+                <label>{{ form.username.label }}</label>
+                {{ form.username }}
+            </div>
+            <div class="field">
+                <label>{{ form.password.label }}</label>
+                {{ form.password }}
+            </div>
+            <div class="field">
+                <label>{{ form.confirm_password.label }}</label>
+                {{ form.confirm_password }}
+            </div>
+            <div class="field">
+            <div class="ui checkbox">
+                {{ form.staff }}
+                <label>{{ form.staff.label }}</label>
+            </div>
+            </div>
+            <input type="submit" class="ui button" value="Submit">
+        </form>
+    </div>
+
+    <div class="six wide column">
+    </div>
+    </div>
 
     </div>
 
@@ -134,7 +129,6 @@ $("div[data-create-btn]").click(function () {
     $("div[data-save-btn]").click(function () {
         var new_name = $("input[data-create-input=" + button_id + "]").val();
         $.ajax({
-            headers: {'X-CSRFToken': '{{ csrf_token }}'},
             url: "/api/environment/" + button_id + "/",
             type: "POST",
             data: {'id': button_id, 'new_name': new_name},
@@ -151,7 +145,6 @@ $("div[data-rename-btn]").click(function () {
     var button_id = $(this).data("rename-btn");
     var new_name = $("input[data-rename-input=" + button_id + "]").val();
     $.ajax({
-        headers: {'X-CSRFToken': '{{ csrf_token }}'},
         url: "/api/environment/" + button_id + "/",
         type : "POST",
         data: {'id': button_id, 'new_name': new_name},
@@ -166,7 +159,6 @@ $("div[data-rename-btn]").click(function () {
 $("div[data-delete-btn]").click(function () {
     var button_id = $(this).data("delete-btn");
     $.ajax({
-        headers: {'X-CSRFToken': '{{ csrf_token }}'},
         url: "/api/environment/" + button_id + "/",
         type : "POST",
         data: {'id': button_id, 'delete': 'true'},
@@ -176,6 +168,12 @@ $("div[data-delete-btn]").click(function () {
         }
     });
 });
+</script>
+
+<script>
+$('.ui.checkbox')
+  .checkbox()
+;
 </script>
 
 </html>

@@ -3,8 +3,10 @@ from loader.models import TestJobs, TestsStorage, Environments
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 
 
+@login_required()
 def search(request):
 
     job_count = TestJobs.objects.all().count()
@@ -17,6 +19,7 @@ def search(request):
                                                   "tests": tests})
 
 
+@login_required()
 @csrf_exempt
 def filter_data(request):
 

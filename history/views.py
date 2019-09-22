@@ -2,8 +2,10 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.shortcuts import render
 from loader.models import TestJobs
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
 
 
+@login_required()
 def history(request):
 
     job_objects = TestJobs.objects.filter(~Q(status=1)).order_by('-id')
