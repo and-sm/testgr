@@ -7,15 +7,18 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from .forms import AddUserForm
+from helpers import helpers
 import requests
 
 
 @login_required()
 @staff_member_required
 def main(request):
-
     envs = Environments.objects.all().exclude(name="")
-    return render(request, "management/main.html", {'envs': envs})
+    # Running jobs count
+    running_jobs_count = helpers.running_jobs_count()
+    return render(request, "management/main.html", {'envs': envs,
+                                                    'running_jobs_count': running_jobs_count})
 
 
 @login_required()
@@ -29,19 +32,31 @@ def about(request):
         latest_version = "Unknown"
     else:
         latest_version = response.json()['tag_name']
-    return render(request, "management/about.html", {"version": version, "latest_version": latest_version})
+
+    # Running jobs count
+    running_jobs_count = helpers.running_jobs_count()
+
+    return render(request, "management/about.html", {"version": version,
+                                                     "latest_version": latest_version,
+                                                     "running_jobs_count": running_jobs_count})
 
 
 @login_required()
 @staff_member_required
 def users(request):
     users = User.objects.all()
-    return render(request, "management/users.html", {"users": users})
+    # Running jobs count
+    running_jobs_count = helpers.running_jobs_count()
+    return render(request, "management/users.html", {"users": users,
+                                                     "running_jobs_count": running_jobs_count})
 
 
 @login_required()
 @staff_member_required
 def users_add(request):
+
+    # Running jobs count
+    running_jobs_count = helpers.running_jobs_count()
 
     if request.method == 'POST':
         form = AddUserForm(request.POST)
@@ -58,7 +73,8 @@ def users_add(request):
                 form.check_password()
             except ValidationError as e:
                 form.add_error('password', e)
-                return render(request, 'management/users_add.html', {'form': form})
+                return render(request, 'management/users_add.html', {'form': form,
+                                                                     'running_jobs_count': running_jobs_count})
 
             user_obj = User.objects.create(username=username[0], password=password[0], is_staff=is_staff)
             user_obj.set_password(password[0])
@@ -67,7 +83,8 @@ def users_add(request):
     else:
         form = AddUserForm()
 
-    return render(request, 'management/users_add.html', {'form': form})
+    return render(request, 'management/users_add.html', {'form': form,
+                                                         'running_jobs_count': running_jobs_count})
 
 
 
