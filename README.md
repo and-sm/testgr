@@ -70,6 +70,13 @@ exit
 
 Open **Testgr** by using http://127.0.0.1 address. Login with previously created admin user account.
 
+### User management:
+To create users go to Management > Users.
+Roles:
+* admin - initial user with full privileges.
+* staff - can create staff/normal users.
+* normal - don't have an access to management page.
+
 ### How to stop **Testgr**:
 ```
 docker-compose down
