@@ -3,6 +3,7 @@ import uuid
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection
+from django.utils import timezone
 
 from loader.models import TestJobs, Tests, Environments, TestsStorage
 from loader.redis import Redis
@@ -198,6 +199,8 @@ class PytestLoader:
             # Redis
             # Job item update
             data = self.redis.get_value_from_key_as_str("job_" + self.data['job_id'])
+            if data is None:
+                return HttpResponse(status=403)
             tests_not_started = int(data["tests_not_started"])
             tests_not_started -= 1
             data["tests_not_started"] = str(tests_not_started)
@@ -230,7 +233,8 @@ class PytestLoader:
             # Redis
             # Job item update
             data = self.redis.get_value_from_key_as_str("job_" + self.data['job_id'])
-
+            if data is None:
+                return HttpResponse(status=403)
             job_object = TestJobs.objects.get(uuid=self.data['job_id'])
             if job_object.status == 1:
                 try:

@@ -5,7 +5,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from datetime import timezone, datetime
+from django.utils import timezone
+from datetime import datetime
+from datetime import timezone as timezone_native
 from tools.tools import unix_time_to_datetime
 from helpers import helpers
 
@@ -49,7 +51,7 @@ def index(request):
         job_item = dict()
         job_item['uuid'] = job.uuid
         job_item['time_taken'] = job.get_time_taken()
-        job_item['stop_time'] = job.stop_time.strftime('%H:%M:%S %d-%b-%Y')
+        job_item['stop_time'] = timezone.localtime(job.stop_time).strftime('%H:%M:%S %d-%b-%Y')
         job_item['status'] = job.status
         job_item['tests_passed'] = job.tests_passed
         job_item['tests_failed'] = job.tests_failed
@@ -66,7 +68,7 @@ def index(request):
     for job in running_jobs:
         job_item = dict()
         job_item['uuid'] = job.uuid
-        job_item['start_time'] = job.start_time.strftime('%H:%M:%S %d-%b-%Y')
+        job_item['start_time'] = timezone.localtime(job.start_time).strftime('%H:%M:%S %d-%b-%Y')
         job_item['env'] = job.get_env()
         job_item['tests_passed'] = job.tests_passed
         job_item['tests_failed'] = job.tests_failed
@@ -93,6 +95,8 @@ def job(request, job_uuid):
         stop_time = None
     if job_object.time_taken:
         time_taken = job_object.get_time_taken()
+    elif job_object.status is 4 and job_object.time_taken is None:
+        time_taken = 0
     else:
         time_taken = None
     env = job_object.get_env()
@@ -142,15 +146,17 @@ def test(request, test_uuid):
     test_object = Tests.objects.get(uuid=test_uuid)
     uuid = test_object.uuid
     if test_object.start_time:
-        start_time = test_object.start_time.strftime('%H:%M:%S %d-%b-%Y')
+        start_time = test_object.get_start_time()
     else:
         start_time = None
     if test_object.stop_time:
-        stop_time = test_object.stop_time.strftime('%H:%M:%S %d-%b-%Y')
+        stop_time = test_object.get_stop_time()
     else:
         stop_time = None
     if test_object.time_taken:
         time_taken = test_object.get_time_taken()
+    elif test_object.status is 6 and test_object.time_taken is None:
+        time_taken = 0
     else:
         time_taken = None
     env = test_object.job.get_env()
@@ -198,13 +204,15 @@ def job_force_stop(request):
 
     job_object = TestJobs.objects.get(uuid=uuid)
     job_object.status = 4
-    job_object.stop_time = unix_time_to_datetime(int(datetime.now(tz=timezone.utc).timestamp() * 1000))
+    job_object.stop_time = unix_time_to_datetime(int(datetime.now(tz=timezone_native.utc).timestamp() * 1000))
     job_object.time_taken = job_object.stop_time - job_object.start_time
     job_object.save()
     # Tests
     for test_item in job_object.tests.all():
         if test_item.status == 1 or test_item.status == 2:
             test_item.status = 6
+            test_item.start_time = job_object.start_time
+            test_item.stop_time = job_object.start_time
             test_item.save()
 
     return JsonResponse({"status": "ok"})

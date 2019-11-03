@@ -1,5 +1,6 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 
 from tools.tools import get_hash, compare_hash
 from loader.models import TestJobs, Tests, TestsStorage
@@ -140,7 +141,7 @@ def get_latest_jobs(created, instance, **kwargs):
             job_item = dict()
             job_item['uuid'] = job.uuid
             job_item['time_taken'] = job.get_time_taken()
-            job_item['stop_time'] = job.stop_time.strftime('%H:%M:%S %d-%b-%Y')
+            job_item['stop_time'] = timezone.localtime(job.stop_time).strftime('%H:%M:%S %d-%b-%Y')
             if job.status == 4:  # special case for show "skipped" label while websocket updates "Last Jobs table"
                 job_item['status'] = 4
             if job.tests_passed is not None:
@@ -162,7 +163,7 @@ def get_latest_jobs(created, instance, **kwargs):
         redis.set_value("latest_jobs", result_hash)   # send update hash value to Redis
         result.reverse()  # For correct ordering in JS
 
-        # Compare between Redis previous hash and  local hash of latest_jobs
+        # Compare between Redis previous hash and local hash of latest_jobs
         if compare_hash(redis_latest_jobs_hash, result_hash):
             # Hash identical
             return result, True
@@ -208,7 +209,7 @@ def get_job_details(created, instance, **kwargs):
 
         # Statistics
         if job_object.stop_time is not None:
-            result['stop_time'] = job_object.stop_time.strftime('%H:%M:%S %d-%b-%Y')
+            result['stop_time'] = timezone.localtime(job_object.stop_time).strftime('%H:%M:%S %d-%b-%Y')
         else:
             result['stop_time'] = None
         if job_object.time_taken is not None:

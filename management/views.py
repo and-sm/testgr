@@ -25,7 +25,7 @@ def main(request):
 @staff_member_required
 def about(request):
 
-    version = "0.13.2"
+    version = "0.14.0"
     response = requests.get(f"https://api.github.com/repos/and-sm/testgr/releases/latest",
                             headers={"Content-Type": "application/json", "User-Agent": "testgr"})
     if response.status_code != 200:

@@ -25,8 +25,7 @@ There you can review status of your finished or live test execution.
 ![Search](https://i.lensdump.com/i/WzoMZ7.png)
 
 
-### Technologies:
-**Testgr** was developed an tested using the following software:
+### Components:
 * Python 3.7
 * Django 2.2
 * Redis 4
@@ -39,24 +38,30 @@ Depending on your test framework (nose2 or pytest) you can choose [**nose2-rt**]
 
 
 ### Deploy and configuration
+1 - 
 You can start up **Testgr** rapidly using docker-compose:
 ```
 git clone https://github.com/and-sm/testgr.git
 cd testgr
 ```
-Change **config.env** file:
+2 - 
+Rename **config_example.env** file to **config.env** and configure:
 
 TESTGR_URL - write http://your_testgr_domain.xx
 
 SECRET_KEY - generate and use strong password
 
-Set up necessary email configuration. Currently Testgr use Mailgun as default backend. 
+TIME_ZONE - use your timezone, default is UTC
 
-Optional: configure **testgr/settings.py** file if more advanced email setup, MySQL or time settings if needed.
+Set up necessary email configuration. Currently Testgr use smtp.EmailBackend as default. 
+
+Optional: configure **testgr/settings.py** file if more advanced configuration is needed.
+
+3 - Start **Testgr**
 ```
 docker-compose up -d --build
 ```
-
+4 - 
 Then you must create an admin user. Let's check information about our running containers:
 ```
 docker ps

@@ -124,11 +124,11 @@ PASSWORD_HASHERS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = os.getenv('TIME_ZONE')
 
 USE_I18N = True
 
-USE_L10N = True
+USE_L10N = False
 
 USE_TZ = True
 
@@ -172,7 +172,7 @@ CHANNEL_LAYERS = {
 # Email settings
 # https://github.com/anymail/django-anymail
 
-EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"  # or sendgrid.EmailBackend, or...
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
 
 # Configure MAILGUN_API_KEY and MAILGUN_SENDER_DOMAIN or use other email backend and its settings)
 ANYMAIL = {
@@ -184,6 +184,12 @@ ANYMAIL = {
 EMAIL_SUBJECT = os.getenv('EMAIL_SUBJECT')
 EMAIL_RECEIVER = os.getenv('EMAIL_RECEIVER')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL')
 
 # Testgr
 TESTGR_URL = os.getenv('TESTGR_URL')
