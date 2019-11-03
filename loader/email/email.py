@@ -69,10 +69,15 @@ class SendJobReport:
             subject = str("Automation Report: Passed ") + str(self.job.tests.filter(status=3).count()) \
                       + ", Failed " + str(self.job.tests.filter(status=4).count()) \
                       + ", Skipped " + str(self.job.tests.filter(status=1).count())
+        receivers = settings.EMAIL_RECEIVER
+        if "," in receivers:
+            receivers = receivers.split(",")
+        else:
+            receivers = [receivers]
         email = EmailMessage(
             subject=subject,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[settings.EMAIL_RECEIVER],
+            to=receivers,
             body=self.message()
         )
         email.content_subtype = "html"

@@ -1,6 +1,7 @@
 from django.db import models
 from tools.tools import normalize_time
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 
 
 class Environments(models.Model):
@@ -39,10 +40,10 @@ class TestJobs(models.Model):
             return None
 
     def get_start_time(self):
-        return self.start_time.strftime('%H:%M:%S %d-%b-%Y')
+        return timezone.localtime(self.start_time).strftime('%H:%M:%S %d-%b-%Y')
 
     def get_stop_time(self):
-        return self.stop_time.strftime('%H:%M:%S %d-%b-%Y')
+        return timezone.localtime(self.stop_time).strftime('%H:%M:%S %d-%b-%Y')
 
     def get_env(self):
         if self.env.remapped_name:
@@ -127,7 +128,10 @@ class Tests(models.Model):
     test = models.ForeignKey(TestsStorage, on_delete=models.CASCADE, related_name='test_storage')
 
     def get_start_time(self):
-        return self.start_time.strftime('%H:%M:%S')
+        return timezone.localtime(self.start_time).strftime('%H:%M:%S %d-%b-%Y')
+
+    def get_stop_time(self):
+        return timezone.localtime(self.stop_time).strftime('%H:%M:%S %d-%b-%Y')
 
     def get_time_taken(self):
         try:

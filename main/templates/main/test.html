@@ -9,6 +9,12 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.css">
 
+    <style>
+        .identity{
+            word-wrap: break-word;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -63,7 +69,7 @@
         <div><h5>Time Taken: </h5>{% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}</div>
     </div>
 
-    <div class="ten wide column">
+    <div class="ten wide column identity">
         <h3>Additional info</h3>
         <div class="ui divider"></div>
             <h4>Test identity:</h4> {{ identity }}
