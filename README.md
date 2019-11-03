@@ -54,6 +54,7 @@ SECRET_KEY - generate and use strong password
 TIME_ZONE - use your timezone, default is UTC
 
 Set up necessary email configuration. Currently Testgr use smtp.EmailBackend as default. 
+Use comma delimited emails for more than one email receiver.
 
 Optional: configure **testgr/settings.py** file if more advanced configuration is needed.
 
