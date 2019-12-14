@@ -13,6 +13,10 @@
         .identity{
             word-wrap: break-word;
         }
+        .ui[class*="right pointing"].label{
+            margin-top: 7px;
+            margin-left: 0px;
+        }
     </style>
 
 </head>
@@ -62,7 +66,7 @@
             {% elif status == 6 %}<span class="ui red small header">Aborted</span>
             {% endif %}</h5>
         </div><br />
-        <div><h5>Environment: &nbsp;<span class="ui middle label">{{ env|upper }}</span></h5></div><br />
+        <div><h5>Environment: &nbsp;<span class="ui middle label">{{ env }}</span></h5></div><br />
         <div><h5>UUID: </h5>{{ uuid }}</div><br />
         <div><h5>Start Date: </h5>{% if start_time is not None %}{{ start_time }}{% else %}Pending...{% endif %}</div><br />
         <div><h5>Stop Date: </h5>{% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}</div><br />
@@ -72,11 +76,46 @@
     <div class="ten wide column identity">
         <h3>Additional info</h3>
         <div class="ui divider"></div>
-            <h4>Test identity:</h4> {{ identity }}
+            <h4>Path:</h4>
+            <div>
+            {% comment %}
+            <div class="ui left labeled button" tabindex="0">
+            {% endcomment %}
+                {% for i in identity %}
+                {% if forloop.last  %}
+                {% if status == 1 %}
+                <a class="ui large gray label identity-class">
+                {% elif status == 2 %}
+                <a class="ui large blue label identity-class">
+                {% elif status == 3 %}
+                <a class=" ui large green label identity-class">
+                {% elif status == 4 %}
+                <a class="ui large red label identity-class">
+                {% elif status == 5 %}
+                <a class="ui large yellow label identity-class">
+                {% elif status == 6 %}
+                <a class="ui large red label identity-class">
+                {% endif %}
+                {% else %}
+                <a class="ui basic large right pointing label identity-class">
+                {% endif %}
+                {{ i }}
+                </a>
+                {% endfor %}
+            </div>
             {% if description %}
             <h4>Description:</h4> {{ description|urlize|urlize_target_blank  }}
             {% endif %}
-            {% if msg %}<h4>Error:</h4>{{ msg|escape|linebreaksbr }}{% else %}<h3>No errors</h3>{% endif %}
+            {% if msg %}<h4>Error:</h4>
+                <p></p>
+                {{ msg|escape|linebreaksbr }}{% else %}<h3>No errors</h3>{% endif %}
+            {% comment %}
+            {% if msg_detailed %}
+                <h4>Error:</h4>
+                <p></p>
+                {{ msg_detailed|linebreaksbr}}
+            {% endif %}
+            {% endcomment %}
     </div>
 
     <div class="one wide column">

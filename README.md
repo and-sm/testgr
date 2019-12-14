@@ -19,7 +19,7 @@ There you can review status of your finished or live test execution.
 ![Finished_job](https://i.lensdump.com/i/WzonOT.png)
 
 ### Example of finished test:
-![Failed test](https://i.lensdump.com/i/iAbUW5.png)
+![Failed test](https://i.lensdump.com/i/iD6Qav.png)
 
 ### Search:
 ![Search](https://i.lensdump.com/i/WzoMZ7.png)
@@ -28,7 +28,7 @@ There you can review status of your finished or live test execution.
 ### Components:
 * Python 3.7
 * Django 2.2
-* Redis 4
+* Redis 5
 * SQLite and MySQL 5.7
 * Docker
 * docker-compose

@@ -144,6 +144,8 @@ def job(request, job_uuid):
 def test(request, test_uuid):
 
     test_object = Tests.objects.get(uuid=test_uuid)
+    test_job = test_object.job
+    test_storage_data = test_object.test
     uuid = test_object.uuid
     if test_object.start_time:
         start_time = test_object.get_start_time()
@@ -159,10 +161,23 @@ def test(request, test_uuid):
         time_taken = 0
     else:
         time_taken = None
-    env = test_object.job.get_env()
+    env = test_job.get_env()
     status = test_object.status
     msg = test_object.msg
-    identity = test_object.test.identity
+    # msg_detailed = test_object.msg_detailed
+
+    identity = test_storage_data.identity
+    if test_job.fw_type == 1:
+        identity = identity.split(".")
+    elif test_job.fw_type == 2:
+        identity = identity.split("/")
+        for item in identity:
+            if "::" in item:
+                modified_item = item.split("::")
+                identity.remove(item)
+                identity.extend(modified_item)
+            else:
+                pass
 
     if test_object.test.description:
         description = test_object.test.description
@@ -179,6 +194,7 @@ def test(request, test_uuid):
                                               'env': env,
                                               'status': status,
                                               'msg': msg,
+                                              # 'msg_detailed': msg_detailed,
                                               'identity': identity,
                                               'description': description,
                                               'running_jobs_count': running_jobs_count})
