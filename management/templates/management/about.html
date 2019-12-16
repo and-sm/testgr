@@ -22,7 +22,11 @@
             <a href="{%  url 'index' %}" class="item">Monitoring</a>
             <a href="{%  url 'search' %}" class="item">Search</a>
             <a href="{%  url 'history' %}" class="item">History</a>
+            {% if request.user.is_staff %}
             <a href="{%  url 'management' %}" class="item active">Management</a>
+            {% else %}
+            <a href="{%  url 'about_guest' %}" class="item active">About</a>
+            {% endif %}
             <div class="right menu" id="main_right_menu">
                 {% if running_jobs_count > 0 %}
                 <div class="item" id="running_jobs_count">
@@ -43,7 +47,8 @@
     <div class="one wide column">
     </div>
 
-    <div class="three wide column">
+    <div class="{% if request.user.is_staff %}three{% else %}two{% endif %} wide column">
+    {% if request.user.is_staff %}
         <h3>Management</h3>
         <div class="ui divider"></div>
         <div class="ui secondary vertical menu">
@@ -51,13 +56,14 @@
             <a class="item" href="{% url 'users' %}">Users</a>
             <a class="item active" href="{% url 'about' %}">About</a>
         </div>
+    {% endif %}
     </div>
 
     <div class="eleven wide column">
         <h3>About</h3>
         <div class="ui divider"></div>
 
-        <p><strong>Build version:</strong> {{ version }}</p>
+        <p><strong>Installed version:</strong> {{ version }}</p>
         {% if latest_version != version %}
         <p><strong>Latest version: </strong><strong>
             <a href="https://github.com/and-sm/testgr" target="_blank">{{ latest_version }}</a>.
