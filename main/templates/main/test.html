@@ -16,6 +16,12 @@
         .ui[class*="right pointing"].label{
             margin-top: 7px;
             margin-left: 0px;
+            margin-bottom: 7px;
+        }
+        .ui[class*="green"].label{
+            margin-top: 7px;
+            margin-left: 0px;
+            margin-bottom: 7px;
         }
     </style>
 
@@ -33,7 +39,11 @@
             <a href="{%  url 'index' %}" class="item active">Monitoring</a>
             <a href="{%  url 'search' %}" class="item">Search</a>
             <a href="{%  url 'history' %}" class="item">History</a>
-            {% if request.user.is_staff %}<a href="{%  url 'management' %}" class="item">Management</a>{% endif %}
+            {% if request.user.is_staff %}
+            <a href="{%  url 'management' %}" class="item">Management</a>
+            {% else %}
+            <a href="{%  url 'about_guest' %}" class="item">About</a>
+            {% endif %}
             <div class="right menu" id="main_right_menu">
                 {% if running_jobs_count > 0 %}
                 <div class="item" id="running_jobs_count">
@@ -55,7 +65,7 @@
     </div>
 
     <div class="four wide column">
-        <h3>Test Details</h3>
+        <h4>Test Details</h4>
         <div class="ui divider"></div>
         <div><h5 id="job_status">Status:
             {% if status == 1 %}<span class="ui gray small header">Not Started</span>
@@ -74,7 +84,7 @@
     </div>
 
     <div class="ten wide column identity">
-        <h3>Additional info</h3>
+        <h4>Additional info</h4>
         <div class="ui divider"></div>
             <h4>Path:</h4>
             <div>
@@ -84,17 +94,17 @@
                 {% for i in identity %}
                 {% if forloop.last  %}
                 {% if status == 1 %}
-                <a class="ui large gray label identity-class">
+                <a class="ui large gray label">
                 {% elif status == 2 %}
-                <a class="ui large blue label identity-class">
+                <a class="ui large blue label">
                 {% elif status == 3 %}
-                <a class=" ui large green label identity-class">
+                <a class=" ui large green label">
                 {% elif status == 4 %}
-                <a class="ui large red label identity-class">
+                <a class="ui large red label">
                 {% elif status == 5 %}
-                <a class="ui large yellow label identity-class">
+                <a class="ui large yellow label">
                 {% elif status == 6 %}
-                <a class="ui large red label identity-class">
+                <a class="ui large red label">
                 {% endif %}
                 {% else %}
                 <a class="ui basic large right pointing label identity-class">

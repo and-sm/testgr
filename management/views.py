@@ -21,11 +21,9 @@ def main(request):
                                                     'running_jobs_count': running_jobs_count})
 
 
-@login_required()
-@staff_member_required
 def about(request):
 
-    version = "0.15.0"
+    version = "0.15.1"
     response = requests.get(f"https://api.github.com/repos/and-sm/testgr/releases/latest",
                             headers={"Content-Type": "application/json", "User-Agent": "testgr"})
     if response.status_code != 200:
