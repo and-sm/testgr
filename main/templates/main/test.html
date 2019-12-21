@@ -7,7 +7,7 @@
 {% load static %}
 {% load urlize_target_blank %}
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.1/dist/semantic.min.css">
 
     <style>
         .identity{
@@ -81,6 +81,37 @@
         <div><h5>Start Date: </h5>{% if start_time is not None %}{{ start_time }}{% else %}Pending...{% endif %}</div><br />
         <div><h5>Stop Date: </h5>{% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}</div><br />
         <div><h5>Time Taken: </h5>{% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}</div>
+
+        <h5>Last {{last_tests_count}} results:</h5>
+
+        <div class="ui list">
+        {% for item in last_10_tests %}
+            <div class="item">
+               <p> <i class="{% if item.1 == 4 or item.1 == 6 %}circle red{% elif item.1 == 3 %}circle green
+                           {% elif item.1 == 5 %}circle yellow{% elif item.1 == 1 or item.1 == 2 %}circle grey{% endif %} icon"></i>
+                <a href="{% url 'test' test_uuid=item.0 %}">{% if item.2 == None %}Final time not saved{% else %}{{item.2}}{% endif %}</a>
+                   {% if item.0 in request.path   %}<i class="arrow alternate circle left outline icon"></i>{% endif %}
+               </p>
+            </div>
+        {% endfor %}
+
+</div>
+
+    <div class="ui divider"></div>
+
+        <p class="ui list">
+            <div class="item">
+            <p><i class="info grey icon"></i> Last success <i class="chevron right icon"></i>
+            {% if not last_success %}None{% else %}<a href="{% url 'test' test_uuid=last_success.0 %}">
+                {{ last_success.2 }}</a>{% endif %}</p>
+            </div>
+
+    <div class="item">
+        <p><i class="info grey icon"></i> Last fail <i class="chevron right icon"></i>
+            {% if not last_fail %}None{% else %}<a href="{% url 'test' test_uuid=last_fail.0 %}">{{ last_fail.2 }}</a>
+            {% endif %}</p>
+    </div>
+
     </div>
 
     <div class="ten wide column identity">
@@ -135,11 +166,8 @@
 
 </body>
 
-<script
-  src="https://code.jquery.com/jquery-3.3.1.min.js"
-  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-  crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.1/dist/semantic.min.js"></script>
+<script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.1/dist/semantic.min.js"></script>
 
 <script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>
 

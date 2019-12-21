@@ -141,7 +141,7 @@ def get_latest_jobs(created, instance, **kwargs):
             job_item = dict()
             job_item['uuid'] = job.uuid
             job_item['time_taken'] = job.get_time_taken()
-            job_item['stop_time'] = timezone.localtime(job.stop_time).strftime('%H:%M:%S %d-%b-%Y')
+            job_item['stop_time'] = timezone.localtime(job.stop_time).strftime('%d-%b-%Y, %H:%M:%S')
             if job.status == 4:  # special case for show "skipped" label while websocket updates "Last Jobs table"
                 job_item['status'] = 4
             if job.tests_passed is not None:
@@ -209,7 +209,7 @@ def get_job_details(created, instance, **kwargs):
 
         # Statistics
         if job_object.stop_time is not None:
-            result['stop_time'] = timezone.localtime(job_object.stop_time).strftime('%H:%M:%S %d-%b-%Y')
+            result['stop_time'] = timezone.localtime(job_object.stop_time).strftime('%d-%b-%Y, %H:%M:%S')
         else:
             result['stop_time'] = None
         if job_object.time_taken is not None:
