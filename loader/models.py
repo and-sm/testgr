@@ -40,10 +40,10 @@ class TestJobs(models.Model):
             return None
 
     def get_start_time(self):
-        return timezone.localtime(self.start_time).strftime('%H:%M:%S %d-%b-%Y')
+        return timezone.localtime(self.start_time).strftime('%d-%b-%Y, %H:%M:%S')
 
     def get_stop_time(self):
-        return timezone.localtime(self.stop_time).strftime('%H:%M:%S %d-%b-%Y')
+        return timezone.localtime(self.stop_time).strftime('%d-%b-%Y, %H:%M:%S')
 
     def get_env(self):
         if self.env.remapped_name:
@@ -129,10 +129,10 @@ class Tests(models.Model):
     test = models.ForeignKey(TestsStorage, on_delete=models.CASCADE, related_name='test_storage')
 
     def get_start_time(self):
-        return timezone.localtime(self.start_time).strftime('%H:%M:%S %d-%b-%Y')
+        return timezone.localtime(self.start_time).strftime('%d-%b-%Y, %H:%M:%S')
 
     def get_stop_time(self):
-        return timezone.localtime(self.stop_time).strftime('%H:%M:%S %d-%b-%Y')
+        return timezone.localtime(self.stop_time).strftime('%d-%b-%Y, %H:%M:%S')
 
     def get_time_taken(self):
         try:
