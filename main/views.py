@@ -51,7 +51,7 @@ def index(request):
         job_item = dict()
         job_item['uuid'] = job.uuid
         job_item['time_taken'] = job.get_time_taken()
-        job_item['stop_time'] = timezone.localtime(job.stop_time).strftime('%H:%M:%S %d-%b-%Y')
+        job_item['stop_time'] = job.get_stop_time()
         job_item['status'] = job.status
         job_item['tests_passed'] = job.tests_passed
         job_item['tests_failed'] = job.tests_failed
@@ -68,7 +68,7 @@ def index(request):
     for job in running_jobs:
         job_item = dict()
         job_item['uuid'] = job.uuid
-        job_item['start_time'] = timezone.localtime(job.start_time).strftime('%H:%M:%S %d-%b-%Y')
+        job_item['start_time'] = job.get_start_time()
         job_item['env'] = job.get_env()
         job_item['tests_passed'] = job.tests_passed
         job_item['tests_failed'] = job.tests_failed
@@ -187,6 +187,34 @@ def test(request, test_uuid):
     # Running jobs count
     running_jobs_count = helpers.running_jobs_count()
 
+    # Last 5 jobs
+    data = Tests.objects.filter(test__identity=test_object.test.identity).order_by('-id')[:10]
+    last_10_tests = list()
+    last_tests_count = 0
+    for i in data:
+        test_data = list()
+        test_data.append(i.uuid)
+        test_data.append(i.status)
+        test_data.append(i.get_stop_time())
+        last_10_tests.append(test_data)
+        last_tests_count += 1
+
+    # Last success
+    data = Tests.objects.filter(test__identity=test_object.test.identity).filter(status=3).order_by('-id')[:1]
+    last_success = list()
+    for i in data:
+        last_success.append(i.uuid)
+        last_success.append(i.status)
+        last_success.append(i.get_stop_time())
+
+    # Last fail
+    data = Tests.objects.filter(test__identity=test_object.test.identity).filter(status=4).order_by('-id')[:1]
+    last_fail = list()
+    for i in data:
+        last_fail.append(i.uuid)
+        last_fail.append(i.status)
+        last_fail.append(i.get_stop_time())
+
     return render(request, "main/test.html", {'uuid': uuid,
                                               'start_time': start_time,
                                               'stop_time': stop_time,
@@ -197,7 +225,11 @@ def test(request, test_uuid):
                                               # 'msg_detailed': msg_detailed,
                                               'identity': identity,
                                               'description': description,
-                                              'running_jobs_count': running_jobs_count})
+                                              'running_jobs_count': running_jobs_count,
+                                              'last_10_tests': last_10_tests,
+                                              'last_tests_count': last_tests_count,
+                                              'last_success': last_success,
+                                              'last_fail': last_fail})
 
 
 @login_required()

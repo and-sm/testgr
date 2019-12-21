@@ -124,7 +124,7 @@ class Nose2Loader:
             "uuid": self.data["job_id"],
             "status": "1",
             "start_time": timezone.localtime(unix_time_to_datetime(self.data['startTime']))
-                .strftime('%H:%M:%S %d-%b-%Y'),
+                .strftime('%d-%b-%Y, %H:%M:%S'),
             "tests_not_started": str(tests_not_started),
             "env": str(env_name)
         })
