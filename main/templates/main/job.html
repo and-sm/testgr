@@ -6,7 +6,7 @@
 
 {% load static %}
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.1/dist/semantic.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.css" />
 
 {% comment %}
 <style>
@@ -57,7 +57,7 @@
 <div class="ui grid">
 
     <div class="sixteen wide column">
-        <div class="ui  menu">
+        <div class="ui fixed menu">
             <div class="item">
                 <h3><a href="{%  url 'index' %}">TESTGR</a></h3>
             </div>
@@ -85,6 +85,10 @@
             </div>
         </div>
 	</div>
+
+    <div class="sixteen wide column">
+        <p>&nbsp;</p>
+    </div>
 
     <div class="one wide column">
     </div>
@@ -154,7 +158,7 @@
                     <div class="item"><h4>
                     <span id="job_tests_passed">
                     {% if status != 1 %}
-                        <a href="#table_positive_tests">Passed: {{ passed }}</a>
+                        <a href="#table_success_tests">Passed: {{ passed }}</a>
                     {% else %}
                         Passed: {{ passed }}
                     {% endif %}
@@ -191,7 +195,8 @@
                 </div>
 
                 <div class="three wide right aligned column">
-                   {% comment %}<a href=""><span class="ui medium red text">delete job</span></a>{% endcomment %}
+                    {% if status != 1 %}<h4>
+                        <a href="#" id="delete_job"><span class="ui red text">Delete job</span></a></h4>{% endif %}
                 </div>
 
             </div>
@@ -217,10 +222,10 @@
         </div>
 
         {% if status == 1 %}
-        <table class="ui very basic table">
+        <table class="ui very basic selectable table">
             <thead>
             <tr>
-                <th>&nbsp;&nbsp;Test Method</th>
+                <th>&nbsp;&nbsp;Test</th>
                 <th>Start Time</th>
                 <th>Time Taken</th>
                 <th>Status</th>
@@ -228,21 +233,29 @@
             </thead>
             <tbody id="tests_list">
             {% for item in tests.all %}
-                <tr class="ui {% if item.status == 1%}{% endif %}{% if item.status == 2%}{% endif %}{% if item.status == 3%}positive{% endif %}{% if item.status == 4%}negative{% endif %}{% if item.status == 5%}warning{% endif %}{% if item.status == 6%}negative{% endif %}" data-tr-test="{{ item.uuid }}">
+                <tr onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';"
+                    class="ui
+                    {% if item.status == 1%}{% endif %}
+                    {% if item.status == 2%}{% endif %}
+                    {% if item.status == 3%}positive{% endif %}
+                    {% if item.status == 4%}negative{% endif %}
+                    {% if item.status == 5%}warning{% endif %}
+                    {% if item.status == 6%}negative{% endif %}"
+                    data-tr-test="{{ item.uuid }}">
                     {% if fw == 1 %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_nose }}</a></td>
+                    <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_nose }}</td>
                     {% elif fw == 2 %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_pytest }}</a></td>
+                    <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_pytest }}</td>
                     {% endif %}
-                    <td data-td-start-time="{{ item.uuid }}"><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    <td data-td-start-time="{{ item.uuid }}">
                         {% if item.get_start_time is not None %}
                             {{ item.get_start_time }}
                         {% else %}Pending...
                         {% endif %}
-                    </a></td>
-                    <td data-td-eta="{{ item.uuid }}"><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    </td>
+                    <td data-td-eta="{{ item.uuid }}">
                         {% if item.status == 2 %}
                             {% if item.test.get_time_taken_eta is not None %}
                                 ETA: {{ item.test.get_time_taken_eta }}
@@ -262,8 +275,8 @@
                                 Pending...
                             {% endif %}
                         {% endif %}
-                    </a></td>
-                    <td data-td-status="{{ item.uuid }}"><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    </td>
+                    <td data-td-status="{{ item.uuid }}">
                         {% if item.status == 1%}<div class="ui gray basic label">Not Started</div>
                         {% elif item.status == 2%}<div class="ui blue basic label">In Progress</div>
                         {% elif item.status == 3%}<div class="ui green basic label">Passed</div>
@@ -271,7 +284,7 @@
                         {% elif item.status == 5 %}<div class="ui yellow basic label">Skipped</div>
                         {% elif item.status == 6 %}<div class="ui red basic label">Aborted</div>
                         {% endif %}
-                    </a></td>
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -282,10 +295,10 @@
     {% if status != 1 %}
         {% if negative_tests > 0 %}
         <a class="ui red ribbon label" id="table_negative_tests">Failed tests: {{ negative_tests }}</a>
-        <table class="ui very basic table">
+        <table class="ui very basic selectable table">
             <thead>
             <tr>
-                <th>&nbsp;&nbsp;Test Method</th>
+                <th>&nbsp;&nbsp;Test</th>
                 <th>Start Time</th>
                 <th>Time Taken</th>
                 <th>Status</th>
@@ -294,31 +307,31 @@
             <tbody id="tests_list">
             {% for item in tests.all %}
                 {% if item.status != 3 and item.status != 1 and item.status != 5 %}
-                <tr class="ui negative">
+                <tr class="ui negative" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_nose }}</a></td>
+                    <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_nose }}</td>
                     {% elif fw == 2 %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_pytest }}</a></td>
+                    <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_pytest }}</td>
                     {% endif %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    <td>
                         {% if item.get_start_time is not None %}
                             {{ item.get_start_time }}
                         {% else %}0s
                         {% endif %}
-                    </a></td>
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    </td>
+                    <td>
                         {% if item.get_time_taken is not None %}
                             {{ item.get_time_taken }}
                         {% else %}0s
                         {% endif %}
-                    </a></td>
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    </td>
+                    <td>
                         {% if item.status == 4 %}<span class="ui red basic label">Failed</span>
                         {% elif item.status == 6 %}<div class="ui red basic label">Aborted</div>
                         {% endif %}
-                    </a></td>
+                    </td>
                 </tr>
                 {% endif %}
             {% endfor %}
@@ -327,11 +340,11 @@
         {% endif %}
 
         {% if passed > 0 %}
-        <a class="ui green ribbon label" id="table_positive_tests">Passed tests: {{ passed }}</a>
-        <table class="ui very basic table">
+        <a class="ui green ribbon label" id="table_success_tests">Passed tests: {{ passed }}</a>
+        <table class="ui very basic selectable table">
             <thead>
             <tr>
-                <th>&nbsp;&nbsp;Test Method</th>
+                <th>&nbsp;&nbsp;Test</th>
                 <th>Start Time</th>
                 <th>Time Taken</th>
                 <th>Status</th>
@@ -340,29 +353,29 @@
             <tbody id="tests_list">
             {% for item in tests.all %}
                 {% if item.status == 3 %}
-                <tr class="ui positive">
+                <tr class="ui positive" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_nose }}</a></td>
+                    <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_nose }}</td>
                     {% elif fw == 2 %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_pytest }}</a></td>
+                    <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_pytest }}</td>
                     {% endif %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    <td>
                         {% if item.get_start_time is not None %}
                             {{ item.get_start_time }}
                         {% else %}Pending...
                         {% endif %}
-                    </a></td>
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    </td>
+                    <td>
                         {% if item.get_time_taken is not None %}
                             {{ item.get_time_taken }}
                         {% else %}0s
                         {% endif %}
-                    </a></td>
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    </td>
+                    <td>
                         <div class="ui green basic label">Passed</div>
-                    </a></td>
+                    </td>
                 </tr>
             {% endif %}
             {% endfor %}
@@ -372,10 +385,10 @@
 
         {% if skipped > 0 %}
         <a class="ui yellow ribbon label" id="table_skipped_tests">Skipped tests: {{ skipped }}</a>
-        <table class="ui very basic table">
+        <table class="ui very basic selectable table">
             <thead>
             <tr>
-                <th>&nbsp;&nbsp;Test Method</th>
+                <th>&nbsp;&nbsp;Test</th>
                 <th>Start Time</th>
                 <th>Time Taken</th>
                 <th>Status</th>
@@ -384,29 +397,29 @@
             <tbody id="tests_list">
             {% for item in tests.all %}
                 {% if item.status == 5 %}
-                <tr class="ui warning">
+                <tr class="ui warning" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_nose }}</a></td>
+                    <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_nose }}</td>
                     {% elif fw == 2 %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_pytest }}</a></td>
+                    <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_pytest }}</td>
                     {% endif %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    <td>
                         {% if item.get_start_time is not None %}
                             {{ item.get_start_time }}
                         {% else %}0s
                         {% endif %}
-                    </a></td>
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    </td>
+                    <td>
                         {% if item.get_time_taken is not None %}
                             {{ item.get_time_taken }}
                         {% else %}0s
                         {% endif %}
-                    </a></td>
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    </td>
+                    <td>
                         <div class="ui yellow basic label">Skipped</div>
-                    </a></td>
+                    </td>
                 </tr>
             {% endif %}
             {% endfor %}
@@ -416,10 +429,10 @@
 
         {% if not_started > 0 %}
         <a class="ui grey ribbon label" id="table_not_started_tests">Not started tests: {{ not_started }}</a>
-        <table class="ui very basic table">
+        <table class="ui very basic selectable table">
             <thead>
             <tr>
-                <th>&nbsp;&nbsp;Test Method</th>
+                <th>&nbsp;&nbsp;Test</th>
                 <th>Start Time</th>
                 <th>Time Taken</th>
                 <th>Status</th>
@@ -428,29 +441,29 @@
             <tbody id="tests_list">
             {% for item in tests.all %}
                 {% if item.status == 1 %}
-                <tr>
+                <tr class="ui" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_nose }}</a></td>
+                    <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_nose }}</td>
                     {% elif fw == 2 %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}" title="{{ item.identity }}">&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_pytest }}</a></td>
+                    <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_pytest }}</td>
                     {% endif %}
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    <td>
                         {% if item.get_start_time is not None %}
                             {{ item.get_start_time }}
                         {% else %}0s
                         {% endif %}
-                    </a></td>
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    </td>
+                    <td>
                         {% if item.get_time_taken is not None %}
                             {{ item.get_time_taken }}
                         {% else %}0s
                         {% endif %}
-                    </a></td>
-                    <td><a href="{%  url 'test' test_uuid=item.uuid  %}">
+                    </td>
+                    <td>
                         <div class="ui gray basic label">Not Started</div>
-                    </a></td>
+                    </td>
                 </tr>
             {% endif %}
             {% endfor %}
@@ -468,10 +481,42 @@
 
 </div>
 
+
+<div class="ui first coupled mini modal">
+    <div class="header">
+     Delete job
+    </div>
+    <div class="image content">
+      <div class="description">
+        Are you sure you want to delete this job?
+      </div>
+    </div>
+    <div class="actions">
+        <div class="ui negative button">Cancel</div>
+        <div class="ui positive right labeled icon button" id="confirm_delete_job" data-id="{{ uuid }}">
+            Delete<i class="checkmark icon"></i></div>
+    </div>
+  </div>
+  <div class="ui second coupled mini modal">
+    <div class="header">
+      Delete job
+    </div>
+    <div class="content">
+      <div class="description">
+        <p>Completed!</p>
+      </div>
+    </div>
+    <div class="actions">
+      <div class="ui approve button" id="reload_after_delete">
+        Go to main page
+      </div>
+    </div>
+  </div>
+
 </body>
 
 <script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.1/dist/semantic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js"></script>
 
 <script>
@@ -524,4 +569,40 @@ $(document).ready(function() {
 <script type="application/javascript" id="job_tests_details" data-job-uuid="{{ uuid }}"
         src="{% static 'js/testgr/main/job_tests_details.js' %}">
 </script>
+<script>
+
+
+$("#delete_job").click(function () {
+$('.coupled.modal')
+  .modal({
+    allowMultiple: false
+  })
+;
+// attach events to buttons
+$('.second.modal')
+  .modal('attach events', '.first.modal .positive.button')
+;
+// show first now
+$('.first.modal')
+  .modal('show')
+;
+});
+</script>
+<script>
+ $("#confirm_delete_job").click(function () {
+    var job_id = $(this).data("id");
+    $.ajax({
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        url: "/api/job/" + job_id + "/",
+        type : "DELETE",
+        contentType: 'application/json'
+    });
+});
+</script>
+<script>
+$("#reload_after_delete").click(function () {
+window.location.replace("{% url 'index' %}");
+});
+</script>
+
 </html>
