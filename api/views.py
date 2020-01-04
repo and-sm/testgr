@@ -1,11 +1,14 @@
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from loader.models import Environments
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.authentication import SessionAuthentication
+from loader.models import Environments, TestJobs
 from api.serializers import EnvironmentsSerializer
 
 
 class Environment(APIView):
+    permission_classes = (IsAuthenticated, IsAdminUser)
 
     def get_object(self, pk):
         try:
@@ -25,4 +28,24 @@ class Environment(APIView):
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class Job(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = (IsAuthenticated, IsAdminUser)
+
+    def get_object(self, uuid):
+        try:
+            return TestJobs.objects.get(uuid=uuid)
+        except TestJobs.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, uuid):
+        job = self.get_object(uuid=uuid)
+        if job.status != 1:
+            job.delete()
+        else:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        return Response(status=status.HTTP_200_OK)
+
 

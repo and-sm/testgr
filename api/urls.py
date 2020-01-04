@@ -4,6 +4,7 @@ from api import views
 
 urlpatterns = [
     path('api/environment/<pk>/', views.Environment.as_view()),
+    path('api/job/<uuid>/', views.Job.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

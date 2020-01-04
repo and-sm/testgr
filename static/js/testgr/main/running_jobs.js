@@ -30,14 +30,19 @@ var socket = new WebSocket(
                 row.setAttribute("data-tr-job", obj.uuid);
 
                 let cell1 = row.insertCell(0);
+                cell1.classList.add("selectable");
                 cell1.setAttribute("data-td-start-time", obj.uuid);
                 cell1.innerHTML = "<a href=job/" + obj.uuid + ">" + obj.start_time + "</a>";
 
                 let cell2 = row.insertCell(1);
+                cell2.classList.add("selectable");
                 cell2.setAttribute("data-td-env", obj.uuid);
                 cell2.innerHTML = "<a href=job/" + obj.uuid + ">" + obj.env + "</a>";
 
                 let cell3 = row.insertCell(2);
+                cell3.classList.add("selectable");
+                // added for cell3, because it's not possible to add 'onclick' arg directly to html element
+                cell3.onclick = function() { window.location.href = "/job/" + obj.uuid + "/"; };
                 cell3.setAttribute("data-td-status", obj.uuid);
 
                 if(obj.tests_passed !== undefined){
@@ -61,7 +66,7 @@ var socket = new WebSocket(
                             "class=\"ui grey basic label\">" + obj.tests_not_started + "</a>";}
                 else{initial_tests_not_started=""}
 
-                cell3.innerHTML = initial_tests_passed + initial_tests_failed + initial_tests_aborted +
+                cell3.innerHTML = "&nbsp;&nbsp;" + initial_tests_passed + initial_tests_failed + initial_tests_aborted +
                     initial_tests_skipped + initial_tests_not_started;
 
             } else {

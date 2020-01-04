@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Type" content="text/html">
 {% load static %}
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.1/dist/semantic.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.css">
 
 <style>
 .ui.darkred.label,.ui.darkred.labels .label {
@@ -35,6 +35,7 @@
 }
 
 .progress {
+  margin: auto;
   width: 58px;
   height: 5px;
   position: relative;
@@ -73,7 +74,7 @@
 <div class="ui grid">
 
     <div class="sixteen wide column">
-        <div class="ui  menu">
+        <div class="ui menu">
             <div class="item">
                 <h3><a href="{%  url 'index' %}">TESTGR</a></h3>
             </div>
@@ -102,8 +103,9 @@
         </div>
 	</div>
 
-    <div class="eight wide column history-table">
-        <table class="ui padded selectable celled table">
+    <div class="eight wide column">
+
+        <table class="ui large selectable celled table">
             <thead>
             <tr>
                 <th colspan="5">
@@ -128,39 +130,45 @@
                 <tr class="ui {% if job.status == 2%}positive{% elif job.status == 3%}negative
                 {% elif job.status == 4%}warning{% endif %}">
                 {% endcomment %}
-                    <td><a href="job/{{ job.uuid }}">{{ job.stop_time }}</a></td>
-                    <td><a href="job/{{ job.uuid }}">{{ job.time_taken }}</a></td>
-                    <td><a href="job/{{ job.uuid }}">{{ job.env }}
-                    </a></td>
-                    <td class="job_status"
+                    <td class="selectable"><a href="job/{{ job.uuid }}">{{ job.stop_time }}</a></td>
+                    <td class="selectable"><a href="job/{{ job.uuid }}">{{ job.time_taken }}</a></td>
+                    <td class="selectable"><a href="job/{{ job.uuid }}">{{ job.env }}</a></td>
+                    <td onclick="window.location.href = '{% url 'job' job_uuid=job.uuid %}';"
+                        class="job_status selectable"
                         data-html="<strong>Tests:</strong><br>
                         {% if job.tests_passed %}Passed: {{ job.tests_passed }}<br>{% endif %}
                         {% if job.tests_failed %}Failed: {{ job.tests_failed }}<br>{% endif %}
                         {% if job.tests_aborted %}Aborted: {{ job.tests_aborted }}<br>{% endif %}
                         {% if job.tests_skipped %}Skipped: {{ job.tests_skipped }}<br>{% endif %}
-                        {% if job.tests_not_started %}Not started: {{ job.tests_not_started }}{% endif %}">
+                        {% if job.tests_not_started %}Not started: {{ job.tests_not_started }}{% endif %}">&nbsp;
                         {% spaceless %}
                         {% if job.tests_passed %}
-                            <a href="job/{{ job.uuid }}" class="ui green basic label">{{ job.tests_passed }}</a>
+                            <a href="job/{{ job.uuid }}/#table_success_tests"
+                               class="ui green basic label">{{ job.tests_passed }}</a>
                         {% endif %}
                         {% if job.tests_failed %}
-                            <a href="job/{{ job.uuid }}" class="ui red basic label status_failed">{{ job.tests_failed }}</a>
+                            <a href="job/{{ job.uuid }}/#table_negative_tests"
+                               class="ui red basic label status_failed">{{ job.tests_failed }}</a>
                         {% endif %}
                         {% if job.tests_aborted %}
-                            <a href="job/{{ job.uuid }}" class="ui darkred basic label">{{ job.tests_aborted }}</a>
+                            <a href="job/{{ job.uuid }}/#table_negative_tests"
+                               class="ui darkred basic label">{{ job.tests_aborted }}</a>
                         {% endif %}
                         {% if job.tests_skipped %}
-                            <a href="job/{{ job.uuid }}" class="ui yellow basic label">{{ job.tests_skipped }}</a>
+                            <a href="job/{{ job.uuid }}/#table_skipped_tests"
+                               class="ui yellow basic label">{{ job.tests_skipped }}</a>
                         {% endif %}
                         {% if job.tests_not_started %}
-                            <a href="job/{{ job.uuid }}" class="ui grey basic label">{{ job.tests_not_started }}</a>
+                            <a href="job/{{ job.uuid }}/#table_not_started_tests"
+                               class="ui grey basic label">{{ job.tests_not_started }}</a>
                         {% endif %}
                     {% if job.status == 4 %}
                         <a href="job/{{ job.uuid }}" class="ui yellow basic label">Stopped</a>
                     {% endif %}
                         {% endspaceless %}
                     </td>
-                    <td class="job_status one wide"
+                    <td onclick="window.location.href = '{% url 'job' job_uuid=job.uuid %}';"
+                        class="job_status one wide selectable"
                         data-html="<strong>Ratio:</strong><br>
                         Passed: {{ job.tests_percentage.passed_percent_float }}%<br>
                         Failed: {{ job.tests_percentage.failed_percent_float }}%<br>
@@ -171,7 +179,7 @@
                     >
                         <div class="progress">
                             <div>
-                                <table class="table_progress">
+                                <table class="ui large table_progress">
                                     <tr>
                                         {% if job.tests_percentage.passed_percent > 0 %}
                                             <td style="width:{{ job.tests_percentage.passed_percent }}%;background-color: #5bcd5b"></td>
@@ -219,15 +227,13 @@
                     </td>
                 </tr>
                 {% endfor %}
-            {% else %}
-                <tr class="center aligned"><td colspan="3">No job was run</td></tr>
             {% endif %}
             </tbody>
         </table>
     </div>
 
-    <div class="eight wide column history-table">
-        <table class="ui padded selectable celled table">
+    <div class="eight wide column">
+        <table class="ui large selectable celled table">
             <thead>
             <tr>
                 <th colspan="3">
@@ -246,9 +252,10 @@
             {% if running_jobs_items %}
                 {% for job in running_jobs_items %}
                 <tr data-tr-job="{{ job.uuid }}">
-                    <td data-td-start-time="{{ job.uuid }}"><a href="job/{{ job.uuid }}">{{ job.start_time }}</a></td>
-                    <td data-td-env="{{ job.uuid }}"><a href="job/{{ job.uuid }}">{{ job.env }}</a></td>
-					<td data-td-status="{{ job.uuid }}">{% spaceless %}
+                    <td class="selectable" data-td-start-time="{{ job.uuid }}"><a href="job/{{ job.uuid }}">{{ job.start_time }}</a></td>
+                    <td class="selectable" data-td-env="{{ job.uuid }}"><a href="job/{{ job.uuid }}">{{ job.env }}</a></td>
+					<td onclick="window.location.href = '{% url 'job' job_uuid=job.uuid %}';"
+                        class="selectable" data-td-status="{{ job.uuid }}">{% spaceless %}&nbsp;
                         {% if job.tests_passed %}
                             <a data-tests-passed="{{ job.uuid }}" href="job/{{ job.uuid }}" class="ui green basic label">{{ job.tests_passed }}</a>
                          {% comment %}
@@ -279,6 +286,24 @@
         </table>
     </div>
 
+    {% if not latest_jobs_items %}
+    <div class="four wide column"></div>
+
+    <div class="eight wide column">
+    <div class="ui placeholder segment">
+        <div class="ui icon header">
+            <i class="exclamation triangle icon"></i><p>&nbsp;</p>
+            Run your first unittest or pytest scenarios and send it here using
+            <a href="https://github.com/and-sm/nose2rt" target="_blank">nose2rt</a> or
+            <a href="https://github.com/and-sm/pytest-rt" target="_blank">pytest-rt</a> plugins.
+        </div>
+    </div>
+    </div>
+
+    <div class="four wide column"></div>
+    {% endif %}
+
+
     <div class="sixteen wide column"></div>
 
     <div class="sixteen wide column">
@@ -289,7 +314,7 @@
 </body>
 
 <script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.1/dist/semantic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.js"></script>
 
 <script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>
 <script type="application/javascript" src="{% static 'js/testgr/main/latest_jobs.js' %}"></script>
