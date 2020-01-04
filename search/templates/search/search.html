@@ -7,7 +7,7 @@
 {% load static %}
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.semanticui.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/dataTables.semanticui.min.css">
 
 <style>
 
@@ -66,11 +66,6 @@
 
     <div class="one wide column">
     </div>
-
-
-
-
-
 
     <div class="one wide column">
     </div>
@@ -229,13 +224,15 @@
 
 <script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.js"></script>
-<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
-<script src="https://cdn.datatables.net/1.10.19/js/dataTables.semanticui.min.js" type="text/javascript"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js" type="text/javascript"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/dataTables.semanticui.min.js" type="text/javascript"></script>
 
 
 <script>
 $('.ui.dropdown')
-  .dropdown();
+  .dropdown({
+      fullTextSearch:'exact'
+  });
 </script>
 
 <script>
@@ -249,7 +246,6 @@ $('#filter_btn').click(function(event){
     let tests = $('input[name=tests]').val();
 
     let table = $('#filter_results_table').show().DataTable( {
-            //  "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
         lengthMenu: [[10, 20, 50], [10, 20, 50]],
         sorting: false,
         ordering: false,
@@ -264,7 +260,6 @@ $('#filter_btn').click(function(event){
                 //'status': status
             },
             "dataSrc": function ( json ) {
-                //Make your callback here.
                 return json.data;
             }
         },
@@ -274,14 +269,10 @@ $('#filter_btn').click(function(event){
             { "data": "Environment" },
             { "data": "Status" }
         ],
-    {% comment %}
-        "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-            //var id = aData[0];
-            var id = aData.uuid;
-            $(nRow).attr("data-uuid", id);
-            return nRow;
+        "rowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+            let id = aData.uuid;
+            $(nRow).click(function() { window.open("/job/" + id + "/", "_blank")})
         },
-    {% endcomment %}
         columnDefs: [
             { targets: 'no-sort',
                 orderable: false
