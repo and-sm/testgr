@@ -62,32 +62,27 @@ def filter_data(request):
     for item in query_set:
 
         # Stop Time
-        stop_time = "<a href=\"job/" + item.uuid + "\" target=\"_blank\">" + item.get_stop_time() + "</a>"
+        stop_time = item.get_stop_time()
 
         # Time Taken
-        time_taken = "<a href=\"job/" + item.uuid + "\" target=\"_blank\">" + item.get_time_taken() + "</a>"
+        time_taken = item.get_time_taken()
 
         # Environment
-        env = "<a href=\"job/" + item.uuid + "\" target=\"_blank\">" + item.get_env() + "</a>"
+        env = item.get_env()
 
         # Status
         status = item.status
 
         if status == 1:
-            status = "<td><a href=\"job/" + item.uuid + "\" class=\"ui blue basic label\" target=\"_blank\">" \
-                                                        "Running</a></td>"
+            status = "<td><span class=\"ui blue basic label\">Running</span></td>"
         elif status == 2:
-            status = "<td><a href=\"job/" + item.uuid + "\" class=\"ui green basic label\" target=\"_blank\">" \
-                                                        "Passed</a></td>"
+            status = "<td><span class=\"ui green basic label\">Passed</span></td>"
         elif status == 3:
-            status = "<td><a href=\"job/" + item.uuid + "\" class=\"ui red basic label\" target=\"_blank\">" \
-                                                        "Failed</a></td>"
+            status = "<td><span class=\"ui red basic label\">Failed</span></td>"
         elif status == 4:
-            status = "<td><a href=\"job/" + item.uuid + "\" class=\"ui yellow basic label\" target=\"_blank\">" \
-                                                        "Stopped</a></td>"
+            status = "<td><span class=\"ui yellow basic label\">Stopped</span></td>"
         elif status == 5:
-            status = "<td><a href=\"job/" + item.uuid + "\" class=\"ui yellow basic label\" target=\"_blank\">" \
-                                                        "Skipped</a></td>"
+            status = "<td><span class=\"ui yellow basic label\">Skipped</span></td>"
 
         uuid = item.uuid
 

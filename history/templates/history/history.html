@@ -65,7 +65,7 @@
     <div class="fourteen wide column">
 
         <div class="eight wide column">
-        <table class="ui padded selectable celled table">
+        <table class="ui selectable celled table">
             <thead>
             <tr>
                 <th>Stop date</th>
@@ -76,19 +76,15 @@
             </thead>
             <tbody id="latest_jobs">
             {% for job in job_objects %}
-            <tr>
-                <td><a href="{% url 'job' job_uuid=job.uuid %}" target="_blank">{{ job.get_stop_time }}</a></td>
-                <td><a href="{% url 'job' job_uuid=job.uuid %}" target="_blank">{{ job.get_time_taken }}</a></td>
-                <td><a href="{% url 'job' job_uuid=job.uuid %}" target="_blank">{{ job.get_env }}</a></td>
+            <tr onclick="window.open('{% url 'job' job_uuid=job.uuid %}', '_blank')">
+                <td>{{ job.get_stop_time }}</td>
+                <td>{{ job.get_time_taken }}</td>
+                <td>{{ job.get_env }}</td>
                 <td>
-                    {% if job.status == 2 %}<a href="{% url 'job' job_uuid=job.uuid %}" target="_blank"
-                                               class="ui green basic label">Passed</a>
-                    {% elif job.status == 3 %}<a href="{% url 'job' job_uuid=job.uuid %}" target="_blank"
-                                                 class="ui red basic label">Failed</a>
-                    {% elif job.status == 4 %}<a href="{% url 'job' job_uuid=job.uuid %}" target="_blank"
-                                                 class="ui yellow basic label">Stopped</a>
-                    {% elif job.status == 5 %}<a href="{% url 'job' job_uuid=job.uuid %}" target="_blank"
-                                                 class="ui yellow basic label">Skipped</a>
+                    {% if job.status == 2 %}<span class="ui green basic label">Passed</span>
+                    {% elif job.status == 3 %}<span class="ui red basic label">Failed</span>
+                    {% elif job.status == 4 %}<span class="ui yellow basic label">Stopped</span>
+                    {% elif job.status == 5 %}<span class="ui yellow basic label">Skipped</span>
                     {% endif %}
                 </td>
             </tr>
