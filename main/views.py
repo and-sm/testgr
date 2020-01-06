@@ -184,6 +184,11 @@ def test(request, test_uuid):
     else:
         description = ""
 
+    if test_object.test.note:
+        note = test_object.test.note
+    else:
+        note = ""
+
     # Running jobs count
     running_jobs_count = helpers.running_jobs_count()
 
@@ -225,11 +230,13 @@ def test(request, test_uuid):
                                               # 'msg_detailed': msg_detailed,
                                               'identity': identity,
                                               'description': description,
+                                              'note': note,
                                               'running_jobs_count': running_jobs_count,
                                               'last_10_tests': last_10_tests,
                                               'last_tests_count': last_tests_count,
                                               'last_success': last_success,
-                                              'last_fail': last_fail})
+                                              'last_fail': last_fail,
+                                              'storage_data': test_storage_data})
 
 
 @login_required()

@@ -7,22 +7,22 @@ If some test is in running, passed, failed or skipped state - plugin will send u
 
 ### Main page of Testgr. 
 
-![Main page](https://i.lensdump.com/i/WzoouF.png)
+![Main page](https://i.lensdump.com/i/iUQGlr.png)
 
 ### Job page. 
 There you can review status of your finished or live test execution. 
 
 **Job in progress status:**
-![Job page](https://i.lensdump.com/i/iAbfNC.png)
+![Job page](https://i.lensdump.com/i/iUQ5k7.png)
 
 **Finished job:**
-![Finished_job](https://i.lensdump.com/i/WzonOT.png)
+![Finished_job](https://i.lensdump.com/i/iUQxGb.png)
 
 ### Example of finished test:
-![Failed test](https://i.lensdump.com/i/iD6Qav.png)
+![Failed test](https://i.lensdump.com/i/iUViiq.png)
 
 ### Search:
-![Search](https://i.lensdump.com/i/WzoMZ7.png)
+![Search](https://i.lensdump.com/i/iUQwLT.png)
 
 
 ### Components:

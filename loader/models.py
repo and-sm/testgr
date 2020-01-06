@@ -88,6 +88,7 @@ class TestsStorage(models.Model):
     time_taken3 = models.DurationField(blank=True, null=True)
     calculated_eta = models.DurationField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+    note = models.CharField(max_length=128, blank=True, null=True)
 
     def get_time_taken_eta(self):
         try:

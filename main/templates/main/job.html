@@ -8,47 +8,15 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.css" />
 
-{% comment %}
+
 <style>
-
-    .test_failed {
-        color: red;
+    .note_style.icon {
+        opacity: 0.3;
+        transition: 0.1s;
     }
-
-
-    .progress {
-        width: 100%;
-        position: relative;
-        border-radius: 5px;
-        overflow: hidden;
-    }
-    .progress div {
-        width: 100%;
-        left: 0;
-        top: 0;
-        bottom: 0;
-    }
-
-    .table_progress { border-collapse: collapse; width: 100%; table-layout: fixed; height:5px; }
-
-    .ui.horizontal.segments{
-        border-top:0 !important;
-        border-bottom:0 !important;
-        border-left:0 !important;
-        border-right:0 !important;
-        box-shadow: 0 0 0 0;
-    }
-
-    .ui.segment{
-        border-top:0 !important;
-        border-bottom:0 !important;
-        border-left:0 !important;
-        border-right:0 !important;
-    }
-
-
+    .note_style_filled.icon:hover {opacity: 1}
 </style>
-{% endcomment %}
+
 
 </head>
 
@@ -93,7 +61,7 @@
     <div class="one wide column">
     </div>
 
-    <div class="four wide column">
+    <div class="three wide column">
         <h4>Job Details</h4>
         <div class="ui divider"></div>
         <div><h5 id="job_status">Status:
@@ -117,7 +85,7 @@
         {% endif %}
     </div>
 
-    <div class="ten wide column">
+    <div class="eleven wide column">
 
         {% comment %}
         <div class="progress">
@@ -302,6 +270,7 @@
                 <th>Start Time</th>
                 <th>Time Taken</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody id="tests_list">
@@ -332,6 +301,12 @@
                         {% elif item.status == 6 %}<div class="ui red basic label">Aborted</div>
                         {% endif %}
                     </td>
+                    <td>
+                        <i title="Add a note" class="sticky note {% if not item.test.note %}outline{% endif %} large icon
+                        {% if item.test.note %}note_style_filled
+                        {% else %}note_style{% endif %}"
+                           data-name="note" data-id="{{ item.test.identity }}"></i>
+                    </td>
                 </tr>
                 {% endif %}
             {% endfor %}
@@ -348,6 +323,7 @@
                 <th>Start Time</th>
                 <th>Time Taken</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody id="tests_list">
@@ -376,6 +352,12 @@
                     <td>
                         <div class="ui green basic label">Passed</div>
                     </td>
+                    <td>
+                        <i title="Add a note" class="sticky note {% if not item.test.note %}outline{% endif %} large icon
+                        {% if item.test.note %}note_style_filled
+                        {% else %}note_style{% endif %}"
+                           data-name="note" data-id="{{ item.test.identity }}"></i>
+                    </td>
                 </tr>
             {% endif %}
             {% endfor %}
@@ -392,6 +374,7 @@
                 <th>Start Time</th>
                 <th>Time Taken</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody id="tests_list">
@@ -420,6 +403,12 @@
                     <td>
                         <div class="ui yellow basic label">Skipped</div>
                     </td>
+                    <td>
+                        <i title="Add a note" class="sticky note {% if not item.test.note %}outline{% endif %} large icon
+                        {% if item.test.note %}note_style_filled
+                        {% else %}note_style{% endif %}"
+                           data-name="note" data-id="{{ item.test.identity }}"></i>
+                    </td>
                 </tr>
             {% endif %}
             {% endfor %}
@@ -436,6 +425,7 @@
                 <th>Start Time</th>
                 <th>Time Taken</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody id="tests_list">
@@ -463,6 +453,12 @@
                     </td>
                     <td>
                         <div class="ui gray basic label">Not Started</div>
+                    </td>
+                    <td>
+                        <i title="Add a note" class="sticky note {% if not item.test.note %}outline{% endif %} large icon
+                        {% if item.test.note %}note_style_filled
+                        {% else %}note_style{% endif %}"
+                           data-name="note" data-id="{{ item.test.identity }}"></i>
                     </td>
                 </tr>
             {% endif %}
@@ -517,7 +513,7 @@
 
 <script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
 
 <script>
     let passed = {{ passed }};
@@ -604,5 +600,60 @@ $("#reload_after_delete").click(function () {
 window.location.replace("{% url 'index' %}");
 });
 </script>
+
+<script>
+    var popupLoading = '<i class="notched circle loading icon green"></i> wait...';
+    $("i[data-name='note']").click(function(e) {
+        window.obj = $(this);
+        window.identity = $(this).data("id");
+        e.preventDefault();     // tr onclick prevent
+        e.stopPropagation();    // tr onclick prevent
+    }).popup({
+        exclusive: 'true',
+        html: popupLoading,
+        on: 'click',
+        onShow: function () {
+            var popup = this;
+            popup.html(popupLoading);
+            $.ajax({
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                url: "/api/tstorage/" + window.identity + "/",
+            }).done(function(result) {
+                if(result["note"] === null){
+                    result["note"] = ""
+                }
+                popup.html("<h5>Add a note</h5>" +
+                        "<form class='ui mini form'>" +
+                        "<div class='field'>" +
+                        "<textarea rows='5' name='c_text'data-id='" + window.identity + "'>" + result["note"] + "</textarea>" +
+                        "</div>" +
+                        "<div class='field'>" +
+                        "<button type='button' class='ui mini green button' name='ct_save' data-id='" + window.identity + "'>" +
+                        "Save</button>" +
+                        "</div>" +
+                        "</form>");
+                $("button[name='ct_save']").click(function() {
+                        var note = $("textarea[data-id='" + window.identity + "']").val();
+                        $.ajax({
+                            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                            url: "/api/tstorage/" + window.identity + "/",
+                            type: "POST",
+                            data: {'identity': window.identity, 'note': note},
+                            success : function() {
+                                $("i[data-id*='note']").popup('hide all');
+                                window.obj.popup("hide");
+                                window.obj.removeClass("outline");
+                                window.obj.css("opacity", "1")
+                            }
+                        });
+                    });
+
+            }).fail(function() {
+                popup.html('error');
+            });
+        },
+    });
+</script>
+
 
 </html>

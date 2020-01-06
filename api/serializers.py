@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from loader.models import Environments, TestJobs
+from loader.models import Environments, TestJobs, TestsStorage
 
 
 class EnvironmentsSerializer(serializers.ModelSerializer):
@@ -8,7 +8,7 @@ class EnvironmentsSerializer(serializers.ModelSerializer):
         fields = ['name', 'remapped_name']
 
 
-class JobSerializer(serializers.ModelSerializer):
+class TestsStorageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TestJobs
-        fields = ['uuid']
+        model = TestsStorage
+        fields = ['note']

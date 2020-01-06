@@ -68,7 +68,7 @@
     <div class="one wide column">
     </div>
 
-    <div class="four wide column">
+    <div class="three wide column">
         <h4>Test Details</h4>
         <div class="ui divider"></div>
         <div><h5 id="job_status">Status:
@@ -98,30 +98,23 @@
                </p>
             </div>
         {% endfor %}
-
-</div>
-
-    <div class="ui divider"></div>
-
-        <p class="ui list">
-            <div class="item">
-            <p><i class="info grey icon"></i> Last success <i class="chevron right icon"></i>
-            {% if not last_success %}None{% else %}<a href="{% url 'test' test_uuid=last_success.0 %}">
-                {{ last_success.2 }}</a>{% endif %}</p>
-            </div>
-
-    <div class="item">
-        <p><i class="info grey icon"></i> Last fail <i class="chevron right icon"></i>
-            {% if not last_fail %}None{% else %}<a href="{% url 'test' test_uuid=last_fail.0 %}">{{ last_fail.2 }}</a>
-            {% endif %}</p>
-    </div>
+        </div>
 
     </div>
 
-    <div class="ten wide column identity">
+    <div class="eleven wide column identity">
         <h4>Additional info</h4>
         <div class="ui divider"></div>
-            <h4>Path:</h4>
+        <div class="ui basic segments">
+            {% if note %}
+                <div class="ui raised segment">
+                    <h4>Note:</h4>
+                    <p></p>
+                    {{ note|urlize|urlize_target_blank  }}
+                </div>
+            {% endif %}
+            <div class="ui segment">
+            <h4>Execution path:</h4>
             <div>
             {% comment %}
             <div class="ui left labeled button" tabindex="0">
@@ -148,12 +141,58 @@
                 </a>
                 {% endfor %}
             </div>
+            </div>
+
             {% if description %}
-            <h4>Description:</h4> {{ description|urlize|urlize_target_blank  }}
+                <div class="ui segment">
+                    <h4>Description:</h4>
+                    <p></p>
+                    {{ description|urlize|urlize_target_blank  }}
+                </div>
             {% endif %}
-            {% if msg %}<h4>Error:</h4>
+
+            <div class="ui segment">
+                <h4>Statistics</h4>
+                <p></p>
+                <div class="ui grid">
+                        <div class="three wide column">
+                            <div class="ui list">
+                                <div class="item">Last success:
+                                    </div>
+                                <div class="item">Last fail:
+                                    </div>
+                                <div class="item">Exec. time based on last 3 attempts:</div>
+                            </div>
+                        </div>
+                        <div class="three wide column">
+                            <div class="ui list">
+                                <div class="item">
+                                    {% if not last_success %}None{% else %}<a href="{% url 'test' test_uuid=last_success.0 %}">
+                                    {{ last_success.2 }}</a>{% endif %}
+                                </div>
+                                <div class="item">
+                                    {% if not last_fail %}None{% else %}<a href="{% url 'test' test_uuid=last_fail.0 %}">{{ last_fail.2 }}</a>
+                                {% endif %}
+                                </div>
+                                <div class="item">
+                                    {{ storage_data.get_time_taken_eta }}
+                                </div>
+                            </div>
+                        </div>
+                </div>
+
+        </div>
+
+        </div>
+
+        <p>&nbsp;</p>
+
+            <div class="ui {% if msg %}red{% endif %} segment">
+                {% if msg %}<h4><span class="ui red text">Error:</span></h4>
                 <p></p>
                 {{ msg|escape|linebreaksbr }}{% else %}<h3>No errors</h3>{% endif %}
+            </div>
+
             {% comment %}
             {% if msg_detailed %}
                 <h4>Error:</h4>
@@ -161,6 +200,7 @@
                 {{ msg_detailed|linebreaksbr}}
             {% endif %}
             {% endcomment %}
+
     </div>
 
     <div class="one wide column">
