@@ -19,7 +19,7 @@ There you can review status of your finished or live test execution.
 ![Finished_job](https://i.lensdump.com/i/iUQxGb.png)
 
 ### Example of finished test:
-![Failed test](https://i.lensdump.com/i/iUQaXF.png)
+![Failed test](https://i.lensdump.com/i/iUViiq.png)
 
 ### Search:
 ![Search](https://i.lensdump.com/i/iUQwLT.png)
