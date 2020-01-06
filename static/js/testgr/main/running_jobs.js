@@ -46,24 +46,24 @@ var socket = new WebSocket(
                 cell3.setAttribute("data-td-status", obj.uuid);
 
                 if(obj.tests_passed !== undefined){
-                initial_tests_passed = "<a data-tests-passed=\"" + obj.uuid + "\" href=\"job/" + obj.uuid + "\" " +
-                            "class=\"ui green basic label\">" + obj.tests_passed + "</a>";}
+                initial_tests_passed = "<label data-tests-passed=\"" + obj.uuid + "\" " +
+                    "class=\"ui green basic label\">" + obj.tests_passed + "</label>";}
                 else{initial_tests_passed = ""}
                 if(obj.tests_failed !== undefined){
-                initial_tests_failed = "<a data-tests-failed=\"" + obj.uuid + "\" href=\"job/" + obj.uuid + "\" " +
-                            "class=\"ui red basic label\">" + obj.tests_failed + "</a>";}
+                initial_tests_failed = "<label data-tests-failed=\"" + obj.uuid + "\" " +
+                    "class=\"ui red basic label\">" + obj.tests_failed + "</label>";}
                 else{initial_tests_failed=""}
                 if(obj.tests_aborted !== undefined){
-                initial_tests_aborted = "<a data-tests-aborted=\"" + obj.uuid + "\" href=\"job/" + obj.uuid + "\" " +
-                            "class=\"ui darkred basic label\">" + obj.tests_aborted + "</a>";}
+                initial_tests_aborted = "<label data-tests-aborted=\"" + obj.uuid + "\" " +
+                    "class=\"ui darkred basic label\">" + obj.tests_aborted + "</label>";}
                 else{initial_tests_aborted=""}
                 if(obj.tests_skipped !== undefined){
-                initial_tests_skipped = "<a data-tests-skipped=\"" + obj.uuid + "\" href=\"job/" + obj.uuid + "\" " +
-                            "class=\"ui yellow basic label\">" + obj.tests_skipped + "</a>";}
+                initial_tests_skipped = "<label data-tests-skipped=\"" + obj.uuid + "\" " +
+                    "class=\"ui yellow basic label\">" + obj.tests_skipped + "</label>";}
                 else{initial_tests_skipped=""}
                 if(obj.tests_not_started !== undefined){
-                initial_tests_not_started = "<a data-tests-not-started=\"" + obj.uuid + "\" href=\"job/" + obj.uuid + "\" " +
-                            "class=\"ui grey basic label\">" + obj.tests_not_started + "</a>";}
+                initial_tests_not_started = "<label data-tests-not-started=\"" + obj.uuid + "\" " +
+                    "class=\"ui grey basic label\">" + obj.tests_not_started + "</label>";}
                 else{initial_tests_not_started=""}
 
                 cell3.innerHTML = "&nbsp;&nbsp;" + initial_tests_passed + initial_tests_failed + initial_tests_aborted +
@@ -86,8 +86,8 @@ var socket = new WebSocket(
                     //status.innerHTML = "";
                 } else {
                     if (data_tests_passed === null) {
-                        status.innerHTML += "<a data-tests-passed=\"" + obj.uuid + "\" href=\"job/" + obj.uuid + "\" " +
-                            "class=\"ui green basic label\">" + obj.tests_passed + "</a>"
+                        status.innerHTML += "<label data-tests-passed=\"" + obj.uuid + "\" " +
+                            "class=\"ui green basic label\">" + obj.tests_passed + "</label>"
                     } else {
                         data_tests_passed.innerHTML = obj.tests_passed
                     }
@@ -97,8 +97,8 @@ var socket = new WebSocket(
                     //status.innerHTML = "";
                 } else {
                     if (data_tests_failed === null) {
-                        status.innerHTML += "<a data-tests-failed=\"" + obj.uuid + "\" href=\"job/" + obj.uuid + "\" " +
-                            "class=\"ui red basic label\">" + obj.tests_failed + "</a>"
+                        status.innerHTML += "<label data-tests-failed=\"" + obj.uuid + "\" " +
+                            "class=\"ui red basic label\">" + obj.tests_failed + "</label>"
                     } else {
                         data_tests_failed.innerHTML = obj.tests_failed
                     }
@@ -108,8 +108,8 @@ var socket = new WebSocket(
                     //status.innerHTML = "";
                 } else {
                     if (data_tests_aborted === null) {
-                        status.innerHTML += "<a data-tests-aborted=\"" + obj.uuid + "\" href=\"job/" + obj.uuid + "\" " +
-                            "class=\"ui darkred basic label\">" + obj.tests_aborted + "</a>"
+                        status.innerHTML += "<label data-tests-aborted=\"" + obj.uuid + "\" " +
+                            "class=\"ui darkred basic label\">" + obj.tests_aborted + "</label>"
                     } else {
                         data_tests_aborted.innerHTML = obj.tests_aborted
                     }
@@ -119,8 +119,8 @@ var socket = new WebSocket(
                     //status.innerHTML = "";
                 } else {
                     if (data_tests_skipped === null) {
-                        status.innerHTML += "<a data-tests-skipped=\"" + obj.uuid + "\" href=\"job/" + obj.uuid + "\" " +
-                            "class=\"ui yellow basic label\">" + obj.tests_skipped + "</a>"
+                        status.innerHTML += "<label data-tests-skipped=\"" + obj.uuid + "\" " +
+                            "class=\"ui yellow basic label\">" + obj.tests_skipped + "</label>"
                     } else {
                         data_tests_skipped.innerHTML = obj.tests_skipped
                     }
@@ -130,8 +130,8 @@ var socket = new WebSocket(
                     //status.innerHTML = "";
                 } else {
                     if (data_tests_not_started === null) {
-                        status.innerHTML += "<a data-tests-not-started=\"" + obj.uuid + "\" href=\"job/" + obj.uuid + "\" " +
-                            "class=\"ui grey basic label\">" + obj.tests_not_started + "</a>"
+                        status.innerHTML += "<label data-tests-not-started=\"" + obj.uuid + "\" " +
+                            "class=\"ui grey basic label\">" + obj.tests_not_started + "</label>"
                     } else {
                         data_tests_not_started.innerHTML = obj.tests_not_started
                     }

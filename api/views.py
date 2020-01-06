@@ -3,9 +3,9 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.authentication import SessionAuthentication
-from loader.models import Environments, TestJobs
-from api.serializers import EnvironmentsSerializer
-
+from loader.models import Environments, TestJobs, TestsStorage
+from api.serializers import EnvironmentsSerializer, TestsStorageSerializer
+from django.http import Http404
 
 class Environment(APIView):
     permission_classes = (IsAuthenticated, IsAdminUser)
@@ -14,7 +14,7 @@ class Environment(APIView):
         try:
             return Environments.objects.get(pk=pk)
         except Environments.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            raise Http404
 
     def post(self, request, pk):
         serializer = EnvironmentsSerializer(self.get_object(pk), data=request.data)
@@ -38,7 +38,7 @@ class Job(APIView):
         try:
             return TestJobs.objects.get(uuid=uuid)
         except TestJobs.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            raise Http404
 
     def delete(self, request, uuid):
         job = self.get_object(uuid=uuid)
@@ -49,3 +49,27 @@ class Job(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+class TestsStorageItem(APIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = (IsAuthenticated, IsAdminUser)
+
+    def get_object(self, identity):
+        try:
+            return TestsStorage.objects.get(identity=identity)
+        except TestsStorage.DoesNotExist:
+            raise Http404
+
+    def get(self, request, identity):
+        data = TestsStorage.objects.get(identity=identity)
+        serializer = TestsStorageSerializer(data)
+        return Response(serializer.data)
+
+    def post(self, request, identity):
+        serializer = TestsStorageSerializer(self.get_object(identity), data=request.data)
+        if serializer.is_valid():
+            if "identity" and "note" in request.data.keys():
+                serializer.save(remapped_name=request.data['note'])
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
