@@ -133,6 +133,8 @@ class Tests(models.Model):
         return timezone.localtime(self.start_time).strftime('%d-%b-%Y, %H:%M:%S')
 
     def get_stop_time(self):
+        if self.stop_time is None:
+            return None
         return timezone.localtime(self.stop_time).strftime('%d-%b-%Y, %H:%M:%S')
 
     def get_time_taken(self):

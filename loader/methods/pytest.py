@@ -149,50 +149,56 @@ class PytestLoader:
                 self.redis.lrem("running_jobs", 0, job)
                 self.redis.delete("job_" + self.data['job_id'])
 
-                # in case if 'stopTestRun' was caught, but some running test exists
-                if job_object.tests_in_progress is not None:
-                    tests = job_object.tests.filter(status=2)  # 'In progress' tests must become 'Aborted'
-                    aborted_tests = 0
-                    for test in tests:
-                        test.status = 6
-                        test.save()
-                        aborted_tests += 1
-                    job_object.status = 3   # Failed
-                    job_object.tests_aborted = aborted_tests
-                # in case if 'stopTestRun' was caught and at least one test was failed
-                elif job_object.tests_failed is not None:
-                    job_object.status = 3   # Failed
-                # in case if 'stopTestRun' was caught and at least one test was aborted
-                elif job_object.tests_aborted is not None:
-                    job_object.status = 3   # Failed
-                # in case if 'stopTestRun' was caught and some tests remain not started
-                else:
-                    if job_object.tests_not_started is not None:
-                        tests = job_object.tests.filter(status=1)
-                        tests_not_started = 0
+                failed = job_object.tests_failed
+                not_started = job_object.tests_not_started
+
+                # If any "aborted" test case:
+                # Job status = Aborted
+                # Every "in progress" tests becomes - aborted
+
+                tests = job_object.tests.filter(status=2)
+                if job_object.tests.filter(status=6).first():
+                    job_object.status = 4
+                    if tests:
+                        aborted_tests = 0
                         for test in tests:
-                            tests_not_started += 1
-                        job_object.tests_not_started = tests_not_started
-                        job_object.status = 3   # Failed
-                    if job_object.tests_skipped is not None:
-                        # No fails, passed exist
-                        if job_object.tests_not_started is None and \
-                                job_object.tests_aborted is None and \
-                                job_object.tests_failed is None and \
-                                job_object.tests_passed is not None:
-                            job_object.status = 2   # Passed
-                        # Fails exist
-                        elif job_object.tests_not_started is not None or \
-                                job_object.tests_aborted is not None or \
-                                job_object.tests_failed is not None:
-                            job_object.status = 3  # Failed
-                        else:
-                            # No passed, no fails
-                            job_object.status = 5  # Skipped
+                            test.status = 6
+                            test.stop_time = unix_time_to_datetime(self.data['stopTime'])
+                            test.time_taken = test.stop_time - test.start_time
+                            test.save()
+                            aborted_tests += 1
+                        job_object.tests_aborted = aborted_tests
+                # If any "failed" test case:
+                # Job status = Failed
+                # Every "in progress" tests becomes - aborted
+                elif failed:
+                    job_object.status = 3
+                    if tests:
+                        aborted_tests = 0
+                        for test in tests:
+                            test.status = 6
+                            test.stop_time = unix_time_to_datetime(self.data['stopTime'])
+                            test.time_taken = test.stop_time - test.start_time
+                            test.save()
+                            aborted_tests += 1
+                        job_object.tests_aborted = aborted_tests
+                else:
+                    # If no "failed" test cases, but "not started" remain - job will be "Failed"
+                    if not_started:
+                        if tests:
+                            aborted_tests = 0
+                            for test in tests:
+                                test.status = 6
+                                test.stop_time = unix_time_to_datetime(self.data['stopTime'])
+                                test.time_taken = test.stop_time - test.start_time
+                                test.save()
+                                aborted_tests += 1
+                            job_object.tests_aborted = aborted_tests
+                        job_object.status = 3
+                    # If no "failed" (and other negative variations) test cases - job will be "Passed"
                     else:
-                        # if no tests with 'failed', 'aborted' or 'running' states after 'stopTestRun' signal -
-                        # mark job as 'Passed'
-                        job_object.status = 2   # Passed
+                        job_object.status = 2
+
                 job_object.stop_time = unix_time_to_datetime(self.data['stopTime'])
                 job_object.time_taken = job_object.stop_time - job_object.start_time
 
@@ -231,7 +237,7 @@ class PytestLoader:
 
             if job_object.status == 1:
                 try:
-                    test = Tests.objects.get(test__identity=self.data['test'], job=job_object)
+                    test = Tests.objects.get(uuid=self.data['uuid'], job=job_object)
                     test.status = 2
                     test.start_time = unix_time_to_datetime(self.data['startTime'])
                     test.save()
@@ -257,7 +263,7 @@ class PytestLoader:
             job_object = TestJobs.objects.get(uuid=self.data['job_id'])
             if job_object.status == 1:
                 try:
-                    test = Tests.objects.get(test__identity=self.data['test'], job=job_object)
+                    test = Tests.objects.get(uuid=self.data['uuid'], job=job_object)
                     if self.data['status'] == "passed":
                         test.status = 3
                         if not job_object.tests_passed:
