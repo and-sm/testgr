@@ -8,6 +8,7 @@ from api.serializers import EnvironmentsSerializer, TestsStorageSerializer
 from django.http import Http404
 
 class Environment(APIView):
+    authentication_classes = [SessionAuthentication]
     permission_classes = (IsAuthenticated, IsAdminUser)
 
     def get_object(self, pk):

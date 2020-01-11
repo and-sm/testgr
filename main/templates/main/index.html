@@ -147,11 +147,11 @@
                                class="ui green basic label">{{ job.tests_passed }}</a>
                         {% endif %}
                         {% if job.tests_failed %}
-                            <a href="job/{{ job.uuid }}/#table_negative_tests"
+                            <a href="job/{{ job.uuid }}/#table_failed_tests"
                                class="ui red basic label status_failed">{{ job.tests_failed }}</a>
                         {% endif %}
                         {% if job.tests_aborted %}
-                            <a href="job/{{ job.uuid }}/#table_negative_tests"
+                            <a href="job/{{ job.uuid }}/#table_aborted_tests"
                                class="ui darkred basic label">{{ job.tests_aborted }}</a>
                         {% endif %}
                         {% if job.tests_skipped %}

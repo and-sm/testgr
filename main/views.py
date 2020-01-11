@@ -112,8 +112,6 @@ def job(request, job_uuid):
     skipped = tests.filter(status=5).count()
     aborted = tests.filter(status=6).count()
 
-    negative_tests = failed + aborted
-
     # Framework type
     fw = job_object.fw_type
 
@@ -133,7 +131,6 @@ def job(request, job_uuid):
                                              'skipped': skipped,
                                              'not_started': not_started,
                                              'aborted': aborted,
-                                             'negative_tests': negative_tests,
                                              'fw': fw,
                                              'running_jobs_count': running_jobs_count,
                                              # 'tests_percentage': job_object.tests_percentage()
@@ -263,11 +260,16 @@ def job_force_stop(request):
     job_object.time_taken = job_object.stop_time - job_object.start_time
     job_object.save()
     # Tests
+    aborted_tests = 0
     for test_item in job_object.tests.all():
         if test_item.status == 1 or test_item.status == 2:
             test_item.status = 6
             test_item.start_time = job_object.start_time
             test_item.stop_time = job_object.start_time
             test_item.save()
+            aborted_tests += 1
+    job_object.tests_aborted = aborted_tests
+    job_object.tests_not_started = 0
+    job_object.save()
 
     return JsonResponse({"status": "ok"})
