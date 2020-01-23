@@ -32,39 +32,27 @@ class PytestLoader:
             return HttpResponse(status=409)
         except ObjectDoesNotExist:
             pass
-
         try:
             env = Environments.objects.get(name=self.data['env'])
-
             # Env name for Redis
-            if env.remapped_name is not None:
-                env_name = env.remapped_name
-            else:
-                env_name = env.name
-
+            env_name = env.remapped_name if env.remapped_name is not None else env.name
         except ObjectDoesNotExist:
             if self.data['env'] is not None:
                 env = Environments(name=self.data['env'])
                 env.save()
-
                 # Env name for Redis
-                if env.remapped_name is not None:
-                    env_name = env.remapped_name
-                else:
-                    env_name = env.name
-
+                env_name = env.remapped_name if env.remapped_name is not None else env.name
             else:
                 try:
                     env = Environments.objects.get(name="None")
-
                     # Env name for Redis
                     env_name = env.name
                 except ObjectDoesNotExist:
                     env = Environments(name="None")
                     env.save()
-
                     # Env name for Redis
                     env_name = "None"
+
         # We should not create a job without tests
         if len(self.data['tests']) == 0:
             return HttpResponse(status=403)
@@ -104,6 +92,7 @@ class PytestLoader:
                 test_storage_item = TestsStorage(identity=test_item['nodeid'],
                                                  test=test_item['nodeid'].split('::')[-1], description=description)
                 test_storage_item.save()
+
             # Tests for Job
             tests.append({'test_uuid': uuid, 'status': 1, 'job': job_object.pk, 'test': test_storage_item.pk})
         with connection.cursor() as cursor:
@@ -132,7 +121,13 @@ class PytestLoader:
         self.redis.set_value("job_" + self.data['job_id'], data)
         self.redis.set_value("update_running_jobs", "1")
 
-        return HttpResponse(status=200)
+        return "done"
+
+    @classmethod
+    def start_test_run(cls, data):
+        loader = cls(data)
+        result = loader.get_start_test_run()
+        return result
 
     def get_stop_test_run(self):
         # print("DBG: stopTestRun")
@@ -205,11 +200,17 @@ class PytestLoader:
                 job_object.save()
                 if self.data['send_report'] == "1":
                     SendJobReport(job_object).send()
-                return HttpResponse(status=200)
+                return "done"
             else:
                 return HttpResponse(status=403)
         except ObjectDoesNotExist:
             return HttpResponse(status=403)
+
+    @classmethod
+    def stop_test_run(cls, data):
+        loader = cls(data)
+        result = loader.get_stop_test_run()
+        return result
 
     def get_start_test(self):
         # print("DBG: startTest")
@@ -237,17 +238,21 @@ class PytestLoader:
 
             if job_object.status == 1:
                 try:
-                    test = Tests.objects.get(uuid=self.data['uuid'], job=job_object)
-                    test.status = 2
-                    test.start_time = unix_time_to_datetime(self.data['startTime'])
-                    test.save()
-                    return HttpResponse(status=200)
+                    Tests.objects.filter(uuid=self.data['uuid'])\
+                        .update(status=2, start_time=unix_time_to_datetime(self.data['startTime']))
+                    return "done"
                 except ObjectDoesNotExist:
                     return HttpResponse(status=403)
             else:
                 return HttpResponse(status=403)
         except ObjectDoesNotExist:
             return HttpResponse(status=403)
+
+    @classmethod
+    def start_test(cls, data):
+        loader = cls(data)
+        result = loader.get_start_test()
+        return result
 
     def get_stop_test(self):
         # print("DBG: stopTest")
@@ -263,7 +268,7 @@ class PytestLoader:
             job_object = TestJobs.objects.get(uuid=self.data['job_id'])
             if job_object.status == 1:
                 try:
-                    test = Tests.objects.get(uuid=self.data['uuid'], job=job_object)
+                    test = Tests.objects.get(uuid=self.data['uuid'])
                     if self.data['status'] == "passed":
                         test.status = 3
                         if not job_object.tests_passed:
@@ -315,24 +320,24 @@ class PytestLoader:
                         obj.time_taken = test.time_taken
                         obj.calculated_eta = median([obj.time_taken, test.time_taken])
                         obj.save()
-                        return HttpResponse(status=200)
+                        return "done"
                     if obj.time_taken and not obj.time_taken2:
                         obj.time_taken2 = test.time_taken
                         obj.calculated_eta = median([obj.time_taken, obj.time_taken2])
                         obj.save()
-                        return HttpResponse(status=200)
+                        return "done"
                     if obj.time_taken2 and not obj.time_taken3:
                         obj.time_taken3 = test.time_taken
                         obj.calculated_eta = median([obj.time_taken, obj.time_taken2, obj.time_taken3])
                         obj.save()
-                        return HttpResponse(status=200)
+                        return "done"
                     if obj.time_taken3:
                         obj.time_taken3 = obj.time_taken2
                         obj.time_taken2 = obj.time_taken
                         obj.time_taken = test.time_taken
                         obj.calculated_eta = median([obj.time_taken, obj.time_taken2, obj.time_taken3])
                         obj.save()
-                        return HttpResponse(status=200)
+                        return "done"
 
                 except ObjectDoesNotExist:
                     return HttpResponse(status=403)
@@ -340,3 +345,9 @@ class PytestLoader:
                 return HttpResponse(status=403)
         except ObjectDoesNotExist:
             return HttpResponse(status=403)
+
+    @classmethod
+    def stop_test(cls, data):
+        loader = cls(data)
+        result = loader.get_stop_test()
+        return result
