@@ -233,7 +233,8 @@ def test(request, test_uuid):
                                               'last_tests_count': last_tests_count,
                                               'last_success': last_success,
                                               'last_fail': last_fail,
-                                              'storage_data': test_storage_data})
+                                              'storage_data': test_storage_data,
+                                              'test_job': test_job})
 
 
 @login_required()
