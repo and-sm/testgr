@@ -238,8 +238,10 @@ class PytestLoader:
 
             if job_object.status == 1:
                 try:
-                    Tests.objects.filter(uuid=self.data['uuid'])\
-                        .update(status=2, start_time=unix_time_to_datetime(self.data['startTime']))
+                    test = Tests.objects.get(uuid=self.data['uuid'])
+                    test.status = 2
+                    test.start_time = unix_time_to_datetime(self.data['startTime'])
+                    test.save()
                     return "done"
                 except ObjectDoesNotExist:
                     return HttpResponse(status=403)
