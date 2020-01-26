@@ -23,7 +23,7 @@ def main(request):
 
 def about(request):
 
-    version = "0.19.2"
+    version = "0.19.3"
     response = requests.get(f"https://api.github.com/repos/and-sm/testgr/releases/latest",
                             headers={"Content-Type": "application/json", "User-Agent": "testgr"})
     if response.status_code != 200:

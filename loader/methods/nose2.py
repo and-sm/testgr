@@ -65,35 +65,36 @@ class Nose2Loader:
 
         # Tests
         tests = []
-        for k, identity in self.data['tests'].items():
-            # Tests Storage
-            uuid = self.data['test_uuids'][identity]
-            description = self.data['test_descriptions'][uuid]
-            try:
-                test_storage_item = TestsStorage.objects.get(identity=identity)
-                # If no test obj exists
-                if not test_storage_item.test:
-                    test_storage_item.test = identity.split('.')[-1]
-                    test_storage_item.description = description
-                    test_storage_item.save()
-                # If test obj exists with null description
-                elif test_storage_item.test and not test_storage_item.description:
-                    test_storage_item.description = description
-                    test_storage_item.save()
-                # if test obj exists with description
-                elif test_storage_item.test and test_storage_item.description:
-                    if test_storage_item.description == description:
-                        pass
-                    else:
+        for single_test in self.data['tests']:
+            for k, identity in single_test.items():
+                # Tests Storage
+                uuid = self.data['test_uuids'][identity]
+                description = self.data['test_descriptions'][uuid]
+                try:
+                    test_storage_item = TestsStorage.objects.get(identity=identity)
+                    # If no test obj exists
+                    if not test_storage_item.test:
+                        test_storage_item.test = identity.split('.')[-1]
                         test_storage_item.description = description
                         test_storage_item.save()
-            except ObjectDoesNotExist:
-                test_storage_item = TestsStorage(identity=identity, test=identity.split('.')[-1],
-                                                 description=description)
-                test_storage_item.save()
+                    # If test obj exists with null description
+                    elif test_storage_item.test and not test_storage_item.description:
+                        test_storage_item.description = description
+                        test_storage_item.save()
+                    # if test obj exists with description
+                    elif test_storage_item.test and test_storage_item.description:
+                        if test_storage_item.description == description:
+                            pass
+                        else:
+                            test_storage_item.description = description
+                            test_storage_item.save()
+                except ObjectDoesNotExist:
+                    test_storage_item = TestsStorage(identity=identity, test=identity.split('.')[-1],
+                                                     description=description)
+                    test_storage_item.save()
 
-            # Tests for Job
-            tests.append({'test_uuid': uuid, 'status': 1, 'job': job_object.pk, 'test': test_storage_item.pk})
+                # Tests for Job
+                tests.append({'test_uuid': uuid, 'status': 1, 'job': job_object.pk, 'test': test_storage_item.pk})
         with connection.cursor() as cursor:
             for test in tests:
                 cursor.execute("INSERT INTO loader_tests (`uuid`, `status`, `job_id`, `test_id`)"
