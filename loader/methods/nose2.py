@@ -97,10 +97,9 @@ class Nose2Loader:
                 tests.append({'test_uuid': uuid, 'status': 1, 'job': job_object.pk, 'test': test_storage_item.pk})
         with connection.cursor() as cursor:
             for test in tests:
-                cursor.execute("INSERT INTO loader_tests (`uuid`, `status`, `job_id`, `test_id`)"
+                cursor.execute("INSERT INTO loader_tests (uuid, status, job_id, test_id)"
                                "VALUES(%s, 1, %s, %s)",
                                [test['test_uuid'], test['job'], test['test']])
-            cursor.fetchone()
 
         tests_not_started = job_object.tests.count()
         job_object.tests_not_started = tests_not_started
