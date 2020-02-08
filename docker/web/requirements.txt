@@ -1,4 +1,4 @@
-django==2.2.9
+django==3.0.3
 django-anymail==7.0.0
 channels==2.4.0
 channels-redis==2.4.1
@@ -6,6 +6,6 @@ gunicorn==20.0.4
 daphne==2.4.1
 requests==2.22.0
 mysqlclient==1.4.6
-redis==3.3.11
+redis==3.4.1
 djangorestframework==3.11.0
 argon2-cffi==19.2.0

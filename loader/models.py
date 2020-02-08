@@ -97,6 +97,14 @@ class TestsStorage(models.Model):
         except ObjectDoesNotExist:
             return None
 
+    def get_test_class_for_nose(self):
+        try:
+            self.cls = self.identity.split('.')
+            self.cls = self.cls[-2]
+        except BaseException:  # if for some reason we haven't full identity - for example "test_method".
+            return self.identity
+        return self.cls
+
     def get_test_method_for_nose(self):
         try:
             self.method = self.identity.split('.')
@@ -104,6 +112,17 @@ class TestsStorage(models.Model):
         except BaseException:  # if for some reason we haven't full identity - for example "test_method".
             return self.identity
         return self.method
+
+    def get_test_class_for_pytest(self):
+        try:
+            if "()" in self.identity:
+                self.cls = self.identity.split('::')
+            else:
+                self.cls = self.identity.split('::')
+            self.cls = self.cls[-2]
+        except BaseException:  # if for some reason we haven't full identity - for example "test_method".
+            return self.identity
+        return self.cls
 
     def get_test_method_for_pytest(self):
         try:
@@ -130,6 +149,8 @@ class Tests(models.Model):
     test = models.ForeignKey(TestsStorage, on_delete=models.CASCADE, related_name='test_storage')
 
     def get_start_time(self):
+        if self.start_time is None:
+            return None
         return timezone.localtime(self.start_time).strftime('%d-%b-%Y, %H:%M:%S')
 
     def get_stop_time(self):

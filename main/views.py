@@ -95,7 +95,7 @@ def job(request, job_uuid):
         stop_time = None
     if job_object.time_taken:
         time_taken = job_object.get_time_taken()
-    elif job_object.status is 4 and job_object.time_taken is None:
+    elif job_object.status == 4 and job_object.time_taken is None:
         time_taken = 0
     else:
         time_taken = None
@@ -154,7 +154,7 @@ def test(request, test_uuid):
         stop_time = None
     if test_object.time_taken:
         time_taken = test_object.get_time_taken()
-    elif test_object.status is 6 and test_object.time_taken is None:
+    elif test_object.status == 6 and test_object.time_taken is None:
         time_taken = 0
     else:
         time_taken = None

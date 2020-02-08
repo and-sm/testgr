@@ -74,8 +74,8 @@
         </div><br />
         <div><h5>Environment: &nbsp;<span class="ui middle label">{{ env }}</span></h5></div><br />
         <div><h5>UUID: </h5>{{ uuid }}</div><br />
-        <div><h5>Start Date: </h5>{{ start_time }}</div><br />
-        <p><strong>Stop Date: </strong><br /><span id="job_stop_timestamp">{% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}</span></p>
+        <div><h5>Start DateTime: </h5>{{ start_time }}</div><br />
+        <p><strong>Stop DateTime: </strong><br /><span id="job_stop_timestamp">{% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}</span></p>
         <p><strong>Time Taken: </strong><br /><span id="job_time_taken">{% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}</span></p>
         <p><strong>Type: </strong>
         {% if fw == 1 %}nose2{% elif fw == 2 %}pytest{% else %}unknown type of tests{% endif %}</p>
@@ -193,8 +193,10 @@
         <table class="ui very basic selectable table">
             <thead>
             <tr>
-                <th>&nbsp;&nbsp;Test</th>
-                <th>Start Time</th>
+                <th>&nbsp;&nbsp;Test Class</th>
+                <th>&nbsp;&nbsp;Test Method</th>
+                <th>Start DateTime</th>
+                <th>Stop DateTime</th>
                 <th>Time Taken</th>
                 <th>Status</th>
             </tr>
@@ -212,6 +214,13 @@
                     data-tr-test="{{ item.uuid }}">
                     {% if fw == 1 %}
                     <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_nose }}</td>
+                    {% elif fw == 2 %}
+                    <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_pytest }}</td>
+                    {% endif %}
+                    {% if fw == 1 %}
+                    <td>&nbsp;&nbsp;
                         {{ item.test.get_test_method_for_nose }}</td>
                     {% elif fw == 2 %}
                     <td>&nbsp;&nbsp;
@@ -220,6 +229,12 @@
                     <td data-td-start-time="{{ item.uuid }}">
                         {% if item.get_start_time is not None %}
                             {{ item.get_start_time }}
+                        {% else %}Pending...
+                        {% endif %}
+                    </td>
+                    <td data-td-stop-time="{{ item.uuid }}">
+                        {% if item.get_stop_time is not None %}
+                            {{ item.get_stop_time }}
                         {% else %}Pending...
                         {% endif %}
                     </td>
@@ -266,8 +281,10 @@
         <table class="ui very basic selectable table">
             <thead>
             <tr>
-                <th>&nbsp;&nbsp;Test</th>
-                <th>Start Time</th>
+                <th>&nbsp;&nbsp;Test Class</th>
+                <th>&nbsp;&nbsp;Test Method</th>
+                <th>Start DateTime</th>
+                <th>Stop DateTime</th>
                 <th>Time Taken</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -279,6 +296,13 @@
                 <tr class="ui negative" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
                     <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_nose }}</td>
+                    {% elif fw == 2 %}
+                    <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_pytest }}</td>
+                    {% endif %}
+                    {% if fw == 1 %}
+                    <td>&nbsp;&nbsp;
                         {{ item.test.get_test_method_for_nose }}</td>
                     {% elif fw == 2 %}
                     <td>&nbsp;&nbsp;
@@ -287,7 +311,13 @@
                     <td>
                         {% if item.get_start_time is not None %}
                             {{ item.get_start_time }}
-                        {% else %}0s
+                        {% else %}Pending...
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.get_stop_time is not None %}
+                            {{ item.get_stop_time }}
+                        {% else %}Pending...
                         {% endif %}
                     </td>
                     <td>
@@ -317,8 +347,10 @@
         <table class="ui very basic selectable table">
             <thead>
             <tr>
-                <th>&nbsp;&nbsp;Test</th>
-                <th>Start Time</th>
+                <th>&nbsp;&nbsp;Test Class</th>
+                <th>&nbsp;&nbsp;Test Method</th>
+                <th>Start DateTime</th>
+                <th>Stop DateTime</th>
                 <th>Time Taken</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -330,6 +362,13 @@
                 <tr class="ui positive" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
                     <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_nose }}</td>
+                    {% elif fw == 2 %}
+                    <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_pytest }}</td>
+                    {% endif %}
+                    {% if fw == 1 %}
+                    <td>&nbsp;&nbsp;
                         {{ item.test.get_test_method_for_nose }}</td>
                     {% elif fw == 2 %}
                     <td>&nbsp;&nbsp;
@@ -338,6 +377,12 @@
                     <td>
                         {% if item.get_start_time is not None %}
                             {{ item.get_start_time }}
+                        {% else %}Pending...
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.get_stop_time is not None %}
+                            {{ item.get_stop_time }}
                         {% else %}Pending...
                         {% endif %}
                     </td>
@@ -368,8 +413,10 @@
         <table class="ui very basic selectable table">
             <thead>
             <tr>
-                <th>&nbsp;&nbsp;Test</th>
-                <th>Start Time</th>
+                <th>&nbsp;&nbsp;Test Class</th>
+                <th>&nbsp;&nbsp;Test Method</th>
+                <th>Start DateTime</th>
+                <th>Stop DateTime</th>
                 <th>Time Taken</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -381,6 +428,13 @@
                 <tr class="ui negative" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
                     <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_nose }}</td>
+                    {% elif fw == 2 %}
+                    <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_pytest }}</td>
+                    {% endif %}
+                    {% if fw == 1 %}
+                    <td>&nbsp;&nbsp;
                         {{ item.test.get_test_method_for_nose }}</td>
                     {% elif fw == 2 %}
                     <td>&nbsp;&nbsp;
@@ -389,7 +443,13 @@
                     <td>
                         {% if item.get_start_time is not None %}
                             {{ item.get_start_time }}
-                        {% else %}0s
+                        {% else %}Pending...
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.get_stop_time is not None %}
+                            {{ item.get_stop_time }}
+                        {% else %}Pending...
                         {% endif %}
                     </td>
                     <td>
@@ -419,8 +479,10 @@
         <table class="ui very basic selectable table">
             <thead>
             <tr>
-                <th>&nbsp;&nbsp;Test</th>
-                <th>Start Time</th>
+                <th>&nbsp;&nbsp;Test Class</th>
+                <th>&nbsp;&nbsp;Test Method</th>
+                <th>Start DateTime</th>
+                <th>Stop DateTime</th>
                 <th>Time Taken</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -432,6 +494,13 @@
                 <tr class="ui warning" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
                     <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_nose }}</td>
+                    {% elif fw == 2 %}
+                    <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_pytest }}</td>
+                    {% endif %}
+                    {% if fw == 1 %}
+                    <td>&nbsp;&nbsp;
                         {{ item.test.get_test_method_for_nose }}</td>
                     {% elif fw == 2 %}
                     <td>&nbsp;&nbsp;
@@ -440,7 +509,13 @@
                     <td>
                         {% if item.get_start_time is not None %}
                             {{ item.get_start_time }}
-                        {% else %}0s
+                        {% else %}Pending...
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.get_stop_time is not None %}
+                            {{ item.get_stop_time }}
+                        {% else %}Pending...
                         {% endif %}
                     </td>
                     <td>
@@ -470,8 +545,10 @@
         <table class="ui very basic selectable table">
             <thead>
             <tr>
-                <th>&nbsp;&nbsp;Test</th>
-                <th>Start Time</th>
+                <th>&nbsp;&nbsp;Test Class</th>
+                <th>&nbsp;&nbsp;Test Method</th>
+                <th>Start DateTime</th>
+                <th>Stop DateTime</th>
                 <th>Time Taken</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -483,6 +560,13 @@
                 <tr class="ui" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
                     <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_nose }}</td>
+                    {% elif fw == 2 %}
+                    <td>&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_pytest }}</td>
+                    {% endif %}
+                    {% if fw == 1 %}
+                    <td>&nbsp;&nbsp;
                         {{ item.test.get_test_method_for_nose }}</td>
                     {% elif fw == 2 %}
                     <td>&nbsp;&nbsp;
@@ -491,7 +575,13 @@
                     <td>
                         {% if item.get_start_time is not None %}
                             {{ item.get_start_time }}
-                        {% else %}0s
+                        {% else %}Pending...
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.get_stop_time is not None %}
+                            {{ item.get_stop_time }}
+                        {% else %}Pending...
                         {% endif %}
                     </td>
                     <td>
