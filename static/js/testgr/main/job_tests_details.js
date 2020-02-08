@@ -8,6 +8,7 @@ var socket = new WebSocket(
     var test = message['test'];
     var test_uuid = test['uuid'];
     var test_start_time = test['start_time'];
+    var test_stop_time = test['stop_time'];
     var test_time_taken = test['time_taken'];
     var test_time_taken_eta = test['time_taken_eta'];
     var test_status = test['status'];
@@ -20,6 +21,7 @@ var socket = new WebSocket(
 
     let data_tr_test = document.querySelector('[data-tr-test="' + test_uuid + '"]');
     let data_td_start_time = document.querySelector('[data-td-start-time="' + test_uuid + '"]');
+    let data_td_stop_time = document.querySelector('[data-td-stop-time="' + test_uuid + '"]');
     let data_td_eta = document.querySelector('[data-td-eta="' + test_uuid + '"]');
     let data_td_status = document.querySelector('[data-td-status="' + test_uuid + '"]');
 
@@ -52,11 +54,15 @@ var socket = new WebSocket(
         not_started.innerHTML = "Not Started: " + message['not_started'];
     }
 
-
     if(test_start_time == null){
         test_start_time = "Pending..."
     }
     data_td_start_time.innerHTML = test_start_time;
+
+    if(test_stop_time == null){
+        test_stop_time = "Pending..."
+    }
+    data_td_stop_time.innerHTML = test_stop_time;
 
     /* ETA */
     if(test_status === 1 || test_status === 2){

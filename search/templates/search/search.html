@@ -195,19 +195,19 @@
         <table id="filter_results_table" class="ui selectable celled table" cellspacing="0" width="100%">
             <thead>
             <tr>
-                <th>Stop Date</th>
+                <th>Stop DateTime</th>
                 <th>Time Taken</th>
                 <th>Environment</th>
-                <th>Status</th>
+                <th>Job Status</th>
             </tr>
             </thead>
             <tbody></tbody>
             <tfoot>
             <tr>
-                <th>Stop Date</th>
+                <th>Stop DateTime</th>
                 <th>Time Taken</th>
                 <th>Environment</th>
-                <th>Status</th>
+                <th>Job Status</th>
             </tr>
             </tfoot>
         </table>
@@ -264,10 +264,10 @@ $('#filter_btn').click(function(event){
             }
         },
         columns: [
-            { "data": "Stop Date" },
+            { "data": "Stop DateTime" },
             { "data": "Time Taken" },
             { "data": "Environment" },
-            { "data": "Status" }
+            { "data": "Job Status" }
         ],
         "rowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
             let id = aData.uuid;

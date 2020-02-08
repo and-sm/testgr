@@ -89,12 +89,20 @@
         </div><br />
         <div><h5>Environment: &nbsp;<span class="ui middle label">{{ env }}</span></h5></div><br />
         <div><h5>UUID: </h5>{{ uuid }}</div><br />
-        <div><h5>Start Date: </h5>{% if start_time is not None %}{{ start_time }}{% else %}Pending...{% endif %}</div><br />
-        <div><h5>Stop Date: </h5>{% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}</div><br />
+        <div><h5>Start DateTime: </h5>{% if start_time is not None %}{{ start_time }}{% else %}Pending...{% endif %}</div><br />
+        <div><h5>Stop DateTime: </h5>{% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}</div><br />
         <div><h5>Time Taken: </h5>{% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}</div>
 
-        <h5>Last {{last_tests_count}} results:</h5>
+        <h5>
+        {% if last_tests_count < 1 %}
+        {% elif last_tests_count < 2 %}
+            Last result:
+        {% else %}
+            Last {{last_tests_count}} results:
+        {% endif %}
+        </h5>
 
+        {% if last_tests_count > 0 %}
         <div class="ui list">
         {% for item in last_10_tests %}
             <div class="item">
@@ -135,6 +143,7 @@
             </div>
         {% endfor %}
         </div>
+        {% endif %}
 
     </div>
 

@@ -86,8 +86,8 @@ def filter_data(request):
 
         uuid = item.uuid
 
-        datatable_dict.append({'Stop Date': stop_time, 'Time Taken': time_taken,
-                               'Environment': env, 'Status': status, 'uuid': uuid})
+        datatable_dict.append({'Stop DateTime': stop_time, 'Time Taken': time_taken,
+                               'Environment': env, 'Job Status': status, 'uuid': uuid})
 
     test_data = {"data": datatable_dict}
 

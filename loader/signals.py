@@ -254,6 +254,8 @@ def get_job_tests_details(created, instance, **kwargs):
         test_item['uuid'] = instance.uuid
         if instance.start_time:  # Initial Tests post_save signal will not have start_time for test item
             test_item['start_time'] = instance.get_start_time()
+        if instance.stop_time:
+            test_item['stop_time'] = instance.get_stop_time()
         if instance.time_taken:
             test_item['time_taken'] = instance.get_time_taken()
         else:
