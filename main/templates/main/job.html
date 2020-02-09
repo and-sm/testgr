@@ -213,18 +213,18 @@
                     {% if item.status == 6%}negative{% endif %}"
                     data-tr-test="{{ item.uuid }}">
                     {% if fw == 1 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_class_for_nose }}</td>
+                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_class_for_pytest }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_nose }}</td>
+                    <td title="{{ item.test.get_test_method_for_nose }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_pytest }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     <td data-td-start-time="{{ item.uuid }}">
                         {% if item.get_start_time is not None %}
@@ -295,18 +295,18 @@
                 {% if item.status != 3 and item.status != 1 and item.status != 5 and item.status != 6%}
                 <tr class="ui negative" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_class_for_nose }}</td>
+                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_class_for_pytest }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_nose }}</td>
+                    <td title="{{ item.test.get_test_method_for_nose }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_pytest }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     <td>
                         {% if item.get_start_time is not None %}
@@ -361,18 +361,18 @@
                 {% if item.status == 3 %}
                 <tr class="ui positive" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_class_for_nose }}</td>
+                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_class_for_pytest }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_nose }}</td>
+                    <td title="{{ item.test.get_test_method_for_nose }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_pytest }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     <td>
                         {% if item.get_start_time is not None %}
@@ -427,18 +427,18 @@
                 {% if item.status == 6 %}
                 <tr class="ui negative" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_class_for_nose }}</td>
+                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_class_for_pytest }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_nose }}</td>
+                    <td title="{{ item.test.get_test_method_for_nose }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_pytest }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     <td>
                         {% if item.get_start_time is not None %}
@@ -493,18 +493,18 @@
                 {% if item.status == 5 %}
                 <tr class="ui warning" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_class_for_nose }}</td>
+                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_class_for_pytest }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_nose }}</td>
+                    <td title="{{ item.test.get_test_method_for_nose }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_pytest }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     <td>
                         {% if item.get_start_time is not None %}
@@ -559,18 +559,18 @@
                 {% if item.status == 1 %}
                 <tr class="ui" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_class_for_nose }}</td>
+                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_class_for_pytest }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_nose }}</td>
+                    <td title="{{ item.test.get_test_method_for_nose }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td>&nbsp;&nbsp;
-                        {{ item.test.get_test_method_for_pytest }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                        {{ item.test.get_test_method_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     <td>
                         {% if item.get_start_time is not None %}
