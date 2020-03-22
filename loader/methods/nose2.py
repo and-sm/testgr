@@ -1,4 +1,5 @@
 import uuid
+import json
 
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
@@ -56,11 +57,18 @@ class Nose2Loader:
         # We should not create a job without tests
         if len(self.data['tests']) == 0:
             return HttpResponse(status=403)
+
+        try:
+            custom_data = json.dumps(json.loads(self.data["custom_data"]))
+        except:
+            custom_data = None
+
         job_object = TestJobs(uuid=self.data['job_id'],
                               status=1,
                               fw_type=1,
                               start_time=unix_time_to_datetime(self.data['startTime']),
-                              env=env)
+                              env=env,
+                              custom_data=custom_data)
         job_object.save()
 
         # Tests

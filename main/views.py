@@ -118,6 +118,13 @@ def job(request, job_uuid):
     # Running jobs count
     running_jobs_count = helpers.running_jobs_count()
 
+    # Custom data
+    if job_object.custom_data:
+        custom_data = json.loads(job_object.custom_data)
+        custom_data = sorted(custom_data.items())
+    else:
+        custom_data = None
+
     return render(request, "main/job.html", {'uuid': uuid,
                                              'start_time': start_time,
                                              'stop_time': stop_time,
@@ -133,6 +140,7 @@ def job(request, job_uuid):
                                              'aborted': aborted,
                                              'fw': fw,
                                              'running_jobs_count': running_jobs_count,
+                                             'custom_data': custom_data
                                              # 'tests_percentage': job_object.tests_percentage()
                                              })
 
@@ -159,6 +167,10 @@ def test(request, test_uuid):
     else:
         time_taken = None
     env = test_job.get_env()
+    if not env:
+        env = "No data"
+    elif env == "None":
+        env = "No data"
     status = test_object.status
     msg = test_object.msg
     # msg_detailed = test_object.msg_detailed
@@ -217,6 +229,13 @@ def test(request, test_uuid):
         last_fail.append(i.status)
         last_fail.append(i.get_stop_time())
 
+    if test_job.fw_type == 1:
+        test_class = test_storage_data.get_test_class_for_nose()
+        test_method = test_storage_data.get_test_method_for_nose()
+    else:
+        test_class = test_storage_data.get_test_class_for_pytest()
+        test_method = test_storage_data.get_test_method_for_pytest()
+
     return render(request, "main/test.html", {'uuid': uuid,
                                               'start_time': start_time,
                                               'stop_time': stop_time,
@@ -234,7 +253,9 @@ def test(request, test_uuid):
                                               'last_success': last_success,
                                               'last_fail': last_fail,
                                               'storage_data': test_storage_data,
-                                              'test_job': test_job})
+                                              'test_job': test_job,
+                                              'test_class': test_class,
+                                              'test_method': test_method})
 
 
 @login_required()
