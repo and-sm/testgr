@@ -5,6 +5,7 @@
 <title>TESTGR</title>
 
 {% load static %}
+{% load urlize_target_blank %}
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.css" />
 
@@ -73,7 +74,16 @@
             {% endif %}</h5>
         </div><br />
         <div><h5>Environment: &nbsp;<span class="ui middle label">{{ env }}</span></h5></div><br />
-        <div><h5>UUID: </h5>{{ uuid }}</div><br />
+        {% if custom_data %}
+        <div><h5>Custom data: </h5>
+        <div class="ui bulleted list">
+        {% for key, value in custom_data %}
+            <div class="item"><strong>{{ key }}: </strong>{{ value|urlize|urlize_target_blank }}</div>
+        {% endfor %}
+        </div>
+        </div>
+        <p></p>
+        {% endif %}
         <div><h5>Start DateTime: </h5>{{ start_time }}</div><br />
         <p><strong>Stop DateTime: </strong><br /><span id="job_stop_timestamp">{% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}</span></p>
         <p><strong>Time Taken: </strong><br /><span id="job_time_taken">{% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}</span></p>
