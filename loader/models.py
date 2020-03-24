@@ -136,6 +136,11 @@ class TestsStorage(models.Model):
             return self.identity
         return self.method
 
+    def get_test_note(self):
+        if self.note:
+            return self.note
+        return ""
+
 
 class Tests(models.Model):
     uuid = models.CharField(max_length=36, db_index=True)
