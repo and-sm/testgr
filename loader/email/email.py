@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.mail import EmailMessage
 import uuid  # https://stackoverflow.com/a/50055815
+import json
 
 
 class SendJobReport:
@@ -23,6 +24,15 @@ class SendJobReport:
                "" + str(self.job.get_stop_time()) + "</p>" \
                "<p class='small'><strong>Duration: </strong>" + self.job.get_time_taken() + "</p>"
 
+    def custom_data(self):
+        if self.job.custom_data:
+            custom_data_items = list()
+            custom_data = json.loads(self.job.custom_data)
+            for k, v in custom_data.items():
+                custom_data_items.append("<p class='small'><strong>" + k + ": </strong>" + v + "</p>")
+            return "".join(custom_data_items)
+        return ""
+
     def tests_content(self):
         tests_data = list()
         tests = self.job.tests.all()
@@ -42,13 +52,20 @@ class SendJobReport:
                     method = test.test.get_test_method_for_pytest()
                 else:
                     method = ''
+
+                if test.test.get_test_note():
+                    td_note = "<td style='padding: 8px;text-align: left;border-bottom: 1px solid #ddd;'>" \
+                              + test.test.get_test_note() + "</td>"
+                else:
+                    td_note = "<td style='padding: 8px;text-align: left;border-bottom: 1px solid #ddd;'></td>"
+
                 tests_data.append(str("<tr><td style='padding: 8px;text-align: left;border-bottom: 1px solid #ddd;'>"
-                                      + method + "</td></tr>"))
+                                      + method + "</td>" + td_note + "</tr>"))
         tests_data = ''.join(tests_data)
         count_data = "<h3>Tests: " + str(len(tests)) + "</h3><h4>Passed: <span style='color: green;'>" + str(passed) + \
                      "</span>, Failed: <span style='color: red;'>" + str(failed) + \
                      "</span>, Skipped: <span style='color: gray;'>" + str(skipped) + "</span></h4>"
-        return count_data + "<table style='border-collapse: collapse;width: 30%;'><tbody>" + tests_data
+        return count_data + "<table style='border-collapse: collapse;width: 20%;'><tbody>" + tests_data
 
     def tests_content_table_footer(self):
         return "</tbody></table>"
@@ -59,7 +76,7 @@ class SendJobReport:
                                     "<span style=\"opacity: 0\">" + str(uuid.uuid4()) + "</span></body></html>"
 
     def message(self):
-        return self.head_content() + self.job_content() + self.tests_content() + \
+        return self.head_content() + self.job_content() + self.custom_data() + self.tests_content() + \
                self.tests_content_table_footer() + self.footer_content()
 
     def send(self):
