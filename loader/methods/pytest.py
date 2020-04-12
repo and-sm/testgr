@@ -184,22 +184,32 @@ class PytestLoader:
                             test.save()
                             aborted_tests += 1
                         job_object.tests_aborted = aborted_tests
-                else:
+                elif not_started:
                     # If no "failed" test cases, but "not started" remain - job will be "Failed"
-                    if not_started:
-                        if tests:
-                            aborted_tests = 0
-                            for test in tests:
-                                test.status = 6
-                                test.stop_time = unix_time_to_datetime(self.data['stopTime'])
-                                test.time_taken = test.stop_time - test.start_time
-                                test.save()
-                                aborted_tests += 1
-                            job_object.tests_aborted = aborted_tests
-                        job_object.status = 3
-                    # If no "failed" (and other negative variations) test cases - job will be "Passed"
-                    else:
-                        job_object.status = 2
+                    if tests:
+                        aborted_tests = 0
+                        for test in tests:
+                            test.status = 6
+                            test.stop_time = unix_time_to_datetime(self.data['stopTime'])
+                            test.time_taken = test.stop_time - test.start_time
+                            test.save()
+                            aborted_tests += 1
+                        job_object.tests_aborted = aborted_tests
+                    job_object.status = 3
+                # Bug fix - abort scenario with single test
+                elif tests:
+                    aborted_tests = 0
+                    for test in tests:
+                        test.status = 6
+                        test.stop_time = unix_time_to_datetime(self.data['stopTime'])
+                        test.time_taken = test.stop_time - test.start_time
+                        test.save()
+                        aborted_tests += 1
+                    job_object.tests_aborted = aborted_tests
+                    job_object.status = 3
+                # If no "failed" (and other negative variations) test cases - job will be "Passed"
+                else:
+                    job_object.status = 2
 
                 job_object.stop_time = unix_time_to_datetime(self.data['stopTime'])
                 job_object.time_taken = job_object.stop_time - job_object.start_time

@@ -7,17 +7,34 @@
 {% load static %}
 {% load urlize_target_blank %}
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.css" />
 
 
 <style>
-    .note_style.icon {
+    .icon_style.icon {
         opacity: 0.3;
         transition: 0.1s;
     }
-    .note_style_filled.icon:hover {opacity: 1}
-</style>
+    .icon_style_filled.icon:hover {opacity: 1}
 
+    .icon_style_filled.icon {opacity: 1}
+
+    .ui.label.bug{
+        margin-right: 5px;
+        margin-bottom: 5px;
+        margin-left: 0;
+        word-wrap: break-word;
+    }
+
+    .ui.table th.actions {
+        text-align:center
+    }
+
+    .ui.table td.actions {
+        text-align:center
+    }
+
+</style>
 
 </head>
 
@@ -223,10 +240,12 @@
                     {% if item.status == 6%}negative{% endif %}"
                     data-tr-test="{{ item.uuid }}">
                     {% if fw == 1 %}
-                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
+                        title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
+                        title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
@@ -297,7 +316,7 @@
                 <th>Stop DateTime</th>
                 <th>Time Taken</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th class="actions">Actions</th>
             </tr>
             </thead>
             <tbody id="tests_list">
@@ -305,10 +324,12 @@
                 {% if item.status != 3 and item.status != 1 and item.status != 5 and item.status != 6%}
                 <tr class="ui negative" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
+                        title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
+                        title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
@@ -339,12 +360,24 @@
                     <td>
                         <span class="ui red basic label">Failed</span>
                     </td>
-                    <td>
+                    <td class="actions">
+                        <i title="Add a bug" class="bug large icon
+                        {% if item.test.bugs.all %}icon_style_filled
+                        {% else %}icon_style{% endif %}"
+                           data-name="bugs" data-bug-id="{{ item.test.pk }}"></i>
+
                         <i title="Add a note" class="sticky note {% if not item.test.note %}outline{% endif %} large icon
-                        {% if item.test.note %}note_style_filled
-                        {% else %}note_style{% endif %}"
-                           data-name="note" data-id="{{ item.test.identity }}"></i>
+                        {% if item.test.note %}icon_style_filled
+                        {% else %}icon_style{% endif %}"
+                           data-name="note" data-note-id="{{ item.test.pk }}"></i>
+
+                        <i title="Suppress in email report" class="volume mute large icon
+                        {% if item.test.suppress %}icon_style_filled
+                        {% else %}icon_style{% endif %}"
+                           data-name="suppress" data-suppress-state="{% if item.test.suppress %}1{% else %}0{% endif %}"
+                           data-suppress-id="{{ item.test.pk }}"></i>
                     </td>
+
                 </tr>
                 {% endif %}
             {% endfor %}
@@ -363,7 +396,7 @@
                 <th>Stop DateTime</th>
                 <th>Time Taken</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th class="actions  ">Actions</th>
             </tr>
             </thead>
             <tbody id="tests_list">
@@ -371,10 +404,12 @@
                 {% if item.status == 3 %}
                 <tr class="ui positive" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
+                        title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
+                        title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
@@ -405,11 +440,22 @@
                     <td>
                         <div class="ui green basic label">Passed</div>
                     </td>
-                    <td>
+                    <td class="actions">
+                        <i title="Add a bug" class="bug large icon
+                        {% if item.test.bugs.all %}icon_style_filled
+                        {% else %}icon_style{% endif %}"
+                           data-name="bugs" data-bug-id="{{ item.test.pk }}"></i>
+
                         <i title="Add a note" class="sticky note {% if not item.test.note %}outline{% endif %} large icon
-                        {% if item.test.note %}note_style_filled
-                        {% else %}note_style{% endif %}"
-                           data-name="note" data-id="{{ item.test.identity }}"></i>
+                        {% if item.test.note %}icon_style_filled
+                        {% else %}icon_style{% endif %}"
+                           data-name="note" data-note-id="{{ item.test.pk }}"></i>
+
+                        <i title="Suppress in email report" class="volume mute large icon
+                        {% if item.test.suppress %}icon_style_filled
+                        {% else %}icon_style{% endif %}"
+                           data-name="suppress" data-suppress-state="{% if item.test.suppress %}1{% else %}0{% endif %}"
+                           data-suppress-id="{{ item.test.pk }}"></i>
                     </td>
                 </tr>
             {% endif %}
@@ -429,7 +475,7 @@
                 <th>Stop DateTime</th>
                 <th>Time Taken</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th class="actions">Actions</th>
             </tr>
             </thead>
             <tbody id="tests_list">
@@ -437,10 +483,12 @@
                 {% if item.status == 6 %}
                 <tr class="ui negative" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
+                        title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
+                        title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
@@ -471,11 +519,22 @@
                     <td>
                         <div class="ui red basic label">Aborted</div>
                     </td>
-                    <td>
+                    <td class="actions">
+                        <i title="Add a bug" class="bug large icon
+                        {% if item.test.bugs.all %}icon_style_filled
+                        {% else %}icon_style{% endif %}"
+                           data-name="bugs" data-bug-id="{{ item.test.pk }}"></i>
+
                         <i title="Add a note" class="sticky note {% if not item.test.note %}outline{% endif %} large icon
-                        {% if item.test.note %}note_style_filled
-                        {% else %}note_style{% endif %}"
-                           data-name="note" data-id="{{ item.test.identity }}"></i>
+                        {% if item.test.note %}icon_style_filled
+                        {% else %}icon_style{% endif %}"
+                           data-name="note" data-note-id="{{ item.test.pk }}"></i>
+
+                        <i title="Suppress in email report" class="volume mute large icon
+                        {% if item.test.suppress %}icon_style_filled
+                        {% else %}icon_style{% endif %}"
+                           data-name="suppress" data-suppress-state="{% if item.test.suppress %}1{% else %}0{% endif %}"
+                           data-suppress-id="{{ item.test.pk }}"></i>
                     </td>
                 </tr>
                 {% endif %}
@@ -495,7 +554,7 @@
                 <th>Stop DateTime</th>
                 <th>Time Taken</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th class="actions">Actions</th>
             </tr>
             </thead>
             <tbody id="tests_list">
@@ -503,10 +562,12 @@
                 {% if item.status == 5 %}
                 <tr class="ui warning" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
+                        title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
+                        title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
@@ -537,11 +598,22 @@
                     <td>
                         <div class="ui yellow basic label">Skipped</div>
                     </td>
-                    <td>
+                    <td class="actions">
+                        <i title="Add a bug" class="bug large icon
+                        {% if item.test.bugs.all %}icon_style_filled
+                        {% else %}icon_style{% endif %}"
+                           data-name="bugs" data-bug-id="{{ item.test.pk }}"></i>
+
                         <i title="Add a note" class="sticky note {% if not item.test.note %}outline{% endif %} large icon
-                        {% if item.test.note %}note_style_filled
-                        {% else %}note_style{% endif %}"
-                           data-name="note" data-id="{{ item.test.identity }}"></i>
+                        {% if item.test.note %}icon_style_filled
+                        {% else %}icon_style{% endif %}"
+                           data-name="note" data-note-id="{{ item.test.pk }}"></i>
+
+                        <i title="Suppress in email report" class="volume mute large icon
+                        {% if item.test.suppress %}icon_style_filled
+                        {% else %}icon_style{% endif %}"
+                           data-name="suppress" data-suppress-state="{% if item.test.suppress %}1{% else %}0{% endif %}"
+                           data-suppress-id="{{ item.test.pk }}"></i>
                     </td>
                 </tr>
             {% endif %}
@@ -561,7 +633,7 @@
                 <th>Stop DateTime</th>
                 <th>Time Taken</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th class="actions">Actions</th>
             </tr>
             </thead>
             <tbody id="tests_list">
@@ -569,10 +641,12 @@
                 {% if item.status == 1 %}
                 <tr class="ui" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
+                        title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
+                        title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
@@ -603,11 +677,22 @@
                     <td>
                         <div class="ui gray basic label">Not Started</div>
                     </td>
-                    <td>
+                    <td class="actions">
+                        <i title="Add a bug" class="bug large icon
+                        {% if item.test.bugs.all %}icon_style_filled
+                        {% else %}icon_style{% endif %}"
+                           data-name="bugs" data-bug-id="{{ item.test.pk }}"></i>
+
                         <i title="Add a note" class="sticky note {% if not item.test.note %}outline{% endif %} large icon
-                        {% if item.test.note %}note_style_filled
-                        {% else %}note_style{% endif %}"
-                           data-name="note" data-id="{{ item.test.identity }}"></i>
+                        {% if item.test.note %}icon_style_filled
+                        {% else %}icon_style{% endif %}"
+                           data-name="note" data-note-id="{{ item.test.pk }}"></i>
+
+                        <i title="Suppress in email report" class="volume mute large icon
+                        {% if item.test.suppress %}icon_style_filled
+                        {% else %}icon_style{% endif %}"
+                           data-name="suppress" data-suppress-state="{% if item.test.suppress %}1{% else %}0{% endif %}"
+                           data-suppress-id="{{ item.test.pk }}"></i>
                     </td>
                 </tr>
             {% endif %}
@@ -643,25 +728,80 @@
     </div>
   </div>
   <div class="ui second coupled mini modal">
-    <div class="header">
-      Delete job
-    </div>
     <div class="content">
-      <div class="description">
-        <p>Completed!</p>
-      </div>
-    </div>
-    <div class="actions">
-      <div class="ui approve button" id="reload_after_delete">
-        Go to main page
-      </div>
+        <div class="ui center aligned grid">
+            <div class="ui row"><div class="column"><h3>Completed!</h3></div></div>
+        </div>
     </div>
   </div>
+
+<div class="ui tiny modal" id="add_note">
+  <div class="header">
+      <div class="ui grid">
+      <div class="ui eight wide column"><i class="file alternate outline icon"></i>  Add a note</div>
+      <div class="ui eight wide right aligned column">
+          <i class="notched circle loading icon green" id="note_loading_process"></i>
+      </div>
+      </div>
+  </div>
+  <div class="content">
+      <div class="ui grid">
+          <div class="ui sixteen wide column">
+              <div class="ui form">
+                  <div class="one field">
+                      <div class="field" id="note-field">
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+    <div class="actions">
+        <span class="ui green text" id="save_complete" style="display: none"><strong>Saved!</strong></span>
+        <button class="ui primary button" id="add-note">Save</button>
+        <div class="ui cancel button">Close</div>
+  </div>
+</div>
+
+<div class="ui tiny modal" id="modal_bugs">
+  <div class="header">
+      <div class="ui grid">
+      <div class="ui eight wide column"><i class="bug icon"></i> Bugs</div>
+      <div class="ui eight wide right aligned column">
+          <i class="notched circle loading icon green" id="bug_loading_process" style="display: none"></i>
+      </div>
+      </div>
+  </div>
+  <div class="content">
+      <div class="ui grid">
+          <div class="ui sixteen wide column" id="bugs-list">
+          </div>
+        <div class="ui sixteen wide column">
+            <h3>Add a bug ID:</h3>
+        </div>
+          <div class="ui sixteen wide column">
+              <div class="ui form">
+                  <div class="one field">
+                      <div class="field" id="bug-field">
+                          <textarea style="width: 100%" rows="3" id="bug-content"></textarea>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="ui sixteen wide column">
+          <button class="ui primary button" id="add-bug">Add</button>&nbsp;
+          </div>
+      </div>
+  </div>
+  <div class="actions">
+        <div class="ui cancel button">Close</div>
+  </div>
+</div>
 
 </body>
 
 <script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
 
 <script>
@@ -725,12 +865,15 @@ $('.coupled.modal')
 ;
 // attach events to buttons
 $('.second.modal')
-  .modal('attach events', '.first.modal .positive.button')
+  .modal({onShow: function(){
+          window.setTimeout(function(){
+              window.location.replace("{% url 'index' %}");
+          }, 2000)}
+  }).modal('attach events', '.first.modal .positive.button')
 ;
 // show first now
 $('.first.modal')
   .modal('show')
-;
 });
 </script>
 <script>
@@ -751,56 +894,197 @@ window.location.replace("{% url 'index' %}");
 </script>
 
 <script>
-    var popupLoading = '<i class="notched circle loading icon green"></i> wait...';
-    $("i[data-name='note']").click(function(e) {
+    // Get bugs
+    let noteLoading = 'Loading...';
+    $("i[data-name='bugs']").click(function(e) {
         window.obj = $(this);
-        window.identity = $(this).data("id");
+        window.pk = $(this).data("bug-id");
         e.preventDefault();     // tr onclick prevent
         e.stopPropagation();    // tr onclick prevent
-    }).popup({
-        exclusive: 'true',
-        html: popupLoading,
-        on: 'click',
-        onShow: function () {
-            var popup = this;
-            popup.html(popupLoading);
-            $.ajax({
-                headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                url: "/api/tstorage/" + window.identity + "/",
-            }).done(function(result) {
-                if(result["note"] === null){
-                    result["note"] = ""
-                }
-                popup.html("<h5>Add a note</h5>" +
-                        "<form class='ui mini form'>" +
-                        "<div class='field'>" +
-                        "<textarea rows='5' name='c_text'data-id='" + window.identity + "'>" + result["note"] + "</textarea>" +
-                        "</div>" +
-                        "<div class='field'>" +
-                        "<button type='button' class='ui mini green button' name='ct_save' data-id='" + window.identity + "'>" +
-                        "Save</button>" +
-                        "</div>" +
-                        "</form>");
-                $("button[name='ct_save']").click(function() {
-                        var note = $("textarea[data-id='" + window.identity + "']").val();
-                        $.ajax({
-                            headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                            url: "/api/tstorage/" + window.identity + "/",
-                            type: "POST",
-                            data: {'identity': window.identity, 'note': note},
-                            success : function() {
-                                $("i[data-id*='note']").popup('hide all');
-                                window.obj.popup("hide");
-                                window.obj.removeClass("outline");
-                                window.obj.css("opacity", "1")
-                            }
+        $("#bug_loading_process").show();
+        let bugs_window = $('#modal_bugs');
+        let bugs_list = $("#bugs-list");
+        $("#bug-content").val("");
+        bugs_list.html(noteLoading);
+        bugs_window.modal({
+            onShow: function(){
+                $.ajax({
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    url: "/api/bugs/" + window.pk + "/",
+                    type: "GET"
+                }).done(
+                    // For each JSON item - render bug html element
+                    function (result) {
+                        $("#bug_loading_process").hide();
+                        bugs_list.html("");
+                        result.forEach(function(item){
+                            bugs_list.append("<div id=\"bug_" + item.id + "\" class=\"ui label large bug\">"
+                                + item.bug + "<i class=\"delete icon\" " +
+                                "data-name=\"delete-bug\" " + "data-del-id=\"" + item.id + "\"></i></div>")
                         });
                     });
+            }
+        }).modal('show');
+        // }).modal({dimmerSettings: { useCSS: true, opacity: 0 }}).modal('show');
+    });
+</script>
 
-            }).fail(function() {
-                popup.html('error');
-            });
-        },
+<script>
+    // Add bug
+    $(document).on('click', "#add-bug" , function () {
+        $("#bug_loading_process").show();
+        let content = $("#bug-content");
+        $.ajax({
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            url: "/api/bugs/change/" + window.pk + "/",
+            type: "PUT",
+            data: {"bug": $.trim(content.val())},
+            error : function() {
+                $("#bug-field").addClass("error");
+                $("#bug_loading_process").hide();
+            },
+            success : function(data) {
+                $("#bug_loading_process").hide();
+                content.val("");
+                let bugs_list = $("#bugs-list");
+                bugs_list.append("<div id=\"bug_" + data['id'] + "\" class=\"ui label large bug\">" + data['bug']
+                    + "<i class=\"delete icon\" " +
+                    "data-name=\"delete-bug\" " + "data-del-id=\"" + data['id']  + "\"></i></div>");
+                $("i[data-bug-id='"+ window.pk +"']").removeClass("icon_style")
+                    .addClass("icon_style_filled");
+            }
+        })
+    });
+
+    // Remove validation error
+    $(document).on("keyup", "#bug-content", function(){
+        $("#bug-field").removeClass("error");
+    });
+
+    // Delete bug
+    $(document).on('click', "i[data-name=\'delete-bug\']" , function () {
+        $("#bug_loading_process").show();
+        let bug = $(this).data("del-id");
+        $.ajax({
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            url: "/api/bugs/change/" + bug + "/",
+            type: "DELETE"
+        }).done(
+            function () {
+                $("#bug_loading_process").hide();
+                $("#bug_" + bug + "").remove()
+                if ($(".delete").length < 1){
+                    $("i[data-bug-id='"+ window.pk +"']").removeClass("icon_style_filled")
+                    .addClass("icon_style");
+                }
+            }
+        )
+    });
+</script>
+
+<script>
+    // Suppress test
+    $("i[data-name='suppress']").click(function (e) {
+    e.preventDefault();     // tr onclick prevent
+    e.stopPropagation();    // tr onclick prevent
+    window.obj = $(this);
+    let test_id = $(this).data("suppress-id");
+    let suppress_state = $(this).data("suppress-state");
+    let data_send = "";
+    if (suppress_state === 1){
+        data_send = {"suppress": "0"}
+    }
+    else {
+        data_send = {"suppress": "1"};
+    }
+    $.ajax({
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        url: "/api/tstorage/" + test_id + "/",
+        data: data_send,
+        type : "POST",
+        success : function() {
+            if (suppress_state === 1){
+                //window.obj.css("opacity", "0.3");
+                window.obj.data("suppress-state", 0);
+                window.obj.removeClass("icon_style_filled");
+                window.obj.addClass("icon_style");
+                window.obj.parent().parent().children("td").eq(0).removeClass("left marked orange")
+
+            }
+            else {
+                //window.obj.css("opacity", "1");
+                window.obj.data("suppress-state", 1);
+                window.obj.removeClass("icon_style");
+                window.obj.addClass("icon_style_filled");
+                window.obj.parent().parent().children("td").eq(0).addClass("left marked orange")
+            }
+        }
+    });
+});
+</script>
+
+<script>
+    // Get note
+    let popupLoading = 'Loading...';
+    $("i[data-name='note']").click(function(e) {
+        $("#note_loading_process").show();
+        $("#save_complete").hide();
+        window.pk = $(this).data("note-id");
+        e.preventDefault();     // tr onclick prevent
+        e.stopPropagation();    // tr onclick prevent
+        let note_window = $('#add_note');
+        let note_field = $('#note-field');
+        note_window.modal({
+            onShow: function(){
+                note_field.html(popupLoading);
+                $.ajax({
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    url: "/api/tstorage/" + window.pk + "/",
+                    type: "GET"
+                }).done(
+                    function (result) {
+                        $("#note_loading_process").hide();
+                        if(result["note"] === null){
+                            note_field.html("<textarea style=\"width: 100%\" rows=\"3\" id=\"note-content\"></textarea>");
+                        }
+                        else{
+                            note_field.html("<textarea style=\"width: 100%\" rows=\"3\" id=\"note-content\">"
+                                + result["note"] + "</textarea>");
+                        }
+            })}
+        }).modal('show');
+    });
+
+</script>
+
+<script>
+    // Add note
+    $(document).on('click', "#add-note" , function () {
+        let content = $("#note-content");
+        $("#note_loading_process").show();
+        $("#save_complete").hide();
+        $.ajax({
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            url: "/api/tstorage/" + window.pk + "/",
+            type: "POST",
+            data: {"note": $.trim(content.val())},
+            error : function() {
+                $("#note_loading_process").hide();
+                $("#note-field").addClass("error");
+            },
+            success : function() {
+                $("#note_loading_process").hide();
+                $("#save_complete").show()
+                if ($.trim(content.val()) === ""){
+                    $("i[data-note-id='"+ window.pk +"']").removeClass("icon_style_filled")
+                    .addClass("icon_style outline");
+                }
+                else{
+                    $("i[data-note-id='"+ window.pk +"']").removeClass("icon_style outline")
+                    .addClass("icon_style_filled");
+                }
+            }
+        })
     });
 </script>
 

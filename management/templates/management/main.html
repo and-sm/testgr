@@ -6,7 +6,7 @@
 
 {% load static %}
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.css">
 
 </head>
 
@@ -122,7 +122,7 @@
 </body>
 
 <script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.js"></script>
 
 <script>
 $("div[data-create-btn]").click(function () {
@@ -154,10 +154,14 @@ $("div[data-rename-btn]").click(function () {
     $.ajax({
         headers: {'X-CSRFToken': '{{ csrf_token }}'},
         url: "/api/environment/" + button_id + "/",
-        type : "POST",
+        type: "POST",
         data: {'id': button_id, 'new_name': new_name},
-        success : function() {
+        success: function() {
             alert("Saved!");
+            location.reload();
+        },
+        error: function() {
+            alert("Name can't be saved while job with the same environment is running!");
             location.reload();
         }
     });
@@ -169,10 +173,14 @@ $("div[data-delete-btn]").click(function () {
     $.ajax({
         headers: {'X-CSRFToken': '{{ csrf_token }}'},
         url: "/api/environment/" + button_id + "/",
-        type : "POST",
+        type: "POST",
         data: {'id': button_id, 'delete': 'true'},
-        success : function() {
+        success: function() {
             alert("Deleted!");
+            location.reload();
+        },
+        error: function() {
+            alert("Name can't be deleted while job with the same environment is running!");
             location.reload();
         }
     });

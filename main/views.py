@@ -168,9 +168,9 @@ def test(request, test_uuid):
         time_taken = None
     env = test_job.get_env()
     if not env:
-        env = "No data"
+        env = "Not provided by user"
     elif env == "None":
-        env = "No data"
+        env = "Not provided by user"
     status = test_object.status
     msg = test_object.msg
     # msg_detailed = test_object.msg_detailed
@@ -197,6 +197,16 @@ def test(request, test_uuid):
         note = test_object.test.note
     else:
         note = ""
+
+    if test_object.test.suppress:
+        suppress = test_object.test.suppress
+    else:
+        suppress = ""
+
+    if test_storage_data.bugs:
+        bugs = test_storage_data.bugs
+    else:
+        bugs = ""
 
     # Running jobs count
     running_jobs_count = helpers.running_jobs_count()
@@ -247,6 +257,8 @@ def test(request, test_uuid):
                                               'identity': identity,
                                               'description': description,
                                               'note': note,
+                                              'suppress': suppress,
+                                              'bugs': bugs,
                                               'running_jobs_count': running_jobs_count,
                                               'last_10_tests': last_10_tests,
                                               'last_tests_count': last_tests_count,
