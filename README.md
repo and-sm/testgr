@@ -7,31 +7,29 @@ If some test is in running, passed, failed or skipped state - plugin will send u
 
 ### Main page of Testgr. 
 
-![Main page](https://i.lensdump.com/i/iUQGlr.png)
+![Main page](https://i1.lensdump.com/i/jCCG8K.png)
 
 ### Job page. 
-There you can review status of your finished or live test execution. 
+On this page you can review status of your test job execution. 
 
-**Job in progress status:**
-![Job page](https://i.lensdump.com/i/iUQ5k7.png)
+**Job in progress:**
+![Job page](https://i1.lensdump.com/i/jCCaQZ.png)
 
 **Finished job:**
-![Finished_job](https://i.lensdump.com/i/iUQxGb.png)
+![Finished_job](https://i.lensdump.com/i/jCCheP.png)
 
 ### Example of finished test:
-![Failed test](https://i.lensdump.com/i/iUViiq.png)
+![Failed test](https://i.lensdump.com/i/jCCxm1.png)
 
 ### Search:
 ![Search](https://i.lensdump.com/i/iUQwLT.png)
 
 
 ### Components:
-* Python 3.7
-* Django 2.2
-* Redis 5
-* SQLite and MySQL 5.7
-* Docker
-* docker-compose
+* Python 3.8.2
+* Django 3.0.5
+* Redis 5.0.8
+* SQLite or MySQL 5.7
 
 ### API plugins setup
 Depending on your test framework (nose2 or pytest) you can choose [**nose2-rt**](https://github.com/and-sm/nose2rt) or [**pytest-rt**](https://github.com/and-sm/pytest-rt).

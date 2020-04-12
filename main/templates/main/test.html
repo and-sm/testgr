@@ -7,7 +7,7 @@
 {% load static %}
 {% load urlize_target_blank %}
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.css">
 
     <style>
         .identity{
@@ -22,6 +22,12 @@
             margin-top: 7px;
             margin-left: 0px;
             margin-bottom: 7px;
+        }
+        .ui.label.bug{
+        margin-right: 5px;
+        margin-bottom: 5px;
+        margin-left: 0;
+        word-wrap: break-word;
         }
     </style>
 
@@ -142,102 +148,101 @@
 
     <div class="eleven wide column identity">
 
-        <span class="ui large text">{{ test_class }}: <strong>{{ test_method }}</strong></span>
-
-        <div class="ui divider"></div>
-
-        {% if status == 1 %}
-            <span class="ui large gray label">Not started
-        {% elif status == 2 %}
-            <span class="ui large blue label">Running
-        {% elif status == 3 %}
-            <span class="ui large green label">Passed
-        {% elif status == 4 %}
-            <span class="ui large red label">Failed
-        {% elif status == 5 %}
-            <span class="ui large yellow label">Skipped
-        {% elif status == 6 %}
-            <span class="ui large red label">Aborted
-        {% endif %}
-        </span>
-
-        {% if note or description %}
-        <div class="ui message">
-          {% if description %}
-          <div class="header">
-            Description:
-          </div>
-          <p>{{ description|urlize|urlize_target_blank }}</p>
-          {% endif %}
-          {% if note %}
-          <div class="header">
-            Note:
-          </div>
-          <p>{{ note|urlize|urlize_target_blank }}</p>
-          {% endif %}
-        </div>
-        {% endif %}
-
-            <div class="ui accordion">
-            <div class="title">
-                <h4><p></p>
-                <i class="dropdown icon"></i>
-                Execution path
-                </h4>
-            </div>
+        <span class="ui accordion">
+            <span class="title ui large blue text">{{ test_class }}:<strong>{{ test_method }}</strong></span>
             <div class="content">
+                <div class="ui row>"></div>
+                <h4>Execution path:</h4>
             <div  class="transition hidden">
-            {% comment %}
-            <div class="ui left labeled button" tabindex="0">
-            {% endcomment %}
                 {% for i in identity %}
                     {% if forloop.last %}
                         {% if status == 1 %}
-                            <label class="ui large gray label">
+                            <label class="ui gray label">
                         {% elif status == 2 %}
-                            <label class="ui large blue label">
+                            <label class="ui blue label">
                         {% elif status == 3 %}
-                            <label class=" ui large green label">
+                            <label class=" ui green label">
                         {% elif status == 4 %}
-                            <label class="ui large red label">
+                            <label class="ui red label">
                         {% elif status == 5 %}
-                            <label class="ui large yellow label">
+                            <label class="ui yellow label">
                         {% elif status == 6 %}
-                            <label class="ui large red label">
+                            <label class="ui red label">
                         {% endif %}
                     {% else %}
-                        <label class="ui basic large right pointing label identity-class">
+                        <label class="ui basic right pointing label identity-class">
                     {% endif %}
                 {{ i }}
                 </label>
                 {% endfor %}
             </div>
             </div>
-            </div>
+        </span>
 
-            <div class="ui divider"></div>
-
-                <h3 class="ui header">
-                  <i class="play circle outline icon"></i>
-                  <div class="content">Run details</div>
-                </h3>
+        <div class="ui divider"></div>
 
         <div class="ui grid">
-                        <div class="three wide column">
+        <div class="ui sixteen wide column">
+            {% if description %}<p>{{ description|urlize|urlize_target_blank }}</p>{% endif %}
+            {% if status == 1 %}
+                <span class="ui large gray label">Not started
+            {% elif status == 2 %}
+                <span class="ui large blue label">Running
+            {% elif status == 3 %}
+                <span class="ui large green label">Passed
+            {% elif status == 4 %}
+                <span class="ui large red label">Failed
+            {% elif status == 5 %}
+                <span class="ui large yellow label">Skipped
+            {% elif status == 6 %}
+                <span class="ui large red label">Aborted
+            {% endif %}
+        </span>
+        {% if suppress %}
+            <span class="ui large orange label">Report suppressed</span>
+        {% endif %}
+        </div>
+        </div>
 
+        {% if msg %}
+        <div class="ui grid">
+            <div class="ui sixteen wide floated column">
+                <div class="ui {% if msg %}red{% endif %} segment">
+                    <h4><span class="ui red text">Error:</span></h4>
+                    <p></p>
+                    {{ msg|escape|linebreaksbr }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="ui grid">
+
+            <div class="ui eight wide column">
+                <div class="ui segment">
+
+                    <h3 class="ui header">
+                        <i class="play circle outline icon"></i>
+                        <div class="content">Run details</div>
+                    </h3>
+
+                    <div class="ui row">&nbsp;</div>
+
+                    <div class="ui grid">
+                        <div class="six wide column">
                             <div class="ui bulleted list">
                                 <div class="item"><strong>Environment:</strong>
-                                    </div>
-                                <div class="item"><strong>Start:</strong>
-                                    </div>
-                                <div class="item"><strong>Stop:</strong>
-                                    </div>
-                                <div class="item"><strong>Time Taken:</strong>
-                                    </div>
+                                </div>
+                                <div class="item"><strong>Test start:</strong>
+                                </div>
+                                <div class="item"><strong>Test stop:</strong>
+                                </div>
+                                <div class="item"><strong>Time taken:</strong>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="four wide column">
+                        <div class="six wide column">
                             <div class="ui list">
                                 <div class="item">
                                     {{ env }}
@@ -254,58 +259,83 @@
                             </div>
                         </div>
 
-                </div>
+                    </div>
 
-            {% if msg %}
-            <div class="ui {% if msg %}red{% endif %} segment">
-                <h4><span class="ui red text">Error:</span></h4>
-                <p></p>
-                {{ msg|escape|linebreaksbr }}
-            </div>
-            {% endif %}
+                    <div class="ui divider"></div>
 
-            <p>&nbsp;</p>
-            <div class="ui divider"></div>
+                    <h3 class="ui header">
+                        <i class="chart line icon"></i>
+                        <div class="content">Statistics</div>
+                    </h3>
 
-                <h3 class="ui header">
-                  <i class="chart line icon"></i>
-                  <div class="content">Statistics</div>
-                </h3>
+                    <div class="ui row">&nbsp;</div>
 
-                <p></p>
-                <div class="ui grid">
-                        <div class="three wide column">
-                            <div class="ui list">
-                                <div class="item">Last success:
-                                    </div>
-                                <div class="item">Last fail:
-                                    </div>
-                                <div class="item">Time based on last 3 attempts:</div>
+                    <div class="ui grid">
+                        <div class="six wide column">
+                            <div class="ui bulleted list">
+                                <div class="item"><strong>Last success:</strong>
+                                </div>
+                                <div class="item"><strong>Last fail:</strong>
+                                </div>
+                                <div class="item"><strong>Time based on last 3 attempts:</strong></div>
                             </div>
                         </div>
-                        <div class="four wide column">
+                        <div class="six wide column">
                             <div class="ui list">
                                 <div class="item">
-                                    {% if not last_success %}None{% else %}<a href="{% url 'test' test_uuid=last_success.0 %}">
-                                    {{ last_success.2 }}</a>{% endif %}
+                                    {% if not last_success %}Never{% else %}<a href="{% url 'test' test_uuid=last_success.0 %}">
+                                        {{ last_success.2 }}</a>{% endif %}
                                 </div>
                                 <div class="item">
-                                    {% if not last_fail %}None{% else %}<a href="{% url 'test' test_uuid=last_fail.0 %}">{{ last_fail.2 }}</a>
-                                {% endif %}
+                                    {% if not last_fail %}Never{% else %}<a href="{% url 'test' test_uuid=last_fail.0 %}">{{ last_fail.2 }}</a>
+                                    {% endif %}
                                 </div>
                                 <div class="item">
                                     {% if storage_data.get_time_taken_eta is not None %}
-                                    {{ storage_data.get_time_taken_eta }}
+                                        {{ storage_data.get_time_taken_eta }}
                                     {% else %}
                                         Data is yet unknown
                                     {% endif %}
                                 </div>
                             </div>
                         </div>
-                </div>
-        <p>&nbsp;</p>
+                    </div>
 
-    </div>
+                </div>
+            </div>
+
+            {% if note or bugs.all %}
+            <div class="ui eight wide column">
+                <div class="ui segment">
+                    {% if note %}
+                        <h3 class="ui header">
+                            <i class="file alternate outline icon"></i>
+                            <div class="content">Note</div>
+                        </h3>
+                        <div class="ui row">&nbsp;</div>
+                        <div class="ui grid">
+                            <div class="sixteen wide column">{{ note|urlize|urlize_target_blank }}</div>
+                        </div>
+                    {% endif %}
+                    {% if note and bugs.all %}
+                    <div class="ui divider"></div>
+                    {% endif %}
+                    {% if bugs.all %}
+                        <h3 class="ui header">
+                            <i class="bug icon"></i>
+                            <div class="content">Bugs</div>
+                        </h3>
+                        <div class="ui row">&nbsp;</div>
+                        <div class="ui grid">
+                            <div class="sixteen wide column">
+                                {% for bug in bugs.all %}<div class="ui label bug">{{ bug.bug }}</div>{% endfor %}</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            </div>
 
     <div class="one wide column">
     </div>
@@ -315,7 +345,7 @@
 </body>
 
 <script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.3/dist/semantic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.js"></script>
 
 <script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>
 

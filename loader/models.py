@@ -90,6 +90,7 @@ class TestsStorage(models.Model):
     calculated_eta = models.DurationField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     note = models.CharField(max_length=128, blank=True, null=True)
+    suppress = models.SmallIntegerField(blank=True, null=True)
 
     def get_time_taken_eta(self):
         try:
@@ -141,6 +142,19 @@ class TestsStorage(models.Model):
             return self.note
         return ""
 
+    def get_bugs(self):
+        if self.bugs:
+            bugs_dict = dict()
+            for item in self.bugs.all():
+                bugs_dict[item.bug] = item.type
+            return bugs_dict
+        return ""
+
+    def get_suppress(self):
+        if self.suppress:
+            return True
+        return False
+
 
 class Tests(models.Model):
     uuid = models.CharField(max_length=36, db_index=True)
@@ -170,5 +184,12 @@ class Tests(models.Model):
             return obj
         except ObjectDoesNotExist:
             return None
+
+
+class Bugs(models.Model):
+    bug = models.CharField(max_length=128, blank=True, null=True)
+    # 1 - Critical
+    type = models.SmallIntegerField(blank=True, null=True)
+    test = models.ForeignKey(TestsStorage, on_delete=models.CASCADE, related_name='bugs')
 
 
