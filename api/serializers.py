@@ -17,5 +17,5 @@ class TestsStorageSerializer(serializers.ModelSerializer):
 class BugsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bugs
-        fields = ['id', 'bug', 'type']
+        fields = ['id', 'bug']
 
