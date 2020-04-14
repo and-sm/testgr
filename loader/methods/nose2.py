@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from loader.models import TestJobs, Tests, Environments, TestsStorage
 from loader.redis import Redis
-from loader.email.email import SendJobReport
+from loader.email.email_report import SendJobReport
 
 from tools.tools import unix_time_to_datetime
 from statistics import median
