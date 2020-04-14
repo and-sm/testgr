@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+
+<h2 style='color: #2e6c80'>
+<a href='{{ testgr_url }}/job/{{ job_uuid }}/'>Automation Report</a>
+</h2>
+
+<hr>
+
+<p class='small'><strong>Environment: </strong>{{ environment }}</p>
+<p class='small'><strong>Date Started: </strong>{{ start_date }}</p>
+<p class='small'><strong>Date Finished: </strong>{{ stop_date }}</p>
+<p class='small'><strong>Duration: </strong>{{ duration }}</p>
+{% for k, v in custom_data.items %}
+<p class='small'><strong>{{ k }}: </strong>{{ v }}</p>
+{% endfor %}
+
+<h3>Tests: {{ tests_total_count }}</h3>
+
+<h4>
+    Passed: <span style='color: green'>{{ tests_passed }}</span>,
+    {% if suppress == True %}
+        Failed: <span style='color: red'>{{ tests_failed }}</span> ({{ suppress_count }} muted),
+    {% else %}
+        Failed: <span style='color: red'>{{ tests_failed }}</span>,
+    {% endif %}
+    Skipped: <span style='color:gray;'>{{ tests_skipped }}</span></h4>
+
+<table style='border-collapse: collapse;width: 20%'><tbody>
+
+{% for test, details in failed_tests_details.items %}
+<tr>
+<td style='padding: 8px;text-align: left;border-bottom: 1px solid #ddd;'>{{ test }}</td>
+{% for k, v in details.items %}
+    {% comment %}
+    {%  if k == "suppress" %}
+        {% if v == True %}
+            Suppressed
+        {% endif %}
+    {% endif %}
+    {% endcomment %}
+
+    {%  if k == "bugs" %}
+        <td style='padding: 8px;text-align: left;border-bottom: 1px solid #ddd;'>
+        {% for bug in v %}
+                {{ bug }}
+        {% endfor %}
+        </td>
+    {% endif %}
+
+{% endfor %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% if suppress == True %}
+<p></p>
+<strong>Part of the tests was muted by users.</strong>
+{% endif %}
+<p></p>
+
+<p><a href='{{ testgr_url }}/job/{{ job_uuid }}/'>Click to read full details</a></p>
+
+</body>
+</html>

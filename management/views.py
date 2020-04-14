@@ -24,7 +24,7 @@ def main(request):
 @login_required()
 def about(request):
 
-    version = "1.2.0"
+    version = "1.2.1"
     response = requests.get(f"https://api.github.com/repos/and-sm/testgr/releases/latest",
                             headers={"Content-Type": "application/json", "User-Agent": "testgr"})
     if response.status_code != 200:

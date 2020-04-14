@@ -52,7 +52,6 @@ class TestJobs(models.Model):
         return self.env.name
 
     def tests_percentage(self):
-
         tests_passed = (0 if self.tests_passed is None else self.tests_passed)
         tests_failed = (0 if self.tests_failed is None else self.tests_failed)
         tests_aborted = (0 if self.tests_aborted is None else self.tests_aborted)
@@ -144,10 +143,10 @@ class TestsStorage(models.Model):
 
     def get_bugs(self):
         if self.bugs:
-            bugs_dict = dict()
+            bugs_list = list()
             for item in self.bugs.all():
-                bugs_dict[item.bug] = item.type
-            return bugs_dict
+                bugs_list.append(item.bug)
+            return bugs_list
         return ""
 
     def get_suppress(self):
@@ -188,8 +187,6 @@ class Tests(models.Model):
 
 class Bugs(models.Model):
     bug = models.CharField(max_length=128, blank=True, null=True)
-    # 1 - Critical
-    type = models.SmallIntegerField(blank=True, null=True)
     test = models.ForeignKey(TestsStorage, on_delete=models.CASCADE, related_name='bugs')
 
 
