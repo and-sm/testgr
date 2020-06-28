@@ -34,6 +34,19 @@
         text-align:center
     }
 
+    .ui.table th.order {
+        text-align:center
+    }
+
+    .ui.table td.order {
+        width: 60px;
+        text-align:center
+    }
+
+    .ui.ribbon.label {
+        font-size: medium;
+    }
+
 </style>
 
 </head>
@@ -310,6 +323,7 @@
         <table class="ui very basic selectable table">
             <thead>
             <tr>
+                <th class="order">Order</th>
                 <th>&nbsp;&nbsp;Test Class</th>
                 <th>&nbsp;&nbsp;Test Method</th>
                 <th>Start DateTime</th>
@@ -324,12 +338,14 @@
                 {% if item.status != 3 and item.status != 1 and item.status != 5 and item.status != 6%}
                 <tr class="ui negative" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
-                        title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                    <td class="order{% if item.test.suppress == 1 %} left marked orange{% endif %}">
+                        {{ forloop.counter }}</td>
+                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
-                        title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                    <td class="order{% if item.test.suppress == 1 %} left marked orange{% endif %}">
+                        {{ forloop.counter }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
@@ -390,6 +406,7 @@
         <table class="ui very basic selectable table">
             <thead>
             <tr>
+                <th class="order">Order</th>
                 <th>&nbsp;&nbsp;Test Class</th>
                 <th>&nbsp;&nbsp;Test Method</th>
                 <th>Start DateTime</th>
@@ -404,12 +421,14 @@
                 {% if item.status == 3 %}
                 <tr class="ui positive" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
-                        title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                    <td class="order{% if item.test.suppress == 1 %} left marked orange{% endif %}">
+                        {{ forloop.counter }}</td>
+                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
-                        title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                    <td class="order{% if item.test.suppress == 1 %} left marked orange{% endif %}">
+                        {{ forloop.counter }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
@@ -469,6 +488,7 @@
         <table class="ui very basic selectable table">
             <thead>
             <tr>
+                <th class="order">Order</th>
                 <th>&nbsp;&nbsp;Test Class</th>
                 <th>&nbsp;&nbsp;Test Method</th>
                 <th>Start DateTime</th>
@@ -483,12 +503,14 @@
                 {% if item.status == 6 %}
                 <tr class="ui negative" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
-                        title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                    <td class="order{% if item.test.suppress == 1 %} left marked orange{% endif %}">
+                        {{ forloop.counter }}</td>
+                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
-                        title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                    <td class="order{% if item.test.suppress == 1 %} left marked orange{% endif %}">
+                        {{ forloop.counter }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
@@ -548,6 +570,7 @@
         <table class="ui very basic selectable table">
             <thead>
             <tr>
+                <th class="order">Order</th>
                 <th>&nbsp;&nbsp;Test Class</th>
                 <th>&nbsp;&nbsp;Test Method</th>
                 <th>Start DateTime</th>
@@ -562,12 +585,14 @@
                 {% if item.status == 5 %}
                 <tr class="ui warning" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
-                        title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                    <td class="order{% if item.test.suppress == 1 %} left marked orange{% endif %}">
+                        {{ forloop.counter }}</td>
+                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
-                        title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                    <td class="order{% if item.test.suppress == 1 %} left marked orange{% endif %}">
+                        {{ forloop.counter }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
@@ -627,6 +652,7 @@
         <table class="ui very basic selectable table">
             <thead>
             <tr>
+                <th class="order">Order</th>
                 <th>&nbsp;&nbsp;Test Class</th>
                 <th>&nbsp;&nbsp;Test Method</th>
                 <th>Start DateTime</th>
@@ -641,12 +667,14 @@
                 {% if item.status == 1 %}
                 <tr class="ui" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
-                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
-                        title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
+                    <td class="order{% if item.test.suppress == 1 %} left marked orange{% endif %}">
+                        {{ forloop.counter }}</td>
+                    <td title="{{ item.test.get_test_class_for_nose }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_nose|truncatechars:32 }}</td>
                     {% elif fw == 2 %}
-                    <td {% if item.test.suppress == 1 %}class="left marked orange"{% endif %}
-                        title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
+                    <td class="order{% if item.test.suppress == 1 %} left marked orange{% endif %}">
+                        {{ forloop.counter }}</td>
+                    <td title="{{ item.test.get_test_class_for_pytest }}">&nbsp;&nbsp;
                         {{ item.test.get_test_class_for_pytest|truncatechars:32 }}</td>
                     {% endif %}
                     {% if fw == 1 %}
