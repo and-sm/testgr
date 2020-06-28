@@ -1,3 +1,3 @@
-FROM nginx:1.16.1
+FROM nginx:1.18
 COPY testgr.conf /etc/nginx/conf.d/testgr.conf
 
