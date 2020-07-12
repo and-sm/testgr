@@ -158,13 +158,17 @@ if DEBUG:
 MEDIA_ROOT = ''
 MEDIA_URL = '/media/'
 
+# Redis
+REDIS_HOST = "redis"
+REDIS_PORT = 6379
+
 # Channels
 ASGI_APPLICATION = 'testgr.routing.application'
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+            "hosts": [(REDIS_HOST, REDIS_PORT)],
         },
     },
 }
@@ -193,10 +197,6 @@ EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL')
 
 # Testgr
 TESTGR_URL = os.getenv('TESTGR_URL')
-
-# Redis
-REDIS_HOST = "localhost"
-REDIS_PORT = 6379
 
 # Authentication
 LOGIN_URL = "/login"

@@ -116,7 +116,7 @@ class Nose2Loader:
         # Redis data
         # We are creating/updating "running_jobs" list in Redis with our new job item
         job = "job_" + self.data['job_id']
-        self.redis.rpush("running_jobs", job)
+        self.redis.connect.rpush("running_jobs", job)
         data = str({
             "uuid": self.data["job_id"],
             "status": "1",
@@ -148,8 +148,8 @@ class Nose2Loader:
                 # Remove job uuid from "jobs" key immediately
 
                 job = "job_" + self.data['job_id']
-                self.redis.lrem("running_jobs", 0, job)
-                self.redis.delete("job_" + self.data['job_id'])
+                self.redis.connect.lrem("running_jobs", 0, job)
+                self.redis.connect.delete("job_" + self.data['job_id'])
 
                 failed = job_object.tests_failed
                 not_started = job_object.tests_not_started

@@ -18,7 +18,7 @@ def get_running_jobs_count(created, instance, **kwargs):
 
     def running_jobs_count():
         redis = Redis()
-        job_list_from_redis = redis.lrange("running_jobs", 0, -1)
+        job_list_from_redis = redis.connect.lrange("running_jobs", 0, -1)
         job_list = list()
         for item in job_list_from_redis:
             job_list.append(item.decode("utf-8"))
@@ -53,8 +53,8 @@ def get_running_jobs(created, instance, **kwargs):
 
     def update_running_jobs():  # fix for newly created job, it should appear in the Running Jobs table right after creation
         redis = Redis()
-        if redis.exists("update_running_jobs"):
-            redis.delete("update_running_jobs")
+        if redis.connect.exists("update_running_jobs"):
+            redis.connect.delete("update_running_jobs")
             return True
 
     def send_data():
@@ -72,7 +72,7 @@ def get_running_jobs(created, instance, **kwargs):
         redis = Redis()
 
         # Checking all *job_ keys
-        data = redis.keys("job_*")
+        data = redis.connect.keys("job_*")
         active_jobs = list()
         for job_item in data:
             data = redis.get_value_from_key_as_str(job_item)

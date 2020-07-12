@@ -2,6 +2,14 @@ version: '3.3'
 
 services:
 
+  nginx:
+    volumes:
+      - .:/code
+    build: ./docker/nginx/
+    restart: always
+    ports:
+      - "80:80"
+
   web:
     volumes:
       - .:/code
@@ -9,14 +17,13 @@ services:
       context: ./docker/web/
       dockerfile: ./Dockerfile
     command: ["bash", "-c", "python manage.py migrate && gunicorn testgr.wsgi --bind 0.0.0.0:8000"]
-    ports:
-      - 80:80
     env_file:
       - config.env
+    depends_on:
+      - nginx
 
   redis:
     build: ./docker/redis
-    network_mode: "service:web"
     depends_on:
       - web
 
@@ -27,16 +34,7 @@ services:
       context: ./docker/web/
       dockerfile: ./Dockerfile
     command: daphne testgr.asgi:application -p 9000 -b 0.0.0.0
-    network_mode: "service:web"
     depends_on:
       - redis
     env_file:
       - config.env
-
-  nginx:
-    volumes:
-      - .:/code
-    build: ./docker/nginx/
-    network_mode: "service:web"
-    depends_on:
-      - websocket
