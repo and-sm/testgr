@@ -142,7 +142,11 @@ $("div[data-create-btn]").click(function () {
             success : function() {
                 alert("Saved!");
                 location.reload();
-            }
+            },
+            error: function() {
+            alert("Name can't be saved while job with the same environment is running!");
+            location.reload();
+        }
         });
     });
 })
