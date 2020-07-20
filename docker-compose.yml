@@ -9,16 +9,23 @@ services:
       context: ./docker/web/
       dockerfile: ./Dockerfile
     command: ["bash", "-c", "python manage.py migrate && gunicorn testgr.wsgi --bind 0.0.0.0:8000"]
-    ports:
-      - 80:80
     env_file:
       - config.env
 
-  redis:
-    build: ./docker/redis
-    network_mode: "service:web"
+  nginx:
+    volumes:
+      - .:/code
+    build: ./docker/nginx/
+    restart: always
+    ports:
+      - "80:80"
     depends_on:
       - web
+
+  redis:
+    build: ./docker/redis
+    depends_on:
+      - nginx
 
   websocket:
     volumes:
@@ -27,16 +34,7 @@ services:
       context: ./docker/web/
       dockerfile: ./Dockerfile
     command: daphne testgr.asgi:application -p 9000 -b 0.0.0.0
-    network_mode: "service:web"
     depends_on:
       - redis
     env_file:
       - config.env
-
-  nginx:
-    volumes:
-      - .:/code
-    build: ./docker/nginx/
-    network_mode: "service:web"
-    depends_on:
-      - websocket

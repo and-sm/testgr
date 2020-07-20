@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from loader.models import TestJobs, Tests
+from loader.redis import Redis
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseForbidden, JsonResponse
@@ -12,7 +13,6 @@ from tools.tools import unix_time_to_datetime
 from helpers import helpers
 
 import json
-import redis
 
 
 def login_view(request):
@@ -283,10 +283,10 @@ def job_force_stop(request):
 
     # Redis
     # Remove job uuid from "running_jobs" key immediately
-    r = redis.StrictRedis(host='localhost', port=6379)
+    r = Redis()
     job = "job_" + uuid
-    r.lrem("running_jobs", 0, job)
-    r.delete("job_" + uuid)
+    r.connect.lrem("running_jobs", 0, job)
+    r.connect.delete("job_" + uuid)
 
     job_object = TestJobs.objects.get(uuid=uuid)
     job_object.status = 4
