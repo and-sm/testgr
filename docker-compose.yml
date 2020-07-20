@@ -2,14 +2,6 @@ version: '3.3'
 
 services:
 
-  nginx:
-    volumes:
-      - .:/code
-    build: ./docker/nginx/
-    restart: always
-    ports:
-      - "80:80"
-
   web:
     volumes:
       - .:/code
@@ -19,13 +11,21 @@ services:
     command: ["bash", "-c", "python manage.py migrate && gunicorn testgr.wsgi --bind 0.0.0.0:8000"]
     env_file:
       - config.env
+
+  nginx:
+    volumes:
+      - .:/code
+    build: ./docker/nginx/
+    restart: always
+    ports:
+      - "80:80"
     depends_on:
-      - nginx
+      - web
 
   redis:
     build: ./docker/redis
     depends_on:
-      - web
+      - nginx
 
   websocket:
     volumes:
