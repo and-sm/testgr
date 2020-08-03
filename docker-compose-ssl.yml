@@ -1,0 +1,58 @@
+version: '3.3'
+
+services:
+
+  web:
+    volumes:
+      - .:/code
+    build:
+      context: ./docker/web/
+      dockerfile: ./Dockerfile
+    command: ["bash", "-c", "python manage.py migrate && gunicorn testgr.wsgi --bind 0.0.0.0:8000"]
+    env_file:
+      - config.env
+
+  nginx:
+    build: .
+    image: umputun/nginx-le:latest
+    hostname: nginx
+    restart: always
+    container_name: nginx
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+    volumes:
+      - .:/code
+      - ./docker/nginx/testgr_ssl.conf:/etc/nginx/service.conf
+      - ./ssl:/etc/nginx/ssl
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - web
+    environment:
+      - TZ=Europe/Helsinki
+      - LETSENCRYPT=true
+      - LE_EMAIL=your_LE_email@domain.com
+      - LE_FQDN=your_testgr.com
+
+  redis:
+    build: ./docker/redis
+    depends_on:
+      - nginx
+
+  websocket:
+    volumes:
+      - .:/code
+    build:
+      context: ./docker/web/
+      dockerfile: ./Dockerfile
+    command: daphne testgr.asgi:application -p 9000 -b 0.0.0.0
+    depends_on:
+      - redis
+    env_file:
+      - config.env

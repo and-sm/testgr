@@ -90,3 +90,32 @@ docker-compose down
 ```
 docker-compose up -d
 ```
+
+### HTTPS setup
+SSL settings are based on NGINX-LE docker image - https://github.com/nginx-le/nginx-le
+
+1 - 
+Configure necessary settings from "Deploy and configuration" section. 
+
+2- 
+In the config.env use "https" protocol with your URL for TESTGR_URL.
+
+3 - 
+Open docker-compose-ssl and change TZ, LE_EMAIL and LE_FQDN parameters.
+
+4 - 
+Open files in static/js/testgr/main folder and change "ws://" to "wss://".
+
+5 - 
+Open docker/nginx/testgr_ssl.conf and configure your "server_name".
+
+6 - 
+Run ```docker-compose -f docker-compose-ssl.yml pull```.
+
+7 - 
+Run ```docker-compose -f docker-compose-ssl.yml up``` and go through the LE process.
+
+Please note, that the very first launch of Testgr can take some additional time, because of SSL dhparams generator.
+When you see "Congratulations! Your cerfificate and chain have been saved..." - the process must be completed.
+
+**Backup** your SSL certificates, which can be found in testgr/ssl folder
