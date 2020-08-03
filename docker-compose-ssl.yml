@@ -28,7 +28,7 @@ services:
     volumes:
       - .:/code
       - ./docker/nginx/testgr_ssl.conf:/etc/nginx/service.conf
-      - ./etc/ssl:/etc/nginx/ssl
+      - ./ssl:/etc/nginx/ssl
     ports:
       - "80:80"
       - "443:443"
