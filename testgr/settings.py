@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # HTTPS settings
-if "https://" in os.getenv('TESTGR_URL'):
+if os.getenv('TESTGR_URL') and "https://" in os.getenv('TESTGR_URL'):
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
