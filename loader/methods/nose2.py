@@ -331,6 +331,7 @@ class Nose2Loader:
                     test.stop_time = unix_time_to_datetime(self.data['stopTime'])
                     test.time_taken = test.stop_time - test.start_time
                     test.msg = str(self.data['msg']).replace("\\n", "\n")
+                    test.trace = str(self.data['trace']).replace("\\n", "\n")
                     test.save()
 
                     # Tests Storage
