@@ -173,6 +173,7 @@ def test(request, test_uuid):
         env = "Not provided by user"
     status = test_object.status
     msg = test_object.msg
+    trace = test_object.trace
     # msg_detailed = test_object.msg_detailed
 
     identity = test_storage_data.identity
@@ -267,7 +268,8 @@ def test(request, test_uuid):
                                               'storage_data': test_storage_data,
                                               'test_job': test_job,
                                               'test_class': test_class,
-                                              'test_method': test_method})
+                                              'test_method': test_method,
+                                              'trace': trace})
 
 
 @login_required()

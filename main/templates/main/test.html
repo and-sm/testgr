@@ -29,6 +29,10 @@
         margin-left: 0;
         word-wrap: break-word;
         }
+
+        pre{
+            font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+        }
     </style>
 
 </head>
@@ -209,8 +213,12 @@
             <div class="ui sixteen wide floated column">
                 <div class="ui {% if msg %}red{% endif %} segment">
                     <h4><span class="ui red text">Error:</span></h4>
-                    <p></p>
                     {{ msg|escape|linebreaksbr }}
+                    <p></p>
+                    {% if trace %}
+                    <div class="ui section divider">
+                    </div>
+                    <pre>{{ trace|escape|linebreaksbr }}</pre>{% endif %}
                 </div>
             </div>
         </div>
