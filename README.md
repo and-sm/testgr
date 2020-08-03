@@ -104,14 +104,14 @@ In the config.env use "https" protocol with your URL for TESTGR_URL.
 Open docker-compose-ssl and change TZ, LE_EMAIL and LE_FQDN parameters.
 
 4 - 
-Open files in static/js/testgr/main and change "ws://" to "wss://".
+Open files in static/js/testgr/main folder and change "ws://" to "wss://".
 
 5 - 
-Open docker/nginx/testgr.conf and configure your "server_name".
+Open docker/nginx/testgr_ssl.conf and configure your "server_name".
 
 6 - 
-Run ```docker-compose -f docker-compose-ssl pull```.
+Run ```docker-compose -f docker-compose-ssl.yml pull```.
 
 7 - 
-Run ```docker-compose -f docker-compose-ssl up``` and go through the LE process.
+Run ```docker-compose -f docker-compose-ssl.yml up``` and go through the LE process.
 
