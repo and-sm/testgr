@@ -115,3 +115,7 @@ Run ```docker-compose -f docker-compose-ssl.yml pull```.
 7 - 
 Run ```docker-compose -f docker-compose-ssl.yml up``` and go through the LE process.
 
+Please note, that the very first launch of Testgr can take some additional time, because of SSL dhparams generator.
+When you see "Congratulations! Your cerfificate and chain have been saved..." - the process must be completed.
+
+**Backup** your SSL certificates, which can be found in testgr/ssl folder
