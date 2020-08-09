@@ -213,7 +213,7 @@
             <div class="ui sixteen wide floated column">
                 <div class="ui {% if msg %}red{% endif %} segment">
                     <h4><span class="ui red text">Error:</span></h4>
-                    {{ msg|escape|linebreaksbr }}
+                    <pre style="white-space:pre-wrap;">{{ msg|escape|linebreaksbr }}</pre>
                     <p></p>
                     {% if trace %}
                     <div class="ui section divider">
