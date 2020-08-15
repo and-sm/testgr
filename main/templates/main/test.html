@@ -7,9 +7,10 @@
 {% load static %}
 {% load urlize_target_blank %}
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.6/dist/semantic.min.css">
 
     <style>
+
         .identity{
             word-wrap: break-word;
         }
@@ -152,12 +153,18 @@
 
     <div class="eleven wide column identity">
 
+    <div class="ui grid">
+
+        <div class="ui ten wide column">
         <span class="ui accordion">
-            <span class="title ui large blue text">{{ test_class }}:<strong>{{ test_method }}</strong></span>
+            <span class="title ui large blue text">
+                {{ test_class }}:<strong>{{ test_method }}</strong>
+                <i class="caret down icon" id="accordion_caret"></i>
+            </span>
             <div class="content">
                 <div class="ui row>"></div>
                 <h4>Execution path:</h4>
-            <div  class="transition hidden">
+            <div class="transition hidden">
                 {% for i in identity %}
                     {% if forloop.last %}
                         {% if status == 1 %}
@@ -182,6 +189,21 @@
             </div>
             </div>
         </span>
+        </div>
+
+        <div class="ui six wide column right aligned">
+            <button class="ui grey basic button" id="btn_copy_method" data-clipboard-text="{{ test_method }}">
+                <i class="copy outline icon"></i>
+                Copy test name
+            </button>
+            <button class="ui grey basic button" id="btn_copy_path" data-clipboard-text="{{ full_path }}">
+                <i class="copy outline icon"></i>
+                Copy test full path
+            </button>
+        </div>
+
+    </div>
+
 
         <div class="ui divider"></div>
 
@@ -247,6 +269,8 @@
                                 </div>
                                 <div class="item"><strong>Time taken:</strong>
                                 </div>
+                                <div class="item"><strong>Custom data:</strong>
+                                </div>
                             </div>
                         </div>
 
@@ -263,6 +287,12 @@
                                 </div>
                                 <div class="item">
                                     {% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}
+                                </div>
+                                <div class="item">
+                                    {% for key, value in custom_data %}
+                                        <div class="item" style="word-wrap: break-word;"><strong>{{ key }}:
+                                        </strong>{{ value|urlize|urlize_target_blank }}</div>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>
@@ -285,7 +315,7 @@
                                 </div>
                                 <div class="item"><strong>Last fail:</strong>
                                 </div>
-                                <div class="item"><strong>Time based on last 3 attempts:</strong></div>
+                                <div class="item"><strong>Exec. time based on last 3 attempts:</strong></div>
                             </div>
                         </div>
                         <div class="six wide column">
@@ -306,6 +336,52 @@
                                     {% endif %}
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="ui divider"></div>
+
+                    <h3 class="ui header">
+                        <i class="route icon"></i>
+                        <div class="content">Navigation</div>
+                    </h3>
+
+                    <div class="ui row">&nbsp;</div>
+
+                    <div class="ui grid">
+                        <div class="twelve wide column">
+                                {% if previous_result %}<a href="{% url 'test' test_uuid=previous_result.uuid %}">{% endif %}
+                                <button class="ui basic {% if previous_result.status == 1 %}grey
+                                                        {% elif previous_result.status == 2 %}blue
+                                                        {% elif previous_result.status == 3 %}green
+                                                        {% elif previous_result.status == 4 %}red
+                                                        {% elif previous_result.status == 5 %}yellow
+                                                        {% elif previous_result.status == 6 %}red
+                                                        {% endif %} labeled icon button
+                                {% if not previous_result.stop_time %}disabled{% endif %}">
+                                    <i class="left chevron icon"></i>
+                                    Previous result {% if previous_result.stop_time %}<br />
+                                    ({{ previous_result.stop_time }}){% else %}<br />&nbsp;{% endif %}
+                                </button>{% if previous_result %}</a>{% endif %}
+                                {% if next_result %}<a href="{% url 'test' test_uuid=next_result.uuid %}">{% endif %}
+                                <button class="ui basic {% if next_result.status == 1 %}grey
+                                                        {% elif next_result.status == 2 %}blue
+                                                        {% elif next_result.status == 3 %}green
+                                                        {% elif next_result.status == 4 %}red
+                                                        {% elif next_result.status == 5 %}yellow
+                                                        {% elif next_result.status == 6 %}red
+                                                        {% endif %} right labeled icon button
+                                {% if not next_result.stop_time %}disabled{% endif %}">
+                                    Next result {% if next_result.stop_time %}<br />({{ next_result.stop_time }})
+                                {% else %}<br />&nbsp;{% endif %}
+                                    <i class="right chevron icon"></i>
+                                </button>{% if next_result %}</a>{% endif %}
+                            </div>
+                        <div class="four wide column right aligned">
+                            <a href="{% url 'job' test_job.uuid %}"><button class="ui basic grey button">
+                                <i class="level up alternate icon"></i><br />
+                                Open job
+                            </button></a>
                         </div>
                     </div>
 
@@ -345,6 +421,8 @@
 
             </div>
 
+    </div>
+
     <div class="one wide column">
     </div>
 
@@ -353,14 +431,41 @@
 </body>
 
 <script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.6/dist/semantic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
 
 <script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>
 
 <script>
 $('.ui.accordion')
-  .accordion()
-;
+  .accordion({
+
+      onChanging: function()
+      {
+          if($('#accordion_caret').attr('class') === 'caret up icon') {
+              $('#accordion_caret').attr('class', 'caret down icon')
+          }
+          else{
+              $('#accordion_caret').attr('class', 'caret up icon')
+              }
+          }
+  }
+)
+</script>
+
+<script>
+new ClipboardJS('#btn_copy_method');
+</script>
+
+<script>
+new ClipboardJS('#btn_copy_path');
+</script>
+
+<script>
+$("#btn_copy_path").on("click", function() {$("#btn_copy_path").transition('pulse');
+});
+$("#btn_copy_method").on("click", function() {$("#btn_copy_method").transition('pulse');
+});
 </script>
 
 </html>

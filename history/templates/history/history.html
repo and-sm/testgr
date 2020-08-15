@@ -6,7 +6,36 @@
 
 {% load static %}
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.6/dist/semantic.min.css">
+
+<style>
+
+.ui.darkred.label,.ui.darkred.labels .label {
+    background-color: #a62525 !important;
+    border-color: #a62525!important;
+    color: #fff!important;
+}
+.ui.darkred.labels .label:hover,a.ui.darkred.label:hover{
+    background-color: #952424 !important;border-color:#952424!important;color:#fff!important
+}
+
+.ui.darkred.corner.label,.ui.darkred.corner.label:hover{
+    background-color:transparent!important
+}
+
+.ui.darkred.ribbon.label{
+    border-color:#b21e1e!important
+}
+
+.ui.basic.darkred.label{
+    background:none #fff!important;color:#a62525!important;border-color:#a62525!important
+}
+
+.ui.basic.darkred.labels a.label:hover,a.ui.basic.darkred.label:hover{
+    background-color:#fff!important;color:#d01919!important;border-color:#d01919!important
+}
+
+</style>
 
 </head>
 
@@ -81,11 +110,26 @@
                 <td>{{ job.get_time_taken }}</td>
                 <td>{{ job.get_env }}</td>
                 <td>
-                    {% if job.status == 2 %}<span class="ui green basic label">Passed</span>
-                    {% elif job.status == 3 %}<span class="ui red basic label">Failed</span>
-                    {% elif job.status == 4 %}<span class="ui yellow basic label">Stopped</span>
-                    {% elif job.status == 5 %}<span class="ui yellow basic label">Skipped</span>
-                    {% endif %}
+                        {% if job.tests_passed %}
+                            <a href="job/{{ job.uuid }}/#table_success_tests"
+                               class="ui green basic label">{{ job.tests_passed }}</a>
+                        {% endif %}
+                        {% if job.tests_failed %}
+                            <a href="job/{{ job.uuid }}/#table_failed_tests"
+                               class="ui red basic label status_failed">{{ job.tests_failed }}</a>
+                        {% endif %}
+                        {% if job.tests_aborted %}
+                            <a href="job/{{ job.uuid }}/#table_aborted_tests"
+                               class="ui darkred basic label">{{ job.tests_aborted }}</a>
+                        {% endif %}
+                        {% if job.tests_skipped %}
+                            <a href="job/{{ job.uuid }}/#table_skipped_tests"
+                               class="ui yellow basic label">{{ job.tests_skipped }}</a>
+                        {% endif %}
+                        {% if job.tests_not_started %}
+                            <a href="job/{{ job.uuid }}/#table_not_started_tests"
+                               class="ui grey basic label">{{ job.tests_not_started }}</a>
+                        {% endif %}
                 </td>
             </tr>
             {% endfor %}
@@ -156,7 +200,7 @@
 </body>
 
 <script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.6/dist/semantic.min.js"></script>
 
 <script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>
 
