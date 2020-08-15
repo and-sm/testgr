@@ -47,7 +47,10 @@ class Nose2Loader:
                 try:
                     env = Environments.objects.get(name="None")
                     # Env name for Redis
-                    env_name = env.name
+                    if env.remapped_name:
+                        env_name = env.remapped_name
+                    else:
+                        env_name = env.name
                 except ObjectDoesNotExist:
                     env = Environments(name="None")
                     env.save()

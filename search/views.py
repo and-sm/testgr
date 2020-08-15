@@ -53,7 +53,7 @@ def filter_data(request):
     for each_arg in args_list:
         args.add(each_arg, conn_type='AND')
 
-    query_set = TestJobs.objects.filter(*(args,)).order_by('-stop_time')
+    query_set = TestJobs.objects.filter(*(args,)).order_by('-stop_time').exclude(status=1)
     # will excute, query_set.filter(Q1 | Q2 | Q3)
     # comma , in last after args is mandatory to pass as args here
 
@@ -70,24 +70,28 @@ def filter_data(request):
         # Environment
         env = item.get_env()
 
-        # Status
-        status = item.status
-
-        if status == 1:
-            status = "<td><span class=\"ui blue basic label\">Running</span></td>"
-        elif status == 2:
-            status = "<td><span class=\"ui green basic label\">Passed</span></td>"
-        elif status == 3:
-            status = "<td><span class=\"ui red basic label\">Failed</span></td>"
-        elif status == 4:
-            status = "<td><span class=\"ui yellow basic label\">Stopped</span></td>"
-        elif status == 5:
-            status = "<td><span class=\"ui yellow basic label\">Skipped</span></td>"
+        # Tests
+        tests = ""
+        if item.tests_passed:
+            tests = '<a href="job/{{ job.uuid }}/#table_success_tests" class="ui green basic label">'\
+                    + str(item.tests_passed) + '</a>'
+        if item.tests_failed:
+                tests += '<a href="job/{{ job.uuid }}/#table_failed_tests" class="ui red basic label">'\
+                    + str(item.tests_failed) + '</a>'
+        if item.tests_skipped:
+                tests += '<a href="job/{{ job.uuid }}/#table_skipped_tests" class="ui yellow basic label">'\
+                    + str(item.tests_skipped) + '</a>'
+        if item.tests_aborted:
+                tests += '<a href="job/{{ job.uuid }}/#table_aborted_tests" class="ui darkred basic label">'\
+                    + str(item.tests_aborted) + '</a>'
+        if item.tests_not_started:
+                tests += '<a href="job/{{ job.uuid }}/#table_not_started_tests" class="ui grey basic label">'\
+                    + str(item.tests_not_started) + '</a>'
 
         uuid = item.uuid
 
         datatable_dict.append({'Stop DateTime': stop_time, 'Time Taken': time_taken,
-                               'Environment': env, 'Job Status': status, 'uuid': uuid})
+                               'Environment': env, 'Tests': tests, 'uuid': uuid})
 
     test_data = {"data": datatable_dict}
 

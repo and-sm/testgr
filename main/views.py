@@ -74,6 +74,9 @@ def index(request):
         job_item['tests_failed'] = job.tests_failed
         job_item['tests_aborted'] = job.tests_aborted
         job_item['tests_skipped'] = job.tests_skipped
+        # Fix for None
+        if job.tests_not_started is None:
+            job.tests_not_started = 0
         job_item['tests_not_started'] = job.tests_not_started
         running_jobs_items.append(job_item)
 
@@ -240,6 +243,34 @@ def test(request, test_uuid):
         last_fail.append(i.status)
         last_fail.append(i.get_stop_time())
 
+    # Previous result
+    previous_result = dict()
+    prev_result = \
+        Tests.objects.filter(test__identity=test_object.test.identity, pk__lt=test_object.pk).order_by('-id').first()
+    if prev_result is not None:
+        previous_result["uuid"] = prev_result.uuid
+        previous_result["stop_time"] = prev_result.get_stop_time()
+        previous_result["status"] = prev_result.status
+
+    # Next result
+    next_result = dict()
+    n_result = \
+        Tests.objects.filter(test__identity=test_object.test.identity, pk__gt=test_object.pk).order_by('id').first()
+    if n_result is not None:
+        next_result["uuid"] = n_result.uuid
+        next_result["stop_time"] = n_result.get_stop_time()
+        next_result["status"] = n_result.status
+
+    # Custom data
+    if test_job.custom_data:
+        custom_data = json.loads(test_job.custom_data)
+        custom_data = sorted(custom_data.items())
+    else:
+        custom_data = None
+
+    # Test full path
+    full_path = ".".join(identity)
+
     if test_job.fw_type == 1:
         test_class = test_storage_data.get_test_class_for_nose()
         test_method = test_storage_data.get_test_method_for_nose()
@@ -269,7 +300,11 @@ def test(request, test_uuid):
                                               'test_job': test_job,
                                               'test_class': test_class,
                                               'test_method': test_method,
-                                              'trace': trace})
+                                              'trace': trace,
+                                              'custom_data': custom_data,
+                                              'full_path': full_path,
+                                              'previous_result': previous_result,
+                                              'next_result': next_result})
 
 
 @login_required()
