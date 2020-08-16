@@ -248,7 +248,7 @@
 
         <div class="ui grid">
 
-            <div class="ui eight wide column">
+            <div class="ui nine wide column">
                 <div class="ui segment">
 
                     <h3 class="ui header">
@@ -349,9 +349,9 @@
                     <div class="ui row">&nbsp;</div>
 
                     <div class="ui grid">
-                        <div class="twelve wide column">
+                        <div class="thirteen wide column">
                                 {% if previous_result %}<a href="{% url 'test' test_uuid=previous_result.uuid %}">{% endif %}
-                                <button class="ui basic {% if previous_result.status == 1 %}grey
+                                <button class="ui basic small {% if previous_result.status == 1 %}grey
                                                         {% elif previous_result.status == 2 %}blue
                                                         {% elif previous_result.status == 3 %}green
                                                         {% elif previous_result.status == 4 %}red
@@ -364,7 +364,7 @@
                                     ({{ previous_result.stop_time }}){% else %}<br />&nbsp;{% endif %}
                                 </button>{% if previous_result %}</a>{% endif %}
                                 {% if next_result %}<a href="{% url 'test' test_uuid=next_result.uuid %}">{% endif %}
-                                <button class="ui basic {% if next_result.status == 1 %}grey
+                                <button class="ui basic small {% if next_result.status == 1 %}grey
                                                         {% elif next_result.status == 2 %}blue
                                                         {% elif next_result.status == 3 %}green
                                                         {% elif next_result.status == 4 %}red
@@ -377,10 +377,9 @@
                                     <i class="right chevron icon"></i>
                                 </button>{% if next_result %}</a>{% endif %}
                             </div>
-                        <div class="four wide column right aligned">
-                            <a href="{% url 'job' test_job.uuid %}"><button class="ui basic grey button">
-                                <i class="level up alternate icon"></i><br />
-                                Open job
+                        <div class="three wide column right aligned">
+                            <a href="{% url 'job' test_job.uuid %}"><button class="ui basic small grey button">
+                                <i class="level up alternate icon"></i><p>Open job</p>
                             </button></a>
                         </div>
                     </div>
@@ -389,7 +388,7 @@
             </div>
 
             {% if note or bugs.all %}
-            <div class="ui eight wide column">
+            <div class="ui seven wide column">
                 <div class="ui segment">
                     {% if note %}
                         <h3 class="ui header">
