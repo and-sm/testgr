@@ -312,7 +312,8 @@
                                 </div>
                                 <div class="item"><strong>Time taken:</strong>
                                 </div>
-                                <div class="item"><strong>Custom data:</strong>
+                                {% if custom_data %}
+                                <div class="item"><strong>Custom data:</strong>{% endif %}
                                 </div>
                             </div>
                         </div>
@@ -331,12 +332,14 @@
                                 <div class="item">
                                     {% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}
                                 </div>
+                                {% if custom_data %}
                                 <div class="item">
                                     {% for key, value in custom_data %}
                                         <div class="item" style="word-wrap: break-word;"><strong>{{ key }}:
                                         </strong>{{ value|urlize|urlize_target_blank }}</div>
                                     {% endfor %}
                                 </div>
+                                {% endif %}
                             </div>
                         </div>
 
