@@ -181,7 +181,34 @@
                     </div>
                 </div>
 
-                <div class="ten wide column"></div>
+                <div class="four wide column">
+                    <div class="ui form">
+                        <div class="field"><label>Custom data key</label>
+                            <div class="ui fluid search selection dropdown">
+                                <input type="hidden" name="c_data_k">
+                                <i class="dropdown icon"></i>
+                                <div class="default text">Select custom data key</div>
+                                <div class="menu">
+                                    <div class="item" data-value="all">ALL</div>
+                                    {% for item in c_data_k %}
+                                        <div class="item" data-value="{{ item }}">{{ item }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="four wide column">
+                    <div class="ui form">
+                            <div class="field">
+                                <label for="c_data_v">Custom data value</label>
+                                <input type="text" name="c_data_v" id="c_data_v" placeholder="Custom data value">
+                            </div>
+                    </div>
+                </div>
+
+                <div class="two wide column"></div>
 
                 {% comment %}
 
@@ -269,6 +296,8 @@ $('#filter_btn').click(function(event){
 
     let environments = $('input[name=environments]').val();
     let tests = $('input[name=tests]').val();
+    let c_data_k = $('input[name=c_data_k]').val();
+    let c_data_v = $('input[name=c_data_v]').val();
 
     let table = $('#filter_results_table').show().DataTable( {
         lengthMenu: [[10, 20, 50], [10, 20, 50]],
@@ -282,7 +311,8 @@ $('#filter_btn').click(function(event){
             "data": {
                 'environments': environments,
                 'tests': tests,
-                //'status': status
+                'c_data_k': c_data_k,
+                'c_data_v': c_data_v,
             },
             "dataSrc": function ( json ) {
                 return json.data;

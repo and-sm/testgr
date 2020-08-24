@@ -24,7 +24,7 @@ def main(request):
 @login_required()
 def about(request):
 
-    version = "1.6.1"
+    version = "1.7.0"
 
     response = requests.get(f"https://api.github.com/repos/and-sm/testgr/releases/latest",
                             headers={"Content-Type": "application/json", "User-Agent": "testgr"})

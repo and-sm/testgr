@@ -123,8 +123,7 @@ def job(request, job_uuid):
 
     # Custom data
     if job_object.custom_data:
-        custom_data = json.loads(job_object.custom_data)
-        custom_data = sorted(custom_data.items())
+        custom_data = job_object.custom_data
     else:
         custom_data = None
 
@@ -263,8 +262,7 @@ def test(request, test_uuid):
 
     # Custom data
     if test_job.custom_data:
-        custom_data = json.loads(test_job.custom_data)
-        custom_data = sorted(custom_data.items())
+        custom_data = sorted(test_job.custom_data.items())
     else:
         custom_data = None
 
