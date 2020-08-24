@@ -19,11 +19,6 @@
             margin-left: 0px;
             margin-bottom: 7px;
         }
-        .ui[class*="green"].label{
-            margin-top: 7px;
-            margin-left: 0px;
-            margin-bottom: 7px;
-        }
         .ui.label.bug{
         margin-right: 5px;
         margin-bottom: 5px;
@@ -90,6 +85,54 @@
         <h4>Test Details</h4>
         <div class="ui divider"></div>
         <div>
+
+            <h5>Navigation:</h5>
+            <div class="two ui buttons">
+                    {% if previous_result %}<a href="{% url 'test' test_uuid=previous_result.uuid %}">{% endif %}
+                    <button class="ui basic small {% if previous_result.status == 1 %}grey
+                                                        {% elif previous_result.status == 2 %}blue
+                                                        {% elif previous_result.status == 3 %}green
+                                                        {% elif previous_result.status == 4 %}red
+                                                        {% elif previous_result.status == 5 %}yellow
+                                                        {% elif previous_result.status == 6 %}red
+                                                        {% endif %} labeled icon button
+                                {% if not previous_result %}disabled{% endif %}">
+                        {% if not previous_result %}Not exists{% endif %}
+                        {% if previous_result %}Previous result{% endif %}
+                        <i class="left chevron icon"></i>
+                        {% if previous_result.stop_time %}
+                            <br />({{ previous_result.stop_time }})
+                        {% elif not previous_result %}
+                            <br /><br />
+                        {% else %}
+                            <br />(not started)&nbsp;
+                        {% endif %}
+                    </button>
+                    {% if previous_result %}</a>{% endif %}
+                    {% if next_result %}<a href="{% url 'test' test_uuid=next_result.uuid %}">{% endif %}
+                    <button class="ui basic small {% if next_result.status == 1 %}grey
+                                                        {% elif next_result.status == 2 %}blue
+                                                        {% elif next_result.status == 3 %}green
+                                                        {% elif next_result.status == 4 %}red
+                                                        {% elif next_result.status == 5 %}yellow
+                                                        {% elif next_result.status == 6 %}red
+                                                        {% endif %} right labeled icon button
+                                {% if not next_result %}disabled{% endif %}">
+                        {% if not next_result %}Not exists{% endif %}
+                        {% if next_result %}Next result{% endif %}
+                        {% if next_result.stop_time %}
+                            <br />({{ next_result.stop_time }})
+                        {% elif not next_result%}
+                            <br /><br />
+                        {% else %}
+                            <br />(not started)&nbsp;
+                        {% endif %}
+                        <i class="right chevron icon"></i>
+                    </button>
+                    {% if next_result %}</a>{% endif %}
+            </div>
+            <p></p>
+            <a href="{% url 'job' test_job.uuid %}" target="_blank">Open job</a>
 
         <h5>
         {% if last_tests_count < 1 %}
@@ -269,7 +312,8 @@
                                 </div>
                                 <div class="item"><strong>Time taken:</strong>
                                 </div>
-                                <div class="item"><strong>Custom data:</strong>
+                                {% if custom_data %}
+                                <div class="item"><strong>Custom data:</strong>{% endif %}
                                 </div>
                             </div>
                         </div>
@@ -288,12 +332,14 @@
                                 <div class="item">
                                     {% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}
                                 </div>
+                                {% if custom_data %}
                                 <div class="item">
                                     {% for key, value in custom_data %}
                                         <div class="item" style="word-wrap: break-word;"><strong>{{ key }}:
                                         </strong>{{ value|urlize|urlize_target_blank }}</div>
                                     {% endfor %}
                                 </div>
+                                {% endif %}
                             </div>
                         </div>
 
@@ -336,51 +382,6 @@
                                     {% endif %}
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="ui divider"></div>
-
-                    <h3 class="ui header">
-                        <i class="route icon"></i>
-                        <div class="content">Navigation</div>
-                    </h3>
-
-                    <div class="ui row">&nbsp;</div>
-
-                    <div class="ui grid">
-                        <div class="thirteen wide column">
-                                {% if previous_result %}<a href="{% url 'test' test_uuid=previous_result.uuid %}">{% endif %}
-                                <button class="ui basic small {% if previous_result.status == 1 %}grey
-                                                        {% elif previous_result.status == 2 %}blue
-                                                        {% elif previous_result.status == 3 %}green
-                                                        {% elif previous_result.status == 4 %}red
-                                                        {% elif previous_result.status == 5 %}yellow
-                                                        {% elif previous_result.status == 6 %}red
-                                                        {% endif %} labeled icon button
-                                {% if not previous_result.stop_time %}disabled{% endif %}">
-                                    <i class="left chevron icon"></i>
-                                    Previous result {% if previous_result.stop_time %}<br />
-                                    ({{ previous_result.stop_time }}){% else %}<br />&nbsp;{% endif %}
-                                </button>{% if previous_result %}</a>{% endif %}
-                                {% if next_result %}<a href="{% url 'test' test_uuid=next_result.uuid %}">{% endif %}
-                                <button class="ui basic small {% if next_result.status == 1 %}grey
-                                                        {% elif next_result.status == 2 %}blue
-                                                        {% elif next_result.status == 3 %}green
-                                                        {% elif next_result.status == 4 %}red
-                                                        {% elif next_result.status == 5 %}yellow
-                                                        {% elif next_result.status == 6 %}red
-                                                        {% endif %} right labeled icon button
-                                {% if not next_result.stop_time %}disabled{% endif %}">
-                                    Next result {% if next_result.stop_time %}<br />({{ next_result.stop_time }})
-                                {% else %}<br />&nbsp;{% endif %}
-                                    <i class="right chevron icon"></i>
-                                </button>{% if next_result %}</a>{% endif %}
-                            </div>
-                        <div class="three wide column right aligned">
-                            <a href="{% url 'job' test_job.uuid %}"><button class="ui basic small grey button">
-                                <i class="level up alternate icon"></i><p>Open job</p>
-                            </button></a>
                         </div>
                     </div>
 

@@ -62,7 +62,7 @@ class PytestLoader:
             return HttpResponse(status=403)
 
         try:
-            custom_data = json.dumps(json.loads(self.data["custom_data"]))
+            custom_data = json.loads(self.data["custom_data"])
         except:
             custom_data = None
 

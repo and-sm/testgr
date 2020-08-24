@@ -107,7 +107,7 @@
         {% if custom_data %}
         <div><h5>Custom data: </h5>
         <div class="ui bulleted list">
-        {% for key, value in custom_data %}
+        {% for key, value in custom_data.items %}
             <div class="item" style="word-wrap: break-word;"><strong>{{ key }}: </strong>{{ value|urlize|urlize_target_blank }}</div>
         {% endfor %}
         </div>

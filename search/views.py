@@ -15,13 +15,24 @@ def search(request):
     environments = Environments.objects.all()
     tests = TestsStorage.objects.all()
 
+    # Custom data
+    list_of_c_data_keys = []
+    for obj in TestJobs.objects.all().values_list('custom_data', flat=True):
+        if obj is None:
+            continue
+        if isinstance(obj, str):
+            continue
+        list_of_c_data_keys = list_of_c_data_keys + list(obj.keys())
+    c_data_uniq_keys = sorted(list(set(list_of_c_data_keys)))
+
     # Running jobs count
     running_jobs_count = helpers.running_jobs_count()
 
     return render(request, "search/search.html", {"job_count": job_count,
                                                   "environments": environments,
                                                   "tests": tests,
-                                                  "running_jobs_count": running_jobs_count})
+                                                  "running_jobs_count": running_jobs_count,
+                                                  "c_data_k": c_data_uniq_keys})
 
 
 @login_required()
@@ -30,6 +41,8 @@ def filter_data(request):
 
     environments = request.POST.get('environments')
     tests = request.POST.get('tests')
+    c_data_k = request.POST.get('c_data_k')
+    c_data_v = request.POST.get('c_data_v')
 
     args_list = []
     if environments and environments != 'all':
@@ -42,13 +55,32 @@ def filter_data(request):
         args_list.append(Q2)
     else:
         Q2 = ''
-    '''
-    if state and state !=  'all':
-        Q3 = Q(state=state)
-        args_list.append(Q3)
+
+    if c_data_k and not c_data_v:
+        if c_data_k and c_data_k != 'all':
+            Q3 = Q(custom_data__has_key=c_data_k)
+            args_list.append(Q3)
+        else:
+            Q3 = ''
+    elif c_data_v and not c_data_k:
+        pass    # TODO for MySQL
+        # c_data_v = f"{c_data_v}"
+        # filter1 = f"custom_data__values__contains"
+        # Q3 = Q(**{filter1: c_data_v})
+        # args_list.append(Q3)
+    elif c_data_v and c_data_k:
+        if c_data_k == 'all':
+            c_data_v = f"{c_data_v}"
+            Q3 = Q(custom_data__iregex=c_data_v)
+            args_list.append(Q3)
+        else:
+            c_data_v = f"{c_data_v}"
+            filter1 = f"custom_data__{c_data_k}__iregex"
+            Q3 = Q(**{filter1: c_data_v})
+            args_list.append(Q3)
     else:
         Q3 = ''
-    '''
+
     args = Q()  # defining args as empty Q class object to handle empty args_list
     for each_arg in args_list:
         args.add(each_arg, conn_type='AND')
