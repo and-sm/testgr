@@ -19,11 +19,6 @@ var socket = new WebSocket(
             let start_time = document.querySelector('[data-td-start-time="' + obj.uuid + '"]');
             let env = document.querySelector('[data-td-env="' + obj.uuid + '"]');
             let status = document.querySelector('[data-td-status="' + obj.uuid + '"]');
-            let data_tests_passed = document.querySelector('[data-tests-passed="' + obj.uuid + '"]');
-            let data_tests_failed = document.querySelector('[data-tests-failed="' + obj.uuid + '"]');
-            let data_tests_aborted = document.querySelector('[data-tests-aborted="' + obj.uuid + '"]');
-            let data_tests_skipped = document.querySelector('[data-tests-skipped="' + obj.uuid + '"]');
-            let data_tests_not_started = document.querySelector('[data-tests-not-started="' + obj.uuid + '"]');
 
             if (job_tr == null) {
                 let row = Table.insertRow(0);
@@ -46,28 +41,31 @@ var socket = new WebSocket(
                 cell3.setAttribute("data-td-status", obj.uuid);
 
                 if(obj.tests_passed !== undefined){
-                initial_tests_passed = "<label data-tests-passed=\"" + obj.uuid + "\" " +
-                    "class=\"ui green basic label\">" + obj.tests_passed + "</label>";}
+                initial_tests_passed = "<a data-tests-passed=\"" + obj.uuid + "\" " +
+                    "class=\"ui green basic label\">" + obj.tests_passed + "</a>";}
                 else{initial_tests_passed = ""}
                 if(obj.tests_failed !== undefined){
-                initial_tests_failed = "<label data-tests-failed=\"" + obj.uuid + "\" " +
-                    "class=\"ui red basic label\">" + obj.tests_failed + "</label>";}
+                initial_tests_failed = "<a data-tests-failed=\"" + obj.uuid + "\" " +
+                    "class=\"ui red basic label\">" + obj.tests_failed + "</a>";}
                 else{initial_tests_failed=""}
                 if(obj.tests_aborted !== undefined){
-                initial_tests_aborted = "<label data-tests-aborted=\"" + obj.uuid + "\" " +
-                    "class=\"ui darkred basic label\">" + obj.tests_aborted + "</label>";}
+                initial_tests_aborted = "<a data-tests-aborted=\"" + obj.uuid + "\" " +
+                    "class=\"ui darkred basic label\">" + obj.tests_aborted + "</a>";}
                 else{initial_tests_aborted=""}
                 if(obj.tests_skipped !== undefined){
-                initial_tests_skipped = "<label data-tests-skipped=\"" + obj.uuid + "\" " +
-                    "class=\"ui yellow basic label\">" + obj.tests_skipped + "</label>";}
+                initial_tests_skipped = "<a data-tests-skipped=\"" + obj.uuid + "\" " +
+                    "class=\"ui yellow basic label\">" + obj.tests_skipped + "</a>";}
                 else{initial_tests_skipped=""}
                 if(obj.tests_not_started !== undefined){
-                initial_tests_not_started = "<label data-tests-not-started=\"" + obj.uuid + "\" " +
-                    "class=\"ui grey basic label\">" + obj.tests_not_started + "</label>";}
-                else{initial_tests_not_started=""}
+                    console.log("create0")
+                initial_tests_not_started = "<a data-tests-not-started=\"" + obj.uuid + "\" " +
+                    "class=\"ui grey basic label\">" + obj.tests_not_started + "</a>";}
+                else{initial_tests_not_started="";console.log("change0")}
 
+                console.log("ssss")
                 cell3.innerHTML = "&nbsp;&nbsp;" + initial_tests_passed + initial_tests_failed + initial_tests_aborted +
                     initial_tests_skipped + initial_tests_not_started;
+                console.log("ffff")
 
             } else {
 
@@ -85,10 +83,13 @@ var socket = new WebSocket(
                 if (obj.tests_passed === undefined) {
                     //status.innerHTML = "";
                 } else {
+                    let data_tests_passed = document.querySelector('[data-tests-passed="' + obj.uuid + '"]');
                     if (data_tests_passed === null) {
-                        status.innerHTML += "<label data-tests-passed=\"" + obj.uuid + "\" " +
-                            "class=\"ui green basic label\">" + obj.tests_passed + "</label>"
+                        console.log("some pass")
+                        status.innerHTML += "<a data-tests-passed=\"" + obj.uuid + "\" " +
+                            "class=\"ui green basic label\">" + obj.tests_passed + "</a>"
                     } else {
+                        console.log("some pass2")
                         data_tests_passed.innerHTML = obj.tests_passed
                     }
                 }
@@ -96,9 +97,10 @@ var socket = new WebSocket(
                 if (obj.tests_failed === undefined) {
                     //status.innerHTML = "";
                 } else {
+                    let data_tests_failed = document.querySelector('[data-tests-failed="' + obj.uuid + '"]');
                     if (data_tests_failed === null) {
-                        status.innerHTML += "<label data-tests-failed=\"" + obj.uuid + "\" " +
-                            "class=\"ui red basic label\">" + obj.tests_failed + "</label>"
+                        status.innerHTML += "<a data-tests-failed=\"" + obj.uuid + "\" " +
+                            "class=\"ui red basic label\">" + obj.tests_failed + "</a>"
                     } else {
                         data_tests_failed.innerHTML = obj.tests_failed
                     }
@@ -107,9 +109,10 @@ var socket = new WebSocket(
                 if (obj.tests_aborted === undefined) {
                     //status.innerHTML = "";
                 } else {
+                    let data_tests_aborted = document.querySelector('[data-tests-aborted="' + obj.uuid + '"]');
                     if (data_tests_aborted === null) {
-                        status.innerHTML += "<label data-tests-aborted=\"" + obj.uuid + "\" " +
-                            "class=\"ui darkred basic label\">" + obj.tests_aborted + "</label>"
+                        status.innerHTML += "<a data-tests-aborted=\"" + obj.uuid + "\" " +
+                            "class=\"ui darkred basic label\">" + obj.tests_aborted + "</a>"
                     } else {
                         data_tests_aborted.innerHTML = obj.tests_aborted
                     }
@@ -118,9 +121,10 @@ var socket = new WebSocket(
                 if (obj.tests_skipped === undefined) {
                     //status.innerHTML = "";
                 } else {
+                    let data_tests_skipped = document.querySelector('[data-tests-skipped="' + obj.uuid + '"]');
                     if (data_tests_skipped === null) {
-                        status.innerHTML += "<label data-tests-skipped=\"" + obj.uuid + "\" " +
-                            "class=\"ui yellow basic label\">" + obj.tests_skipped + "</label>"
+                        status.innerHTML += "<a data-tests-skipped=\"" + obj.uuid + "\" " +
+                            "class=\"ui yellow basic label\">" + obj.tests_skipped + "</a>"
                     } else {
                         data_tests_skipped.innerHTML = obj.tests_skipped
                     }
@@ -129,10 +133,14 @@ var socket = new WebSocket(
                 if (obj.tests_not_started === undefined) {
                     //status.innerHTML = "";
                 } else {
+                    let data_tests_not_started = document.querySelector('[data-tests-not-started="' + obj.uuid + '"]');
                     if (data_tests_not_started === null) {
-                        status.innerHTML += "<label data-tests-not-started=\"" + obj.uuid + "\" " +
-                            "class=\"ui grey basic label\">" + obj.tests_not_started + "</label>"
+                        console.log("create")
+                        status.innerHTML += "<a data-tests-not-started=\"" + obj.uuid + "\" " +
+                            "class=\"ui grey basic label\">" + obj.tests_not_started + "</a>"
                     } else {
+                        console.log("change")
+                        console.log(obj.tests_not_started)
                         data_tests_not_started.innerHTML = obj.tests_not_started
                     }
                 }

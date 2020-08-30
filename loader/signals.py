@@ -14,7 +14,7 @@ from operator import itemgetter
 
 
 @receiver(post_save, sender=TestJobs)
-def get_running_jobs_count(created, instance, **kwargs):
+def get_running_jobs(created, instance, **kwargs):
 
     def running_jobs_count():
         redis = Redis()
@@ -27,45 +27,32 @@ def get_running_jobs_count(created, instance, **kwargs):
             return count
         return None
 
-    if created:
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            "running_jobs_count",
-            {
-                "type": "message",
-                "message": running_jobs_count()
-            }
-        )
-
-    if instance:
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            "running_jobs_count",
-            {
-                "type": "message",
-                "message": running_jobs_count()
-            }
-        )
-
-
-@receiver(post_save, sender=TestJobs)
-def get_running_jobs(created, instance, **kwargs):
-
     def update_running_jobs():  # fix for newly created job, it should appear in the Running Jobs table right after creation
         redis = Redis()
         if redis.connect.exists("update_running_jobs"):
             redis.connect.delete("update_running_jobs")
             return True
 
-    def send_data():
+    def send_data(with_count_update=False):
         channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            "running_jobs",
-            {
-                "type": "message",
-                "message": running_jobs_result[0]
-            }
-        )
+        if running_jobs_result[0] == []:
+            pass
+        else:
+            async_to_sync(channel_layer.group_send)(
+                "running_jobs",
+                {
+                    "type": "message",
+                    "message": running_jobs_result[0]
+                }
+            )
+            if with_count_update is True:
+                async_to_sync(channel_layer.group_send)(
+                    "running_jobs_count",
+                    {
+                        "type": "message",
+                        "message": running_jobs_count()
+                    }
+                )
 
     def running_jobs():
         update_running_jobs = None
@@ -111,7 +98,7 @@ def get_running_jobs(created, instance, **kwargs):
         if running_jobs_result[1] is True:
             send_data()
         elif update_running_jobs():
-            send_data()
+            send_data(with_count_update=True)
         else:
             pass
 
@@ -122,6 +109,13 @@ def get_running_jobs(created, instance, **kwargs):
             {
                 "type": "message",
                 "message": {"job_remove": instance.uuid}
+            }
+        )
+        async_to_sync(channel_layer.group_send)(
+            "running_jobs_count",
+            {
+                "type": "message",
+                "message": running_jobs_count()
             }
         )
 
