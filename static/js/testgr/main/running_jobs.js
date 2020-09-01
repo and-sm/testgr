@@ -57,15 +57,12 @@ var socket = new WebSocket(
                     "class=\"ui yellow basic label\">" + obj.tests_skipped + "</a>";}
                 else{initial_tests_skipped=""}
                 if(obj.tests_not_started !== undefined){
-                    console.log("create0")
                 initial_tests_not_started = "<a data-tests-not-started=\"" + obj.uuid + "\" " +
                     "class=\"ui grey basic label\">" + obj.tests_not_started + "</a>";}
-                else{initial_tests_not_started="";console.log("change0")}
+                else{initial_tests_not_started="";}
 
-                console.log("ssss")
                 cell3.innerHTML = "&nbsp;&nbsp;" + initial_tests_passed + initial_tests_failed + initial_tests_aborted +
                     initial_tests_skipped + initial_tests_not_started;
-                console.log("ffff")
 
             } else {
 
@@ -85,11 +82,9 @@ var socket = new WebSocket(
                 } else {
                     let data_tests_passed = document.querySelector('[data-tests-passed="' + obj.uuid + '"]');
                     if (data_tests_passed === null) {
-                        console.log("some pass")
                         status.innerHTML += "<a data-tests-passed=\"" + obj.uuid + "\" " +
                             "class=\"ui green basic label\">" + obj.tests_passed + "</a>"
                     } else {
-                        console.log("some pass2")
                         data_tests_passed.innerHTML = obj.tests_passed
                     }
                 }
@@ -135,12 +130,9 @@ var socket = new WebSocket(
                 } else {
                     let data_tests_not_started = document.querySelector('[data-tests-not-started="' + obj.uuid + '"]');
                     if (data_tests_not_started === null) {
-                        console.log("create")
                         status.innerHTML += "<a data-tests-not-started=\"" + obj.uuid + "\" " +
                             "class=\"ui grey basic label\">" + obj.tests_not_started + "</a>"
                     } else {
-                        console.log("change")
-                        console.log(obj.tests_not_started)
                         data_tests_not_started.innerHTML = obj.tests_not_started
                     }
                 }
