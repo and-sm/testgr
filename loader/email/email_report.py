@@ -36,7 +36,7 @@ class SendJobReport:
 
     def generate_custom_data(self):
         if self.job.custom_data:
-            return json.loads(self.job.custom_data)
+            return self.job.custom_data
         return ""
 
     def tests_builder(self):
