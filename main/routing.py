@@ -3,6 +3,6 @@ from . import consumers
 
 
 websocket_urlpatterns = [
-    path('ws/<str:route>/', consumers.Consumer),
-    path('ws/<str:route>/<uuid>', consumers.JobTestConsumer),
+    path('ws/<str:route>/', consumers.Consumer.as_asgi()),
+    path('ws/<str:route>/<uuid>', consumers.JobTestConsumer.as_asgi()),
 ]
