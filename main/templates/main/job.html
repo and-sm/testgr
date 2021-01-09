@@ -7,7 +7,7 @@
 {% load static %}
 {% load urlize_target_blank %}
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.6/dist/semantic.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.css" />
 
 
 <style>
@@ -117,8 +117,8 @@
         <div><h5>Start DateTime: </h5>{{ start_time }}</div><br />
         <p><strong>Stop DateTime: </strong><br /><span id="job_stop_timestamp">{% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}</span></p>
         <p><strong>Time Taken: </strong><br /><span id="job_time_taken">{% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}</span></p>
-        <p><strong>Type: </strong>
-        {% if fw == 1 %}nose2{% elif fw == 2 %}pytest{% else %}unknown type of tests{% endif %}</p>
+        <p><strong>Runner: </strong>
+        {% if fw == 1 %}nose2{% elif fw == 2 %}pytest{% else %}unknown{% endif %}</p>
         {% if status != 1 %}
             <div><h5>Chart:</h5></div>
             <div><canvas id="myChart" width="250" height="250"></canvas></div>
@@ -687,19 +687,19 @@
                     <td>
                         {% if item.get_start_time is not None %}
                             {{ item.get_start_time }}
-                        {% else %}Pending...
+                        {% else %}N/A
                         {% endif %}
                     </td>
                     <td>
                         {% if item.get_stop_time is not None %}
                             {{ item.get_stop_time }}
-                        {% else %}Pending...
+                        {% else %}N/A
                         {% endif %}
                     </td>
                     <td>
                         {% if item.get_time_taken is not None %}
                             {{ item.get_time_taken }}
-                        {% else %}0s
+                        {% else %}N/A
                         {% endif %}
                     </td>
                     <td>
@@ -829,7 +829,7 @@
 </body>
 
 <script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.6/dist/semantic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
 
 <script>
@@ -855,21 +855,23 @@
     ]
 };
 $(document).ready(function() {
-        var ctx = $("#myChart");
-        var myDoughnutChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: data,
-            options: {
-                responsive: false,
-                legend: {
-                    display: false,
-                    labels: {
-                        fontColor: 'rgb(255, 99, 132)'
-                    }
+    var ctx = $("#myChart");
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: data,
+        options: {
+            animation: {
+                duration: 0
+            },
+            responsive: false,
+            legend: {
+                display: false,
+                labels: {
+                    fontColor: 'rgb(255, 99, 132)'
                 }
             }
-        });
-
+        }
+    });
 });
 </script>
 

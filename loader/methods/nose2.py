@@ -1,5 +1,5 @@
-import uuid
 import json
+import uuid
 
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
@@ -7,6 +7,7 @@ from django.db import connection
 from django.utils import timezone
 
 from loader.models import TestJobs, Tests, Environments, TestsStorage
+from loader.methods.common import save_images
 from loader.redis import Redis
 from loader.email.email_report import SendJobReport
 
@@ -252,7 +253,8 @@ class Nose2Loader:
             job_object.tests_not_started -= 1
             if job_object.tests_not_started == 0:
                 job_object.tests_not_started = None
-                job_object.tests_in_progress = 1
+
+            job_object.tests_in_progress = 1
 
             job_object.save()
 
@@ -335,6 +337,10 @@ class Nose2Loader:
                     test.time_taken = test.stop_time - test.start_time
                     test.msg = str(self.data['msg']).replace("\\n", "\n")
                     test.trace = str(self.data['trace']).replace("\\n", "\n")
+
+                    # Save image artifacts if exist
+                    save_images(self, test)
+
                     test.save()
 
                     # Tests Storage

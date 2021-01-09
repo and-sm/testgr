@@ -7,6 +7,7 @@ from django.db import connection
 from django.utils import timezone
 
 from loader.models import TestJobs, Tests, Environments, TestsStorage
+from loader.methods.common import save_images
 from loader.redis import Redis
 from loader.email.email_report import SendJobReport
 
@@ -252,7 +253,8 @@ class PytestLoader:
             job_object.tests_not_started -= 1
             if job_object.tests_not_started == 0:
                 job_object.tests_not_started = None
-                job_object.tests_in_progress = 1
+
+            job_object.tests_in_progress = 1
 
             job_object.save()
 
@@ -334,6 +336,10 @@ class PytestLoader:
                     test.stop_time = unix_time_to_datetime(self.data['stopTime'])
                     test.time_taken = test.stop_time - test.start_time
                     test.msg = str(self.data['msg']).replace("\\n", "\n")
+
+                    # Save image artifacts if exist
+                    save_images(self, test)
+
                     test.save()
 
                     # Tests Storage

@@ -1,12 +1,11 @@
 from django.shortcuts import render, redirect
-from loader.models import TestJobs, Tests
+from loader.models import TestJobs, Tests, Screenshots
 from loader.redis import Redis
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.utils import timezone
 from datetime import datetime
 from datetime import timezone as timezone_native
 from tools.tools import unix_time_to_datetime
@@ -108,12 +107,12 @@ def job(request, job_uuid):
     tests = job_object.tests.select_related('test')
 
     # Statistics
-    test_count = tests.count()
-    not_started = tests.filter(status=1).count()
-    passed = tests.filter(status=3).count()
-    failed = tests.filter(status=4).count()
-    skipped = tests.filter(status=5).count()
-    aborted = tests.filter(status=6).count()
+    not_started = int(job_object.tests_not_started or 0)
+    passed = int(job_object.tests_passed or 0)
+    failed = int(job_object.tests_failed or 0)
+    skipped = int(job_object.tests_skipped or 0)
+    aborted = int(job_object.tests_aborted or 0)
+    test_count = int(not_started or 0) + int(passed or 0) + int(failed or 0) + int(skipped or 0) + int(aborted or 0)
 
     # Framework type
     fw = job_object.fw_type
@@ -276,6 +275,8 @@ def test(request, test_uuid):
         test_class = test_storage_data.get_test_class_for_pytest()
         test_method = test_storage_data.get_test_method_for_pytest()
 
+    screenshots = Screenshots.objects.filter(test = test_object)
+
     return render(request, "main/test.html", {'uuid': uuid,
                                               'start_time': start_time,
                                               'stop_time': stop_time,
@@ -302,7 +303,8 @@ def test(request, test_uuid):
                                               'custom_data': custom_data,
                                               'full_path': full_path,
                                               'previous_result': previous_result,
-                                              'next_result': next_result})
+                                              'next_result': next_result,
+                                              'screenshots': screenshots})
 
 
 @login_required()
@@ -327,18 +329,18 @@ def job_force_stop(request):
     job_object.status = 4
     job_object.stop_time = unix_time_to_datetime(int(datetime.now(tz=timezone_native.utc).timestamp() * 1000))
     job_object.time_taken = job_object.stop_time - job_object.start_time
-    job_object.save()
+
     # Tests
     aborted_tests = 0
-    for test_item in job_object.tests.all():
-        if test_item.status == 1 or test_item.status == 2:
+    if job_object.tests_in_progress is not None and job_object.tests_in_progress > 0:
+        result = Tests.objects.filter(job=job_object, status=2)
+        for test_item in result:
             test_item.status = 6
-            test_item.start_time = job_object.start_time
-            test_item.stop_time = job_object.start_time
-            test_item.save()
             aborted_tests += 1
+            if job_object.tests_in_progress is not None and job_object.tests_in_progress > 0:
+                job_object.tests_in_progress = job_object.tests_in_progress - 1
+            test_item.save()
     job_object.tests_aborted = aborted_tests
-    job_object.tests_not_started = 0
     job_object.save()
 
     return JsonResponse({"status": "ok"})
