@@ -1,4 +1,5 @@
 import os
+import datetime
 from io import BytesIO
 from PIL import Image
 
@@ -204,9 +205,17 @@ class Bugs(models.Model):
 
 
 class Screenshots(models.Model):
+
+    year = datetime.date.today().year
+    month = datetime.date.today().month
+    day = datetime.date.today().day
+
+    def dates(self):
+        return self.year, self.month, self.day
+
     name = models.CharField(max_length=128, blank=True, null=True)
-    image = models.ImageField(null=True, blank=True, upload_to="screenshots")
-    thumbnail = models.ImageField(null=True, blank=True, upload_to="screenshots")
+    image = models.ImageField(null=True, blank=True, upload_to=f"screenshots/{year}/{month}/{day}")
+    thumbnail = models.ImageField(null=True, blank=True, upload_to=f"screenshots/{year}/{month}/{day}")
     created_at = models.DateTimeField(auto_now_add=True)
     test = models.ForeignKey(Tests, on_delete=models.CASCADE, related_name='test_parent')
 
@@ -223,11 +232,11 @@ class Screenshots(models.Model):
 
         size = 128, 128
         image_obj.thumbnail(size, Image.ANTIALIAS)
-
         filename, thumb_extension = os.path.splitext(self.image.name)
         thumb_extension = thumb_extension.lower()
         thumb_filename = filename + '_thumb'
-        thumb_filename = thumb_filename.replace('screenshots/', '')
+        string = f"screenshots/{self.year}/{self.month}/{self.day}/"
+        thumb_filename = thumb_filename.replace(string, '')
 
         if thumb_extension in ['.jpg', '.jpeg']:
             FTYPE = 'JPEG'
