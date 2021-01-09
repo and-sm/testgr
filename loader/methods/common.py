@@ -25,7 +25,7 @@ def save_images(obj, test):
                 # Images as list items: [base64, base64...]
                 else:
                     folder = secrets.token_urlsafe(6)
-                    name = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+                    name = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
                     data = ContentFile(base64.b64decode(screenshot), name=folder +"/ "+ name + ext)
                     s_data = Screenshots(test=test, name=name, image=data,
                                          thumbnail=f"screenshots/{year}/{month}/{day}/" + folder + "/" + name
