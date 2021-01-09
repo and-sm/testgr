@@ -169,3 +169,5 @@ class TestScenario(unittest.TestCase):
 		self.t_screen.append({"name": "front", "image": img2})  # you can add screenshot as dict item with name
 
 ```
+
+Screenshots will be saved in **media/screenshots** folder.
