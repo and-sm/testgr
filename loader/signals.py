@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 
 from tools.tools import get_hash, compare_hash
-from loader.models import TestJobs, Tests, TestsStorage
+from loader.models import TestJobs, TestsStorage
 from loader.redis import Redis
 
 from channels.layers import get_channel_layer
@@ -229,61 +229,6 @@ def get_job_details(created, instance, **kwargs):
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             "job_details" + "-" + instance.uuid,
-            {
-                "type": "message",
-                "message": data()
-            }
-        )
-
-
-@receiver(post_save, sender=Tests)
-def get_job_tests_details(created, instance, **kwargs):
-
-    def data():
-        job_object = TestJobs.objects.get(uuid=instance.job.uuid)
-        result = {}
-
-        # Test instance update for tests table
-        test_item = dict()
-        test_item['uuid'] = instance.uuid
-        if instance.start_time:  # Initial Tests post_save signal will not have start_time for test item
-            test_item['start_time'] = instance.get_start_time()
-        if instance.stop_time:
-            test_item['stop_time'] = instance.get_stop_time()
-        if instance.time_taken:
-            test_item['time_taken'] = instance.get_time_taken()
-        else:
-            test_item['time_taken'] = None
-        try:
-            obj = TestsStorage.objects.get(pk=instance.test_id)
-            test_item['time_taken_eta'] = obj.get_time_taken_eta()
-        except:
-            test_item['time_taken_eta'] = None
-        test_item['status'] = instance.status
-
-        result['test'] = test_item
-        result['test_count'] = str(job_object.tests.count())
-        result['not_started'] = str(job_object.tests.filter(status=1).count())
-        result['passed'] = str(job_object.tests.filter(status=3).count())
-        result['failed'] = str(job_object.tests.filter(status=4).count())
-        result['skipped'] = str(job_object.tests.filter(status=5).count())
-        result['aborted'] = str(job_object.tests.filter(status=6).count())
-        return result
-
-    if created:
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            "job_tests_details" + "-" + instance.job.uuid,
-            {
-                "type": "message",
-                "message": data()
-            }
-        )
-
-    if instance:
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            "job_tests_details" + "-" + instance.job.uuid,
             {
                 "type": "message",
                 "message": data()

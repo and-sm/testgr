@@ -7,7 +7,7 @@
 {% load static %}
 {% load urlize_target_blank %}
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.6/dist/semantic.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.css">
 
     <style>
 
@@ -385,6 +385,34 @@
                         </div>
                     </div>
 
+                    {% if screenshots %}
+                    {% if status == 3 or status == 4 or status == 6 %}
+                    {% comment %} Screenshots block will not be shown in 'running' test details
+                    {% endcomment %}
+                    <div class="ui divider"></div>
+
+                    <h3 class="ui header">
+                        <i class="image outline icon"></i>
+                        <div class="content">Screenshots</div>
+                    </h3>
+
+                    <div class="ui row">&nbsp;</div>
+
+                    <div class="ui grid">
+                        <div class="twelve wide column">
+                            {% for image in screenshots %}
+                                <p>
+                                <a href="{{ image.image.url }}" target="_blank">
+                                    <img class="ui middle aligned tiny image" src="{{ image.thumbnail.url }}">
+                                    &nbsp;&nbsp;&nbsp;<span>{{ image.name }}</span>
+                                </a></p>
+                            <div class="ui divider"></div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+
                 </div>
             </div>
 
@@ -431,7 +459,7 @@
 </body>
 
 <script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.6/dist/semantic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
 
 <script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>

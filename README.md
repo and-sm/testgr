@@ -1,5 +1,5 @@
 # Testgr
-Web service which provides monitoring and data store for nose2 or Pytest tests execution results.
+Web service which provides monitoring and data store for nose2 or Pytest execution results.
 # How it works
 nose2 and Pytest frameworks have several methods for providing details of test runs and tests before and after test execution. To connect **Testgr** and these frameworks - you need to use [**nose2-rt**](https://github.com/and-sm/nose2rt) or [**pytest-rt**](https://github.com/and-sm/pytest-rt) plugins (depending on your framework).
  **Testgr** service collects all data produced by plugins and store it in the database.
@@ -26,10 +26,10 @@ On this page you can review status of your test job execution.
 
 
 ### Components:
-* Python 3.8.5
-* Django 3.1
-* Redis 6.0.6
-* SQLite or MySQL 5.7
+* Python 3.8.6
+* Django 3.1.5
+* Redis 6.0.9
+* SQLite or MySQL 8
 
 ### API plugins setup
 Depending on your test framework (nose2 or pytest) you can choose [**nose2-rt**](https://github.com/and-sm/nose2rt) or [**pytest-rt**](https://github.com/and-sm/pytest-rt).
@@ -119,3 +119,53 @@ Please note, that the very first launch of Testgr can take some additional time,
 When you see "Congratulations! Your cerfificate and chain have been saved..." - the process must be completed.
 
 **Backup** your SSL certificates, which can be found in testgr/ssl folder
+
+### How to send screenshots from test execution to Testgr
+#### Pytest:
+Use **list** with ```t_screen``` name as collection of base64 strings.
+
+Example:
+
+```python
+def example():
+    chrome_driver.get('https://google.com')
+    pytest.t_screen = []
+    img = chrome_driver.get_screenshot_as_base64()
+    pytest.t_screen.append(img)  # You can add screenshot as list item, name will be generated
+    img2 = chrome_driver.get_screenshot_as_base64()
+    pytest.t_screen.append({"name": "front", "image": img2})  # you can add screenshot as dict item with name
+```
+
+#### Nose2:
+Open **nose2.cfg** and configure "screenshots_var" under ```[rt]``` section.
+
+Example:
+```buildoutcfg
+[rt]
+endpoint = http://example.com/loader
+screenshot_var = t_screen
+```
+
+Then use **list** with ```t_screen``` name as collection of base64 strings for unittest.TestCase instance.
+
+Test example:
+
+```python
+class TestScenario(unittest.TestCase):
+
+	def setUp(self):
+		options = webdriver.ChromeOptions() 
+		self.driver = webdriver.Chrome(executable_path="./chromedriver", options=options)
+
+
+	def test_example(self):
+		""" description """
+		self.assertTrue('FOO'.isupper())
+		self.driver.get("https://google.com")
+		self.t_screen = []
+		img = self.driver.get_screenshot_as_base64()    # You can add screenshot as list item, name will be generated
+		self.t_screen.append(img)
+		img2 = self.driver.get_screenshot_as_base64()
+		self.t_screen.append({"name": "front", "image": img2})  # you can add screenshot as dict item with name
+
+```
