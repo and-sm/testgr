@@ -219,12 +219,12 @@ class Screenshots(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     test = models.ForeignKey(Tests, on_delete=models.CASCADE, related_name='test_parent')
 
-    def save(self, *args, **kwargs):
+    def save(self, folder=None, name=None, *args, **kwargs):
         super().save(*args, **kwargs)
-        if not self.make_thumbnail():
+        if not self.make_thumbnail(folder, name):
            raise Exception('Could not create thumbnail!')
 
-    def make_thumbnail(self):
+    def make_thumbnail(self, folder, name):
         try:
             image_obj = Image.open(self.image.file)
         except:
@@ -234,9 +234,7 @@ class Screenshots(models.Model):
         image_obj.thumbnail(size, Image.ANTIALIAS)
         filename, thumb_extension = os.path.splitext(self.image.name)
         thumb_extension = thumb_extension.lower()
-        thumb_filename = filename + '_thumb'
-        string = f"screenshots/{self.year}/{self.month}/{self.day}/"
-        thumb_filename = thumb_filename.replace(string, '')
+        thumb_filename = name + '_thumb'
 
         if thumb_extension in ['.jpg', '.jpeg']:
             FTYPE = 'JPEG'
@@ -253,7 +251,7 @@ class Screenshots(models.Model):
         temp_thumb.seek(0)
 
         # ContentFile goes to the thumbnail field
-        self.thumbnail.save(thumb_filename + thumb_extension, ContentFile(temp_thumb.read()), save=False)
+        self.thumbnail.save(folder + "/" + thumb_filename + thumb_extension, ContentFile(temp_thumb.read()), save=False)
         temp_thumb.close()
 
         return True

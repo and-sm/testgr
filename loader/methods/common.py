@@ -14,20 +14,18 @@ def save_images(obj, test):
                 year = datetime.date.today().year
                 month = datetime.date.today().month
                 day = datetime.date.today().day
+                folder = secrets.token_urlsafe(6)
+                path = f"screenshots/{year}/{month}/{day}/" + folder + "/"
                 if isinstance(screenshot, dict):
-                    folder = secrets.token_urlsafe(6)
                     name = screenshot["name"]
                     data = ContentFile(base64.b64decode(screenshot["image"]), name=folder + "/" + name + ext)
                     s_data = Screenshots(test=test, name=name, image=data,
-                                         thumbnail=f"screenshots/{year}/{month}/{day}/" + folder + "/" + name
-                                                   + "_thumb" + ext)
-
+                                         thumbnail=path + name + "_thumb" + ext)
                 # Images as list items: [base64, base64...]
                 else:
-                    folder = secrets.token_urlsafe(6)
                     name = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
                     data = ContentFile(base64.b64decode(screenshot), name=folder +"/ "+ name + ext)
                     s_data = Screenshots(test=test, name=name, image=data,
-                                         thumbnail=f"screenshots/{year}/{month}/{day}/" + folder + "/" + name
-                                                   + "_thumb" + ext)
-                s_data.save()
+                                         thumbnail=path + "/" + name + "_thumb" + ext)
+
+                s_data.save(folder, name)
