@@ -1,5 +1,4 @@
 import os
-import datetime
 from io import BytesIO
 from PIL import Image
 
@@ -206,53 +205,9 @@ class Bugs(models.Model):
 
 class Screenshots(models.Model):
 
-    year = datetime.date.today().year
-    month = datetime.date.today().month
-    day = datetime.date.today().day
-
-    def dates(self):
-        return self.year, self.month, self.day
-
     name = models.CharField(max_length=128, blank=True, null=True)
-    image = models.ImageField(null=True, blank=True, upload_to=f"screenshots/{year}/{month}/{day}")
-    thumbnail = models.ImageField(null=True, blank=True, upload_to=f"screenshots/{year}/{month}/{day}")
+    image = models.ImageField(null=True, blank=True, upload_to="screenshots")
+    thumbnail = models.ImageField(null=True, blank=True, upload_to="screenshots")
     created_at = models.DateTimeField(auto_now_add=True)
     test = models.ForeignKey(Tests, on_delete=models.CASCADE, related_name='test_parent')
-
-    def save(self, folder=None, name=None, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if not self.make_thumbnail(folder, name):
-           raise Exception('Could not create thumbnail!')
-
-    def make_thumbnail(self, folder, name):
-        try:
-            image_obj = Image.open(self.image.file)
-        except:
-            return False
-
-        size = 128, 128
-        image_obj.thumbnail(size, Image.ANTIALIAS)
-        filename, thumb_extension = os.path.splitext(self.image.name)
-        thumb_extension = thumb_extension.lower()
-        thumb_filename = name + '_thumb'
-
-        if thumb_extension in ['.jpg', '.jpeg']:
-            FTYPE = 'JPEG'
-        elif thumb_extension == '.gif':
-            FTYPE = 'GIF'
-        elif thumb_extension == '.png':
-            FTYPE = 'PNG'
-        else:
-            return False
-
-        # Save thumbnail to memory as StringIO
-        temp_thumb = BytesIO()
-        image_obj.save(temp_thumb, FTYPE)
-        temp_thumb.seek(0)
-
-        # ContentFile goes to the thumbnail field
-        self.thumbnail.save(folder + "/" + thumb_filename + thumb_extension, ContentFile(temp_thumb.read()), save=False)
-        temp_thumb.close()
-
-        return True
 
