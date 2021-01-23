@@ -349,10 +349,10 @@
                                     <td><strong>
                                         <i class="arrow left icon"></i>
                                         Passed before current:</strong></td>
-                                    <td>{% if not previous_s_result %}Not
+                                    <td>{% if not prev_s_result %}Not
                                         exist{% else %}<a href="
-                                        {% url 'test' test_uuid=previous_s_result.0 %}">
-                                            {{ previous_s_result.2 }}</a>{% endif %}</td>
+                                        {% url 'test' test_uuid=prev_s_result.0 %}">
+                                            {{ prev_s_result.2 }}</a>{% endif %}</td>
                                 </tr>
                                 <tr>
                                     <td><strong>
@@ -392,10 +392,10 @@
                                     <td><strong>
                                         <i class="arrow left icon"></i>
                                         Failed before current:</strong></td>
-                                    <td>{% if not previous_f_result %}Not
+                                    <td>{% if not prev_f_result %}Not
                                         exist{% else %}<a href="
-                                        {% url 'test' test_uuid=previous_f_result.0 %}">
-                                            {{ previous_f_result.2 }}</a>{% endif %}</td>
+                                        {% url 'test' test_uuid=prev_f_result.0 %}">
+                                            {{ prev_f_result.2 }}</a>{% endif %}</td>
                                 </tr>
                                 <tr>
                                     <td><strong>

@@ -328,7 +328,7 @@ def test(request, test_uuid):
                                               'trace': trace,
                                               'custom_data': custom_data,
                                               'full_path': full_path,
-                                              'previous_f_result': prev_fail,
+                                              'prev_f_result': prev_fail,
                                               'next_f_result': next_fail,
                                               'prev_s_result': prev_success,
                                               'next_s_result': next_success,
