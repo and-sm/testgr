@@ -1,14 +1,8 @@
-import os
-from io import BytesIO
-from PIL import Image
-
 from django.db import models
 from tools.tools import normalize_time
-from django.core.files.base import ContentFile
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from loader.signals_opt import send_job_tests_details
-
 
 
 class Environments(models.Model):

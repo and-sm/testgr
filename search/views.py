@@ -86,7 +86,7 @@ def filter_data(request):
         args.add(each_arg, conn_type='AND')
 
     query_set = TestJobs.objects.filter(*(args,)).order_by('-stop_time').exclude(status=1)
-    # will excute, query_set.filter(Q1 | Q2 | Q3)
+    # will execute, query_set.filter(Q1 | Q2 | Q3)
     # comma , in last after args is mandatory to pass as args here
 
     datatable_dict = []
