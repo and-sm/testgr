@@ -25,7 +25,13 @@
         margin-left: 0;
         word-wrap: break-word;
         }
-
+        .ui.divider{
+            letter-spacing: 0em;
+        }
+        .ui.table {
+            border: 0px
+        }
+        .ui.table tr td { border-top: 0px !important; }
         pre{
             font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
         }
@@ -85,54 +91,6 @@
         <h4>Test Details</h4>
         <div class="ui divider"></div>
         <div>
-
-            <h5>Navigation:</h5>
-            <div class="two ui buttons">
-                    {% if previous_result %}<a href="{% url 'test' test_uuid=previous_result.uuid %}">{% endif %}
-                    <button class="ui basic small {% if previous_result.status == 1 %}grey
-                                                        {% elif previous_result.status == 2 %}blue
-                                                        {% elif previous_result.status == 3 %}green
-                                                        {% elif previous_result.status == 4 %}red
-                                                        {% elif previous_result.status == 5 %}yellow
-                                                        {% elif previous_result.status == 6 %}red
-                                                        {% endif %} labeled icon button
-                                {% if not previous_result %}disabled{% endif %}">
-                        {% if not previous_result %}Not exists{% endif %}
-                        {% if previous_result %}Previous result{% endif %}
-                        <i class="left chevron icon"></i>
-                        {% if previous_result.stop_time %}
-                            <br />({{ previous_result.stop_time }})
-                        {% elif not previous_result %}
-                            <br /><br />
-                        {% else %}
-                            <br />(not started)&nbsp;
-                        {% endif %}
-                    </button>
-                    {% if previous_result %}</a>{% endif %}
-                    {% if next_result %}<a href="{% url 'test' test_uuid=next_result.uuid %}">{% endif %}
-                    <button class="ui basic small {% if next_result.status == 1 %}grey
-                                                        {% elif next_result.status == 2 %}blue
-                                                        {% elif next_result.status == 3 %}green
-                                                        {% elif next_result.status == 4 %}red
-                                                        {% elif next_result.status == 5 %}yellow
-                                                        {% elif next_result.status == 6 %}red
-                                                        {% endif %} right labeled icon button
-                                {% if not next_result %}disabled{% endif %}">
-                        {% if not next_result %}Not exists{% endif %}
-                        {% if next_result %}Next result{% endif %}
-                        {% if next_result.stop_time %}
-                            <br />({{ next_result.stop_time }})
-                        {% elif not next_result%}
-                            <br /><br />
-                        {% else %}
-                            <br />(not started)&nbsp;
-                        {% endif %}
-                        <i class="right chevron icon"></i>
-                    </button>
-                    {% if next_result %}</a>{% endif %}
-            </div>
-            <p></p>
-            <a href="{% url 'job' test_job.uuid %}" target="_blank">Open job</a>
 
         <h5>
         {% if last_tests_count < 1 %}
@@ -199,7 +157,7 @@
     <div class="ui grid">
 
         <div class="ui ten wide column">
-        <span class="ui accordion">
+        <span class="ui accordion path">
             <span class="title ui large blue text">
                 {{ test_class }}:<strong>{{ test_method }}</strong>
                 <i class="caret down icon" id="accordion_caret"></i>
@@ -276,8 +234,21 @@
         {% if msg %}
         <div class="ui grid">
             <div class="ui sixteen wide floated column">
-                <div class="ui {% if msg %}red{% endif %} segment">
-                    <h4><span class="ui red text">Error:</span></h4>
+
+            <span class="ui accordion error-log">
+            <div class="ui red title message">
+                <strong>Error log <i class="caret down icon" id="accordion_caret_error_log"></i></strong></div>
+            <div class="content">
+            <div class="transition hidden">
+                <div class="ui segment">
+
+                    <div class="ui six wide column right aligned">
+                        <button class="ui grey basic button" id="btn_copy_error_log"
+                                data-clipboard-text="{{ msg }}">
+                        <i class="copy outline icon"></i>Copy log
+                        </button>
+                    </div>
+
                     <pre style="white-space:pre-wrap;">{{ msg|escape|linebreaksbr }}</pre>
                     <p></p>
                     {% if trace %}
@@ -286,117 +257,171 @@
                     <pre>{{ trace|escape|linebreaksbr }}</pre>{% endif %}
                 </div>
             </div>
+            </div>
+            </span>
+
+            </div>
         </div>
         {% endif %}
 
         <div class="ui grid">
 
-            <div class="ui nine wide column">
-                <div class="ui segment">
+            <div class="ui eight wide column">
+                <div class="ui">
 
-                    <h3 class="ui header">
+                    <h3 class="ui horizontal left aligned divider header">
                         <i class="play circle outline icon"></i>
-                        <div class="content">Run details</div>
+                        Run details
                     </h3>
 
-                    <div class="ui row">&nbsp;</div>
-
                     <div class="ui grid">
-                        <div class="six wide column">
-                            <div class="ui bulleted list">
-                                <div class="item"><strong>Environment:</strong>
-                                </div>
-                                <div class="item"><strong>Test start:</strong>
-                                </div>
-                                <div class="item"><strong>Test stop:</strong>
-                                </div>
-                                <div class="item"><strong>Time taken:</strong>
-                                </div>
-                                {% if custom_data %}
-                                <div class="item"><strong>Custom data:</strong>
-                                </div>{% endif %}
-                            </div>
-                        </div>
+                        <div class="twelve wide column">
 
-                        <div class="six wide column">
-                            <div class="ui list">
-                                <div class="item">
-                                    {{ env }}
-                                </div>
-                                <div class="item">
-                                    {% if start_time is not None %}{{ start_time }}{% else %}Pending...{% endif %}
-                                </div>
-                                <div class="item">
-                                    {% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}
-                                </div>
-                                <div class="item">
-                                    {% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}
-                                </div>
+                        <table class="ui very compact table">
+                                <tbody>
+                                <tr>
+                                    <td><strong>
+                                        Environment</strong></td>
+                                    <td>{{ env }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>
+                                        Test started:</strong></td>
+                                    <td>{% if start_time is not None %}{{ start_time }}{% else %}Pending...{% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>
+                                        Test stopped:</strong></td>
+                                    <td>{% if stop_time is not None %}{{ stop_time }}{% else %}Pending...{% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>
+                                        Time taken:</strong></td>
+                                    <td>{% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}
+                                    </td>
+                                </tr>
                                 {% if custom_data %}
-                                <div class="item">
-                                    {% for key, value in custom_data %}
+                                <tr>
+                                    <td><strong>
+                                        Custom data:</strong></td>
+                                    <td>
+                                        {% for key, value in custom_data %}
                                         <div class="item" style="word-wrap: break-word;"><strong>{{ key }}:
                                         </strong>{{ value|urlize|urlize_target_blank }}</div>
                                     {% endfor %}
-                                </div>
+                                    </td>
+                                </tr>
                                 {% endif %}
-                            </div>
+                                <tr>
+                                    <td><strong>
+                                        Parent job</strong></td>
+                                    <td><a href="{% url 'job' test_job.uuid %}" target="_blank">Open <i class="folder open outline icon"></i></a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
                         </div>
 
                     </div>
 
-                    <div class="ui divider"></div>
-
-                    <h3 class="ui header">
-                        <i class="chart line icon"></i>
-                        <div class="content">Statistics</div>
+                    <h3 class="ui horizontal left aligned divider header">
+                        <i class="check circle outline icon"></i>
+                        Success results
                     </h3>
 
-                    <div class="ui row">&nbsp;</div>
+                    <div class="ui grid">
+                        <div class="twelve wide column">
+                            <table class="ui very compact table">
+                                <tbody>
+                                <tr>
+                                    <td><strong>
+                                        <i class="circle icon green"></i>
+                                        Latest succeeded result</strong></td>
+                                    <td>{% if not last_success %}Never{% else %}
+                                        <a href="{% url 'test' test_uuid=last_success.0 %}">{{ last_success.2 }}</a>
+                                    {% endif %}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>
+                                        <i class="arrow left icon"></i>
+                                        Passed before current:</strong></td>
+                                    <td>{% if not prev_s_result %}Not
+                                        exist{% else %}<a href="
+                                        {% url 'test' test_uuid=prev_s_result.0 %}">
+                                            {{ prev_s_result.2 }}</a>{% endif %}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>
+                                        <i class="arrow right icon"></i>
+                                        Passed after current:</strong></td>
+                                    <td>{% if not next_s_result %}Not
+                                        exist{% else %}<a href="
+                                        {% url 'test' test_uuid=next_s_result.0 %}">
+                                            {{ next_s_result.2 }}</a>{% endif %}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                    <h3 class="ui horizontal left aligned divider header">
+                        <i class="times circle outline icon"></i>
+                        Failed results
+                    </h3>
 
                     <div class="ui grid">
-                        <div class="six wide column">
-                            <div class="ui bulleted list">
-                                <div class="item"><strong>Last success:</strong>
-                                </div>
-                                <div class="item"><strong>Last fail:</strong>
-                                </div>
-                                <div class="item"><strong>Exec. time based on last 3 attempts:</strong></div>
-                            </div>
+                        <div class="twelve wide column">
+
+                            <table class="ui very compact table">
+                                <tbody>
+                                <tr>
+                                    <td><strong>
+                                        <i class="circle icon red"></i>
+                                        Latest failed result</strong></td>
+                                    <td>{% if not last_fail %}Never{% else %}
+                                        <a href="{% url 'test' test_uuid=last_fail.0 %}">{{ last_fail.2 }}</a>
+                                    {% endif %}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>
+                                        <i class="arrow left icon"></i>
+                                        Failed before current:</strong></td>
+                                    <td>{% if not prev_f_result %}Not
+                                        exist{% else %}<a href="
+                                        {% url 'test' test_uuid=prev_f_result.0 %}">
+                                            {{ prev_f_result.2 }}</a>{% endif %}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>
+                                        <i class="arrow right icon"></i>
+                                        Failed after current:</strong></td>
+                                    <td>{% if not next_f_result %}Not
+                                        exist{% else %}<a href="
+                                        {% url 'test' test_uuid=next_f_result.0 %}">
+                                            {{ next_f_result.2 }}</a>{% endif %}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+
                         </div>
-                        <div class="six wide column">
-                            <div class="ui list">
-                                <div class="item">
-                                    {% if not last_success %}Never{% else %}<a href="{% url 'test' test_uuid=last_success.0 %}">
-                                        {{ last_success.2 }}</a>{% endif %}
-                                </div>
-                                <div class="item">
-                                    {% if not last_fail %}Never{% else %}<a href="{% url 'test' test_uuid=last_fail.0 %}">{{ last_fail.2 }}</a>
-                                    {% endif %}
-                                </div>
-                                <div class="item">
-                                    {% if storage_data.get_time_taken_eta is not None %}
-                                        {{ storage_data.get_time_taken_eta }}
-                                    {% else %}
-                                        Data is yet unknown
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
+
 
                     {% if screenshots %}
                     {% if status == 3 or status == 4 or status == 6 %}
                     {% comment %} Screenshots block will not be shown in 'running' test details
                     {% endcomment %}
-                    <div class="ui divider"></div>
 
-                    <h3 class="ui header">
+                    <h3 class="ui horizontal left aligned divider header">
                         <i class="image outline icon"></i>
-                        <div class="content">Screenshots</div>
+                        Screenshots
                     </h3>
-
-                    <div class="ui row">&nbsp;</div>
 
                     <div class="ui grid">
                         <div class="twelve wide column">
@@ -416,26 +441,27 @@
                 </div>
             </div>
 
-            {% if note or bugs.all %}
-            <div class="ui seven wide column">
-                <div class="ui segment">
+
+            <div class="ui eight wide column">
+
+                <div class="ui">
                     {% if note %}
-                        <h3 class="ui header">
+                        <div class="ui">
+                        <h3 class="ui horizontal left aligned divider header">
                             <i class="file alternate outline icon"></i>
-                            <div class="content">Note</div>
+                            Note
                         </h3>
                         <div class="ui row">&nbsp;</div>
                         <div class="ui grid">
                             <div class="sixteen wide column">{{ note|urlize|urlize_target_blank }}</div>
                         </div>
+                        </div>
                     {% endif %}
-                    {% if note and bugs.all %}
-                    <div class="ui divider"></div>
-                    {% endif %}
+                    {% if note %}<p>&nbsp;</p>{% endif %}
                     {% if bugs.all %}
-                        <h3 class="ui header">
+                        <h3 class="ui horizontal left aligned divider header">
                             <i class="bug icon"></i>
-                            <div class="content">Bugs</div>
+                            Bugs
                         </h3>
                         <div class="ui row">&nbsp;</div>
                         <div class="ui grid">
@@ -443,9 +469,34 @@
                                 {% for bug in bugs.all %}<div class="ui label bug">{{ bug.bug }}</div>{% endfor %}</div>
                         </div>
                     {% endif %}
+                    {% if note or bugs.all %}<p>&nbsp;</p>{% endif %}
+                        <h3 class="ui horizontal left aligned divider header">
+                            <i class="chart line icon"></i>
+                            Statistics
+                        </h3>
+
+                        <div class="ui grid">
+                            <div class="twelve wide column">
+                                <table class="ui very compact table">
+                                    <tbody>
+                                    <tr>
+                                        <td><strong>
+                                            Execution time based on last 3 attempts:</strong></td>
+                                        <td>{% if storage_data.get_time_taken_eta is not None %}
+                                            {{ storage_data.get_time_taken_eta }}
+                                        {% else %}
+                                            Data is yet unknown
+                                        {% endif %}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+
+                        </div>
+
                 </div>
             </div>
-            {% endif %}
 
             </div>
 
@@ -465,7 +516,7 @@
 <script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>
 
 <script>
-$('.ui.accordion')
+$('.ui.accordion.path')
   .accordion({
 
       onChanging: function()
@@ -475,6 +526,20 @@ $('.ui.accordion')
           }
           else{
               $('#accordion_caret').attr('class', 'caret up icon')
+              }
+          }
+  }
+)
+$('.ui.accordion.error-log')
+  .accordion({
+
+      onChanging: function()
+      {
+          if($('#accordion_caret_error_log').attr('class') === 'caret up icon') {
+              $('#accordion_caret_error_log').attr('class', 'caret down icon')
+          }
+          else{
+              $('#accordion_caret_error_log').attr('class', 'caret up icon')
               }
           }
   }
@@ -490,9 +555,15 @@ new ClipboardJS('#btn_copy_path');
 </script>
 
 <script>
+new ClipboardJS('#btn_copy_error_log');
+</script>
+
+<script>
 $("#btn_copy_path").on("click", function() {$("#btn_copy_path").transition('pulse');
 });
 $("#btn_copy_method").on("click", function() {$("#btn_copy_method").transition('pulse');
+});
+$("#btn_copy_error_log").on("click", function() {$("#btn_copy_error_log").transition('pulse');
 });
 </script>
 

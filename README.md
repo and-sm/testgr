@@ -19,7 +19,7 @@ On this page you can review status of your test job execution.
 ![Finished_job](https://i.lensdump.com/i/jCCheP.png)
 
 ### Example of finished test:
-![Failed test](https://i.lensdump.com/i/jCCxm1.png)
+![Failed test](https://i.lensdump.com/i/0y0ZCQ.png)
 
 ### Search:
 ![Search](https://i.lensdump.com/i/iUQwLT.png)
@@ -42,6 +42,9 @@ You can start up **Testgr** rapidly using docker-compose:
 git clone https://github.com/and-sm/testgr.git
 cd testgr
 ```
+
+If you are using MySQL - please install **mysqlclient** Python package
+
 2 - 
 Rename **config_example.env** file to **config.env** and configure:
 
@@ -134,6 +137,14 @@ def example():
     pytest.t_screen.append(img)  # You can add screenshot as list item, name will be generated
     img2 = chrome_driver.get_screenshot_as_base64()
     pytest.t_screen.append({"name": "front", "image": img2})  # you can add screenshot as dict item with name
+```
+Do not forget to clear pytest.t_screen before and after each test!
+
+For example use fixture:
+```python
+@pytest.fixture(autouse=True)
+def run_around_tests():
+    pytest.t_screen = []
 ```
 
 #### Nose2:
