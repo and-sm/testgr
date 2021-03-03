@@ -80,6 +80,7 @@ class PytestLoader:
         job_object.save()
 
         # Tests
+        tests_count = 0
         tests = []
         for test_item in self.data['tests']:
             uuid = test_item['uuid']
@@ -110,6 +111,7 @@ class PytestLoader:
                 test_storage_item.save()
 
             tests.append({'test_uuid': uuid, 'status': 1, 'job': job_object.pk, 'test': test_storage_item.pk})
+            tests_count += 1
 
         with connection.cursor() as cursor:
             for test in tests:
@@ -134,7 +136,8 @@ class PytestLoader:
             "start_time": timezone.localtime(unix_time_to_datetime(self.data['startTime']))
                 .strftime('%d-%b-%Y, %H:%M:%S'),
             "tests_not_started": str(tests_not_started),
-            "env": str(env_name)
+            "env": str(env_name),
+            "tests_total_count": str(tests_count)
         })
         if self.data["custom_id"]:
             self.redis.set_value("job_" + self.data["custom_id"], data)
@@ -157,9 +160,13 @@ class PytestLoader:
         try:
             if self.data["custom_id"]:
                 job_object = TestJobs.objects.get(custom_id=self.data['custom_id'])
+                data = self.redis.get_value_from_key_as_str("job_" + self.data['custom_id'])
 
                 # TODO refactor. xdist tests can not be stopped after killing
-                if job_object.tests_in_progress or job_object.tests_not_started:
+                if (int(0 if job_object.tests_passed is None else job_object.tests_passed)
+                    + int(0 if job_object.tests_failed is None else job_object.tests_failed) +
+                    int(0 if job_object.tests_skipped is None else job_object.tests_skipped)) \
+                        < int(data["tests_total_count"]):
                     return "done"
             else:
                 job_object = TestJobs.objects.get(uuid=self.data['job_id'])
