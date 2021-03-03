@@ -33,6 +33,7 @@ class TestJobs(models.Model):
     tests_not_started = models.SmallIntegerField(blank=True, null=True)
     tests_in_progress = models.SmallIntegerField(blank=True, null=True)
     custom_data = models.JSONField(blank=True, null=True)
+    custom_id = models.CharField(max_length=32, blank=True, null=True, db_index=True)
 
     def get_time_taken(self):
         try:

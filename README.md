@@ -1,7 +1,7 @@
 # Testgr
-Web service which provides monitoring and data store for nose2 or Pytest execution results.
+Web service which provides monitoring and data store for nose2 or pytest execution results.
 # How it works
-nose2 and Pytest frameworks have several methods for providing details of test runs and tests before and after test execution. To connect **Testgr** and these frameworks - you need to use [**nose2-rt**](https://github.com/and-sm/nose2rt) or [**pytest-rt**](https://github.com/and-sm/pytest-rt) plugins (depending on your framework).
+nose2 and pytest frameworks have several methods for providing details of test runs and tests before and after test execution. To connect **Testgr** and these frameworks - you need to use [**nose2-rt**](https://github.com/and-sm/nose2rt) or [**pytest-rt**](https://github.com/and-sm/pytest-rt) plugins (depending on your framework).
  **Testgr** service collects all data produced by plugins and store it in the database.
 If some test is in running, passed, failed or skipped state - plugin will send updated data to **Testgr** and user will see test execution status in real-time.
 
@@ -27,8 +27,8 @@ On this page you can review status of your test job execution.
 
 ### Components:
 * Python 3.8.6
-* Django 3.1.5
-* Redis 6.0.9
+* Django 3.1.7
+* Redis 6.0.11
 * SQLite or MySQL 8
 
 ### API plugins setup
@@ -124,7 +124,7 @@ When you see "Congratulations! Your cerfificate and chain have been saved..." - 
 **Backup** your SSL certificates, which can be found in testgr/ssl folder
 
 ### How to send screenshots from test execution to Testgr
-#### Pytest:
+#### pytest:
 Use **list** with ```t_screen``` name as collection of base64 strings.
 
 Example:
