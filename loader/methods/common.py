@@ -3,6 +3,7 @@ import secrets
 import datetime
 import io
 import PIL
+import imghdr
 from PIL import Image
 
 from django.core.files.base import ContentFile
@@ -28,8 +29,7 @@ def save_images(obj, test):
                 try:
                     if isinstance(screenshot, dict):
                         name = screenshot["name"]
-                        image_decoded = base64.b64decode(screenshot["image"])
-                        import imghdr
+                        image_decoded = base64.b64decode(screenshot["image"])   
                         data = ContentFile(image_decoded, name=path + name + ext)
                     # Images as list items: [base64, base64...]
                     else:

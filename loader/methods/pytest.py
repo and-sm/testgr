@@ -1,18 +1,17 @@
-import uuid
 import json
+import uuid
+from statistics import median
 
-from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import connection
+from django.http import HttpResponse
 from django.utils import timezone
 
-from loader.models import TestJobs, Tests, Environments, TestsStorage
-from loader.methods.common import save_images
-from loader.redis import Redis
 from loader.email.email_report import SendJobReport
-
+from loader.methods.common import save_images
+from loader.models import TestJobs, Tests, Environments, TestsStorage
+from loader.redis import Redis
 from tools.tools import unix_time_to_datetime
-from statistics import median
 
 
 class PytestLoader:
@@ -67,12 +66,17 @@ class PytestLoader:
         except:
             custom_data = None
 
+        # If we have job with the same custom id - we should not create any tests, they exists already
+        if self.data['custom_id']:
+            if TestJobs.objects.filter(custom_id=self.data['custom_id']).exists():
+                return "done"
         job_object = TestJobs(uuid=self.data['job_id'],
-                              status=1,
-                              fw_type=2,
-                              start_time=unix_time_to_datetime(self.data['startTime']),
-                              env=env,
-                              custom_data=custom_data)
+                                  status=1,
+                                  fw_type=2,
+                                  start_time=unix_time_to_datetime(self.data['startTime']),
+                                  env=env,
+                                  custom_data=custom_data,
+                                  custom_id=self.data['custom_id'])
         job_object.save()
 
         # Tests
@@ -105,8 +109,8 @@ class PytestLoader:
                                                  test=test_item['nodeid'].split('::')[-1], description=description)
                 test_storage_item.save()
 
-            # Tests for Job
             tests.append({'test_uuid': uuid, 'status': 1, 'job': job_object.pk, 'test': test_storage_item.pk})
+
         with connection.cursor() as cursor:
             for test in tests:
                 cursor.execute("INSERT INTO loader_tests (uuid, status, job_id, test_id)"
@@ -119,7 +123,10 @@ class PytestLoader:
 
         # Redis data
         # We are creating/updating "running_jobs" list in Redis with our new job item
-        job = "job_" + self.data['job_id']
+        if self.data["custom_id"]:
+            job = "job_" + self.data["custom_id"]
+        else:
+            job = "job_" + self.data['job_id']
         self.redis.connect.rpush("running_jobs", job)
         data = str({
             "uuid": self.data["job_id"],
@@ -129,7 +136,10 @@ class PytestLoader:
             "tests_not_started": str(tests_not_started),
             "env": str(env_name)
         })
-        self.redis.set_value("job_" + self.data['job_id'], data)
+        if self.data["custom_id"]:
+            self.redis.set_value("job_" + self.data["custom_id"], data)
+        else:
+            self.redis.set_value("job_" + self.data['job_id'], data)
         self.redis.set_value("update_running_jobs", "1")
 
         return "done"
@@ -145,15 +155,28 @@ class PytestLoader:
         # print(self.data)
 
         try:
-            job_object = TestJobs.objects.get(uuid=self.data['job_id'])
+            if self.data["custom_id"]:
+                job_object = TestJobs.objects.get(custom_id=self.data['custom_id'])
+
+                # TODO refactor. xdist tests can not be stopped after killing
+                if job_object.tests_in_progress or job_object.tests_not_started:
+                    return "done"
+            else:
+                job_object = TestJobs.objects.get(uuid=self.data['job_id'])
+
             if job_object.status == 1:
 
                 # Redis
                 # Remove job uuid from "jobs" key immediately
 
-                job = "job_" + self.data['job_id']
-                self.redis.connect.lrem("running_jobs", 0, job)
-                self.redis.connect.delete("job_" + self.data['job_id'])
+                if self.data["custom_id"]:
+                    job = "job_" + self.data['custom_id']
+                    self.redis.connect.lrem("running_jobs", 0, job)
+                    self.redis.connect.delete("job_" + self.data['custom_id'])
+                else:
+                    job = "job_" + self.data['job_id']
+                    self.redis.connect.lrem("running_jobs", 0, job)
+                    self.redis.connect.delete("job_" + self.data['job_id'])
 
                 failed = job_object.tests_failed
                 not_started = job_object.tests_not_started
@@ -238,39 +261,60 @@ class PytestLoader:
         # print(self.data)
         try:
 
-            # Redis
-            # Job item update
-            data = self.redis.get_value_from_key_as_str("job_" + self.data['job_id'])
-            if data is None:
-                return HttpResponse(status=403)
-            tests_not_started = int(data["tests_not_started"])
-            tests_not_started -= 1
-            data["tests_not_started"] = str(tests_not_started)
-            data = str(data).encode("utf-8")
-            self.redis.set_value("job_" + self.data['job_id'], data)
-
-            job_object = TestJobs.objects.get(uuid=self.data['job_id'])
-            job_object.tests_not_started -= 1
-            if job_object.tests_not_started == 0:
-                job_object.tests_not_started = None
-
-            job_object.tests_in_progress = 1
-
-            job_object.save()
+            if self.data["custom_id"]:
+                job_object = TestJobs.objects.get(custom_id=self.data["custom_id"])
+            else:
+                job_object = TestJobs.objects.get(uuid=self.data['job_id'])
 
             if job_object.status == 1:
                 try:
+
                     test = Tests.objects.get(uuid=self.data['uuid'])
+
+                    if test.status != 1:
+                        return "done"
+
                     test.status = 2
                     test.start_time = unix_time_to_datetime(self.data['startTime'])
                     test.save()
-                    return "done"
+
+                    job_object.tests_not_started -= 1
+
+                    if job_object.tests_not_started == 0:
+                        job_object.tests_not_started = None
+
+                    job_object.tests_in_progress = 1
+
+                    job_object.save()
+
+                    # Redis
+                    # Job item update
+
+                    if self.data['custom_id']:
+                        data = self.redis.get_value_from_key_as_str("job_" + self.data['custom_id'])
+                    else:
+                        data = self.redis.get_value_from_key_as_str("job_" + self.data['job_id'])
+
+                    if data is None:
+                        return HttpResponse(status=403)
+
+                    tests_not_started = int(data["tests_not_started"])
+                    tests_not_started -= 1
+                    data["tests_not_started"] = str(tests_not_started)
+                    data = str(data).encode("utf-8")
+
+                    if self.data["custom_id"]:
+                        self.redis.set_value("job_" + self.data["custom_id"], data)
+                    else:
+                        self.redis.set_value("job_" + self.data['job_id'], data)
+
+                    return "done"  
                 except ObjectDoesNotExist:
-                    return HttpResponse(status=403)
+                    return HttpResponse(status=200)
             else:
-                return HttpResponse(status=403)
+                return HttpResponse(status=200)
         except ObjectDoesNotExist:
-            return HttpResponse(status=403)
+            return HttpResponse(status=200)
 
     @classmethod
     def start_test(cls, data):
@@ -283,14 +327,22 @@ class PytestLoader:
         # print(self.data)
         try:
 
-            # Redis
-            # Job item update
+            if self.data["custom_id"]:
+                job_object = TestJobs.objects.get(custom_id=self.data["custom_id"])
+            else:
+                job_object = TestJobs.objects.get(uuid=self.data['job_id'])
 
-            data = self.redis.get_value_from_key_as_str("job_" + self.data['job_id'])
-            if data is None:
-                return HttpResponse(status=403)
-            job_object = TestJobs.objects.get(uuid=self.data['job_id'])
             if job_object.status == 1:
+
+                # Redis
+                # Job item update
+                if self.data['custom_id']:
+                    data = self.redis.get_value_from_key_as_str("job_" + self.data['custom_id'])
+                else:
+                    data = self.redis.get_value_from_key_as_str("job_" + self.data['job_id'])
+                if data is None:
+                    return HttpResponse(status=403)
+
                 try:
                     test = Tests.objects.get(uuid=self.data['uuid'])
                     if self.data['status'] == "passed":
@@ -329,7 +381,11 @@ class PytestLoader:
                     job_object.tests_in_progress = None
 
                     data = str(data).encode("utf-8")
-                    self.redis.set_value("job_" + self.data['job_id'], data)
+
+                    if self.data["custom_id"]:
+                        self.redis.set_value("job_" + self.data['custom_id'], data)
+                    else:
+                        self.redis.set_value("job_" + self.data['job_id'], data)
 
                     job_object.save()
 
@@ -368,11 +424,11 @@ class PytestLoader:
                         return "done"
 
                 except ObjectDoesNotExist:
-                    return HttpResponse(status=403)
+                    return HttpResponse(status=200)
             else:
-                return HttpResponse(status=403)
+                return HttpResponse(status=200)
         except ObjectDoesNotExist:
-            return HttpResponse(status=403)
+            return HttpResponse(status=200)
 
     @classmethod
     def stop_test(cls, data):

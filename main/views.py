@@ -348,12 +348,18 @@ def job_force_stop(request):
 
     # Redis
     # Remove job uuid from "running_jobs" key immediately
-    r = Redis()
-    job = "job_" + uuid
-    r.connect.lrem("running_jobs", 0, job)
-    r.connect.delete("job_" + uuid)
-
     job_object = TestJobs.objects.get(uuid=uuid)
+
+    r = Redis()
+    if job_object.custom_id:
+        job = "job_" + job_object.custom_id
+        r.connect.lrem("running_jobs", 0, job)
+        r.connect.delete(job)
+    else:
+        job = "job_" + uuid
+        r.connect.lrem("running_jobs", 0, job)
+        r.connect.delete(job)
+
     job_object.status = 4
     job_object.stop_time = unix_time_to_datetime(int(datetime.now(tz=timezone_native.utc).timestamp() * 1000))
     job_object.time_taken = job_object.stop_time - job_object.start_time
