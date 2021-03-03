@@ -308,7 +308,7 @@ class PytestLoader:
                     else:
                         self.redis.set_value("job_" + self.data['job_id'], data)
 
-                    return "done"  TODO Uncomment for production
+                    return "done"  
                 except ObjectDoesNotExist:
                     return HttpResponse(status=200)
             else:
