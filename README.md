@@ -26,7 +26,7 @@ On this page you can review status of your test job execution.
 
 
 ### Components:
-* Python 3.8.6
+* Python 3.8.8
 * Django 3.1.7
 * Redis 6.0.11
 * SQLite or MySQL 8

@@ -14,7 +14,7 @@ services:
 
   nginx:
     build: .
-    image: umputun/nginx-le:latest
+    image: umputun/nginx-le@sha256:50d45208312e0927a460e6067328007e8fce0331dbde7f56af0aae7a0f578123
     hostname: nginx
     restart: always
     container_name: nginx
