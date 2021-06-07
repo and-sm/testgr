@@ -42,14 +42,14 @@ def filter_data(request):
     if request.POST:
         environments = request.POST.get('environments')
         tests = request.POST.get('tests')
-        c_data_k = request.POST.get('c_data_k')
-        c_data_v = request.POST.get('c_data_v')
+        c_data_k = request.POST.get('c_data_k').strip()
+        c_data_v = request.POST.get('c_data_v').strip()
 
     else:
         environments = request.GET.get('env', '')
         tests = request.GET.get('test', '')
-        c_data_k = request.GET.get('custom.key')
-        c_data_v = request.GET.get('custom.value')
+        c_data_k = request.GET.get('custom.key').strip()
+        c_data_v = request.GET.get('custom.value').strip()
 
     args_list = []
     if environments and environments != 'all':
@@ -92,7 +92,7 @@ def filter_data(request):
     for each_arg in args_list:
         args.add(each_arg, conn_type='AND')
 
-    query_set = TestJobs.objects.filter(*(args,)).order_by('-stop_time').exclude(status=1)
+    query_set = TestJobs.objects.filter(*(args,)).order_by('-stop_time')
     # will execute, query_set.filter(Q1 | Q2 | Q3)
     # comma , in last after args is mandatory to pass as args here
 
