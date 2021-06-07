@@ -291,6 +291,75 @@ $('.ui.dropdown')
 
 <script>
 
+function getUrlVars()
+{
+    let vars = {};
+    let parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = value;
+    });
+    return vars;
+
+}
+
+function generateTable(environments, tests, c_data_k, c_data_v) {
+        $('#filter_results_table').show().DataTable( {
+            lengthMenu: [[10, 20, 50], [10, 20, 50]],
+            sorting: false,
+            ordering: false,
+            pageLength: 10,
+            destroy: true,
+            ajax: {
+                "type" : "POST",
+                "url" : "{% url 'filter_data' %}",
+                "data": {
+                    'environments': environments,
+                    'tests': tests,
+                    'c_data_k': c_data_k,
+                    'c_data_v': c_data_v,
+                },
+                "dataSrc": function ( json ) {
+                    return json.data;
+                }
+            },
+            columns: [
+                { "data": "Stop DateTime" },
+                { "data": "Time Taken" },
+                { "data": "Environment" },
+                { "data": "Tests" }
+            ],
+            "rowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                let id = aData.uuid;
+                $(nRow).click(function() { window.open("/job/" + id + "/", "_blank")})
+            },
+            columnDefs: [
+                { targets: 'no-sort',
+                    orderable: false
+                }
+            ]
+        } );
+}
+
+$(document).ready(function() {
+    let query = getUrlVars();
+        let c_data_k = ""
+        let c_data_v = ""
+        let environments = ""
+        let tests = ""
+        if("custom.key" in query){
+            c_data_k = query["custom.key"]
+        }
+        if("custom.value" in query){
+            c_data_v = query["custom.value"]
+        }
+        if("env" in query){
+            environments = query["rnv"]
+        }
+        if("test" in query){
+            tests = query["test"]
+        }
+        generateTable(environments, tests, c_data_k, c_data_v)
+});
+
 $('#filter_btn').click(function(event){
 
 
@@ -301,41 +370,7 @@ $('#filter_btn').click(function(event){
     let c_data_k = $('input[name=c_data_k]').val();
     let c_data_v = $('input[name=c_data_v]').val();
 
-    let table = $('#filter_results_table').show().DataTable( {
-        lengthMenu: [[10, 20, 50], [10, 20, 50]],
-        sorting: false,
-        ordering: false,
-        pageLength: 10,
-        destroy: true,
-        ajax: {
-            "type" : "POST",
-            "url" : "{% url 'filter_data' %}",
-            "data": {
-                'environments': environments,
-                'tests': tests,
-                'c_data_k': c_data_k,
-                'c_data_v': c_data_v,
-            },
-            "dataSrc": function ( json ) {
-                return json.data;
-            }
-        },
-        columns: [
-            { "data": "Stop DateTime" },
-            { "data": "Time Taken" },
-            { "data": "Environment" },
-            { "data": "Tests" }
-        ],
-        "rowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-            let id = aData.uuid;
-            $(nRow).click(function() { window.open("/job/" + id + "/", "_blank")})
-        },
-        columnDefs: [
-            { targets: 'no-sort',
-                orderable: false
-            }
-        ]
-    } );
+    generateTable(environments, tests, c_data_k, c_data_v)
 
 })
 </script>

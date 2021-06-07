@@ -39,10 +39,17 @@ def search(request):
 @csrf_exempt
 def filter_data(request):
 
-    environments = request.POST.get('environments')
-    tests = request.POST.get('tests')
-    c_data_k = request.POST.get('c_data_k')
-    c_data_v = request.POST.get('c_data_v')
+    if request.POST:
+        environments = request.POST.get('environments')
+        tests = request.POST.get('tests')
+        c_data_k = request.POST.get('c_data_k')
+        c_data_v = request.POST.get('c_data_v')
+
+    else:
+        environments = request.GET.get('env', '')
+        tests = request.GET.get('test', '')
+        c_data_k = request.GET.get('custom.key')
+        c_data_v = request.GET.get('custom.value')
 
     args_list = []
     if environments and environments != 'all':
@@ -127,4 +134,5 @@ def filter_data(request):
 
     test_data = {"data": datatable_dict}
 
-    return JsonResponse(test_data)
+    if request.POST:
+        return JsonResponse(test_data)
