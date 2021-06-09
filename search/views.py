@@ -92,7 +92,7 @@ def filter_data(request):
     for each_arg in args_list:
         args.add(each_arg, conn_type='AND')
 
-    query_set = TestJobs.objects.filter(*(args,)).order_by('-stop_time')
+    query_set = TestJobs.objects.filter(*(args,)).order_by('-id')
     # will execute, query_set.filter(Q1 | Q2 | Q3)
     # comma , in last after args is mandatory to pass as args here
 
@@ -128,6 +128,12 @@ def filter_data(request):
                     + str(item.tests_not_started) + '</a>'
 
         uuid = item.uuid
+
+        if stop_time is None:
+            stop_time = "N/A"
+
+        if time_taken is None:
+            time_taken = "N/A"
 
         datatable_dict.append({'Stop DateTime': stop_time, 'Time Taken': time_taken,
                                'Environment': env, 'Tests': tests, 'uuid': uuid})

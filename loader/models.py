@@ -39,13 +39,15 @@ class TestJobs(models.Model):
         try:
             obj = normalize_time(self.time_taken)
             return obj
-        except ObjectDoesNotExist:
+        except (ObjectDoesNotExist, AttributeError):
             return None
 
     def get_start_time(self):
         return timezone.localtime(self.start_time).strftime('%d-%b-%Y, %H:%M:%S')
 
     def get_stop_time(self):
+        if self.stop_time is None:
+            return None
         return timezone.localtime(self.stop_time).strftime('%d-%b-%Y, %H:%M:%S')
 
     def get_env(self):

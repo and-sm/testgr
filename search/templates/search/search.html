@@ -357,7 +357,9 @@ $(document).ready(function() {
         if("test" in query){
             tests = query["test"]
         }
-        generateTable(environments, tests, c_data_k, c_data_v)
+        if ("custom.key" in query || "custom.value" in query || "env" in query || "test" in query){
+            generateTable(environments, tests, c_data_k, c_data_v)
+        }
 });
 
 $('#filter_btn').click(function(event){
