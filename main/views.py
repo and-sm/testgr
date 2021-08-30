@@ -103,6 +103,9 @@ def job(request, job_uuid):
         time_taken = None
     env = job_object.get_env()
 
+    if job_object.attachments:
+        attachments = job_object.attachments
+
     status = job_object.status
     tests = job_object.tests.select_related('test')
 
@@ -141,7 +144,8 @@ def job(request, job_uuid):
                                              'aborted': aborted,
                                              'fw': fw,
                                              'running_jobs_count': running_jobs_count,
-                                             'custom_data': custom_data
+                                             'custom_data': custom_data,
+                                             'attachments': attachments
                                              # 'tests_percentage': job_object.tests_percentage()
                                              })
 

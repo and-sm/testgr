@@ -47,6 +47,11 @@
         font-size: medium;
     }
 
+    .upload{
+        white-space: normal;
+        word-wrap: break-word
+    }
+
 </style>
 
 </head>
@@ -119,9 +124,13 @@
         <p><strong>Time Taken: </strong><br /><span id="job_time_taken">{% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}</span></p>
         <p><strong>Runner: </strong>
         {% if fw == 1 %}nose2{% elif fw == 2 %}pytest{% else %}unknown{% endif %}</p>
+        {% if attachments %}
+        <div><h5>Attachments:</h5></div>
+            <p class="upload"><a href="{{ attachments.file.url }}">{{ attachments.get_file_name }}</a></p>
+        {% endif %}
         {% if status != 1 %}
-            <div><h5>Chart:</h5></div>
-            <div><canvas id="myChart" width="250" height="250"></canvas></div>
+         <div><h5>Chart:</h5></div>
+         <div><canvas id="myChart" width="250" height="250"></canvas></div>
         {% endif %}
     </div>
 

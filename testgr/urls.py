@@ -17,8 +17,16 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.urls import path
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib.staticfiles.urls import static
+from django.views.static import serve
+
+
+@login_required
+def protected_serve(request, path, document_root=None, show_indexes=False):
+    return serve(request, path, document_root, show_indexes)
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,6 +36,8 @@ urlpatterns = [
     url(r'^', include('management.urls')),
     url(r'^', include('history.urls')),
     url(r'^', include('search.urls')),
+    url(r'^', include('upload.urls')),
+    url(r'^%s(?P<path>.*)$' % settings.MEDIA_URL[1:], protected_serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

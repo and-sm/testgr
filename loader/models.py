@@ -1,3 +1,5 @@
+import os
+
 from django.db import models
 from tools.tools import normalize_time
 from django.core.exceptions import ObjectDoesNotExist
@@ -17,6 +19,13 @@ class Environments(models.Model):
             super(Environments, self).save(*args, **kwargs)
 
 
+class Files(models.Model):
+    file = models.FileField(null=True, blank=True, upload_to="uploads/%Y/%m/%d/")
+
+    def get_file_name(self):
+        return os.path.basename(self.file.name)
+
+
 class TestJobs(models.Model):
     uuid = models.CharField(max_length=255, db_index=True)
     # status: 1 "In progress", 2 - "Passed", 3 - "Failed", 4 - "Stopped"
@@ -34,6 +43,7 @@ class TestJobs(models.Model):
     tests_in_progress = models.SmallIntegerField(blank=True, null=True)
     custom_data = models.JSONField(blank=True, null=True)
     custom_id = models.CharField(max_length=32, blank=True, null=True, db_index=True)
+    attachments = models.ForeignKey(Files, on_delete=models.CASCADE, blank=True, null=True, related_name='attachments')
 
     def get_time_taken(self):
         try:
@@ -207,4 +217,5 @@ class Screenshots(models.Model):
     thumbnail = models.ImageField(null=True, blank=True, upload_to="screenshots")
     created_at = models.DateTimeField(auto_now_add=True)
     test = models.ForeignKey(Tests, on_delete=models.CASCADE, related_name='test_parent')
+
 
