@@ -103,6 +103,7 @@ def job(request, job_uuid):
         time_taken = None
     env = job_object.get_env()
 
+    attachments = None
     if job_object.attachments:
         attachments = job_object.attachments
 
