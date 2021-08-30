@@ -1,5 +1,5 @@
 # Pull Python base image
-FROM python:3.8.8
+FROM python:3.9.6
 
 # Set environment varibles
 ENV PYTHONDONTWRITEBYTECODE 1
