@@ -767,14 +767,14 @@
         <div class="ui positive right labeled icon button" id="confirm_delete_job" data-id="{{ uuid }}">
             Delete<i class="checkmark icon"></i></div>
     </div>
-  </div>
-  <div class="ui second coupled mini modal">
+</div>
+<div class="ui second coupled mini modal">
     <div class="content">
         <div class="ui center aligned grid">
             <div class="ui row"><div class="column"><h3>Completed!</h3></div></div>
         </div>
     </div>
-  </div>
+</div>
 
 <div class="ui tiny modal" id="add_note">
   <div class="header">
@@ -842,7 +842,7 @@
 </body>
 
 <script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.8/dist/semantic.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
 
 <script>
@@ -897,9 +897,8 @@ $(document).ready(function() {
 <script type="application/javascript" id="job_tests_details" data-job-uuid="{{ uuid }}"
         src="{% static 'js/testgr/main/job_tests_details.js' %}">
 </script>
+
 <script>
-
-
 $("#delete_job").click(function () {
 $('.coupled.modal')
   .modal({
@@ -919,6 +918,7 @@ $('.first.modal')
   .modal('show')
 });
 </script>
+
 <script>
  $("#confirm_delete_job").click(function () {
     var job_id = $(this).data("id");
@@ -930,6 +930,7 @@ $('.first.modal')
     });
 });
 </script>
+
 <script>
 $("#reload_after_delete").click(function () {
 window.location.replace("{% url 'index' %}");

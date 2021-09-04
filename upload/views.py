@@ -10,25 +10,7 @@ from django.http import JsonResponse
 from loader.models import Files
 from loader.models import TestJobs, Tests
 from django.core.exceptions import ObjectDoesNotExist
-
-
-
-# TODO config
-mime_types = ["application/x-7z-compressed",
-              "application/zip",
-              "application/vnd.ms-excel",
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-              "application/x-tar",
-              "application/pdf",
-              "application/json",
-              "application/gzip",
-              "text/csv",
-              "text/plain",
-              "text/html",
-              "text/xml",
-              "application/x-bzip2",
-              "application/x-bzip",
-              "application/xml"]
+from django.conf import settings
 
 
 class UploadForJobView(APIView):
@@ -52,7 +34,7 @@ class UploadForJobView(APIView):
             mime_type = magic.from_buffer(file_obj.read(1024), mime=True)
             file_obj.seek(initial_pos)
 
-            if mime_type not in mime_types:
+            if mime_type not in settings.UPLOAD_MIME_TYPES:
                 return JsonResponse({"detail": "Incorrect file type"}, status=400)
 
             instance = Files(file=file_obj)
@@ -88,7 +70,7 @@ class UploadForTestView(APIView):
             mime_type = magic.from_buffer(file_obj.read(1024), mime=True)
             file_obj.seek(initial_pos)
 
-            if mime_type not in mime_types:
+            if mime_type not in settings.UPLOAD_MIME_TYPES:
                 return JsonResponse({"detail": "Incorrect file type"}, status=400)
 
             instance = Files(file=file_obj)
