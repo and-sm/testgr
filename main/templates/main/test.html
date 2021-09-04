@@ -412,6 +412,22 @@
 
                     </div>
 
+                    {% if files %}
+                    <h3 class="ui horizontal left aligned divider header">
+                        <i class="paperclip icon"></i>
+                        Attachments
+                    </h3>
+                    <div class="ui grid">
+                        <div class="twelve wide column">
+                            {% for item in files %}
+                                <a href="{{ item.file.url }}">{{ item.get_file_name }}</a><br/>
+                            {% endfor %}
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+
 
                     {% if screenshots %}
                     {% if status == 3 or status == 4 or status == 6 %}
@@ -431,7 +447,6 @@
                                     <img class="ui middle aligned image" src="{{ image.thumbnail.url }}">
                                     &nbsp;&nbsp;&nbsp;<span>{{ image.name }}</span>
                                 </a></p>
-                            <div class="ui divider"></div>
                             {% endfor %}
                         </div>
                     </div>

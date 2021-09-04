@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.authentication import SessionAuthentication
 from loader.models import Environments, TestJobs, TestsStorage, Bugs
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 from api.serializers import EnvironmentsSerializer, TestsStorageSerializer, BugsSerializer
 from django.http import Http404
 
@@ -68,6 +70,58 @@ class Job(APIView):
         else:
             return Response(status=status.HTTP_403_FORBIDDEN)
         return Response(status=status.HTTP_200_OK)
+
+
+class Users(APIView):
+    authentication_classes = [SessionAuthentication, IsAdminUser]
+    permission_classes = (IsAuthenticated, )
+
+    def get_object(self, pk):
+        try:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise Http404
+
+    def delete(self, request, pk):
+        user = self.get_object(pk=pk)
+        if request.user.pk == user.pk:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if request.user.is_superuser:
+            user.delete()
+        elif request.user.is_staff:
+            if user.is_superuser:
+                return Response(status=status.HTTP_403_FORBIDDEN)
+            user.delete()
+        else:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        return Response(status=status.HTTP_200_OK)
+
+
+class UsersRegenerateToken(APIView):
+    authentication_classes = [SessionAuthentication, IsAdminUser]
+    permission_classes = (IsAuthenticated, )
+
+    def get_object(self, pk):
+        try:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        user = self.get_object(pk=pk)
+        if request.user.is_superuser:
+            old_token = Token.objects.get(user=user)
+            old_token.delete()
+            new_token = Token.objects.create(user=user)
+        elif request.user.is_staff:
+            if user.is_superuser:
+                return Response(status=status.HTTP_403_FORBIDDEN)
+            old_token = Token.objects.get(user=user)
+            old_token.delete()
+            new_token = Token.objects.create(user=user)
+        else:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        return Response(status=status.HTTP_200_OK, data={"token": str(new_token)})
 
 
 class TestsStorageItem(APIView):

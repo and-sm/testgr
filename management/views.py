@@ -6,7 +6,8 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-from .forms import AddUserForm
+from rest_framework.authtoken.models import Token
+from .forms import AddUserForm, EditUserForm
 from helpers import helpers
 import requests
 
@@ -22,6 +23,7 @@ def main(request):
 
 
 @login_required()
+@staff_member_required
 def about(request):
 
     version = "1.12.0"
@@ -45,6 +47,11 @@ def about(request):
 @staff_member_required
 def users(request):
     users = User.objects.all()
+
+    # Use if we have users without token
+    for user in users:
+        Token.objects.get_or_create(user=user)
+
     # Running jobs count
     running_jobs_count = helpers.running_jobs_count()
     return render(request, "management/users.html", {"users": users,
@@ -79,12 +86,56 @@ def users_add(request):
             user_obj = User.objects.create(username=username[0], password=password[0], is_staff=is_staff)
             user_obj.set_password(password[0])
             user_obj.save()
+            Token.objects.create(user=user_obj)
             return HttpResponseRedirect('/management/users')
     else:
         form = AddUserForm()
 
     return render(request, 'management/users_add.html', {'form': form,
                                                          'running_jobs_count': running_jobs_count})
+
+
+@login_required()
+@staff_member_required
+def users_edit(request, pk):
+
+    # Running jobs count
+    running_jobs_count = helpers.running_jobs_count()
+
+    # User
+    user = User.objects.get(pk=pk)
+
+    if request.method == 'POST':
+        form = EditUserForm(request.POST)
+
+        if form.is_valid():
+            if form.cleaned_data.get("password"):
+                password = form.cleaned_data["password"],
+                is_staff = form.cleaned_data["staff"]
+                try:
+                    validate_password(password[0])
+                    form.check_password()
+                except ValidationError as e:
+                    form.add_error('password', e)
+                    return render(request, 'management/users_edit.html', {'form': form,
+                                                                         'running_jobs_count': running_jobs_count})
+                user.set_password(password[0])
+                user.is_staff = is_staff
+                user.save()
+                return HttpResponseRedirect('/management/users')
+            else:
+                is_staff = form.cleaned_data["staff"]
+                user.is_staff = is_staff
+                user.save()
+                return HttpResponseRedirect('/management/users')
+
+    else:
+        form = EditUserForm()
+
+    return render(request, 'management/users_edit.html',
+                  {'form': form,
+                   'user': user,
+                    'running_jobs_count': running_jobs_count})
 
 
 

@@ -58,12 +58,13 @@
     </div>
 
     <div class="eleven wide column">
-        <h3>Add user</h3>
+        <h3>Edit user {{ user.username }}</h3>
         <div class="ui divider"></div>
 
     <div class="ui grid">
     <div class="six wide column">
-
+    If you do not want to change user password - leave blank password fields.
+    <p>&nbsp;</p>
         {% if form.errors %}
             {% for field in form %}
                 {% for error in field.errors %}
@@ -82,10 +83,6 @@
         <form method="post" class="ui form">
             {% csrf_token %}
             <div class="field">
-                <label>{{ form.username.label }}</label>
-                {{ form.username }}
-            </div>
-            <div class="field">
                 <label>{{ form.password.label }}</label>
                 {{ form.password }}
             </div>
@@ -95,11 +92,12 @@
             </div>
             <div class="field">
             <div class="ui checkbox">
-                {{ form.staff }}
-                <label>{{ form.staff.label }}</label>
+
+              <input type="checkbox" name="staff" id="id_staff" {% if user.is_staff %} checked{% endif %}>
+            <label for="id_staff">Staff permissions</label>
             </div>
             </div>
-            <input type="submit" class="ui button" value="Submit">
+            <input type="submit" class="ui button" value="Update">
         </form>
     </div>
 
