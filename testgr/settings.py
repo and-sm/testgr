@@ -208,3 +208,6 @@ TESTGR_URL = os.getenv('TESTGR_URL')
 
 # Authentication
 LOGIN_URL = "/login"
+
+UPLOAD_MIME_TYPES = os.getenv('UPLOAD_MIME_TYPES')
+
