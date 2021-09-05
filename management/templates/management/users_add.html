@@ -117,66 +117,7 @@
 </body>
 
 <script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.js"></script>
-
-<script>
-$("div[data-create-btn]").click(function () {
-    var button_id = $(this).data("create-btn");
-    $(this).before("<input type=\"text\" data-create-input=" + button_id + " placeholder=\" \"/>");
-    $(this).after("<div class=\"ui button\" data-save-btn=" + button_id + ">Rename</div>");
-    $(this).attr( "data-create-btn-to-delete", "0" );
-    $(this).removeAttr("data-create-btn");
-    $("div[data-create-btn-to-delete]").remove();
-    $("div[data-save-btn]").click(function () {
-        var new_name = $("input[data-create-input=" + button_id + "]").val();
-        $.ajax({
-            url: "/api/environment/" + button_id + "/",
-            type: "POST",
-            data: {'id': button_id, 'new_name': new_name},
-            success : function() {
-                alert("Saved!");
-                location.reload();
-            }
-        });
-    });
-})
-</script>
-<script>
-$("div[data-rename-btn]").click(function () {
-    var button_id = $(this).data("rename-btn");
-    var new_name = $("input[data-rename-input=" + button_id + "]").val();
-    $.ajax({
-        url: "/api/environment/" + button_id + "/",
-        type : "POST",
-        data: {'id': button_id, 'new_name': new_name},
-        success : function() {
-            alert("Saved!");
-            location.reload();
-        }
-    });
-});
-</script>
-<script>
-$("div[data-delete-btn]").click(function () {
-    var button_id = $(this).data("delete-btn");
-    $.ajax({
-        url: "/api/environment/" + button_id + "/",
-        type : "POST",
-        data: {'id': button_id, 'delete': 'true'},
-        success : function() {
-            alert("Deleted!");
-            location.reload();
-        }
-    });
-});
-</script>
-
-<script>
-$('.ui.checkbox')
-  .checkbox()
-;
-</script>
-
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.8/dist/semantic.min.js"></script>
 <script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>
 
 </html>

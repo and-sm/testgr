@@ -1,3 +1,5 @@
+import os
+
 from django.db import models
 from tools.tools import normalize_time
 from django.core.exceptions import ObjectDoesNotExist
@@ -195,6 +197,15 @@ class Tests(models.Model):
             return None
 
 
+class Files(models.Model):
+    file = models.FileField(null=True, blank=True, upload_to="uploads/%Y/%m/%d/")
+    job = models.ForeignKey(TestJobs, on_delete=models.RESTRICT, blank=True, null=True, related_name='jobs')
+    test = models.ForeignKey(Tests, on_delete=models.RESTRICT, blank=True, null=True, related_name='tests')
+
+    def get_file_name(self):
+        return os.path.basename(self.file.name)
+
+
 class Bugs(models.Model):
     bug = models.CharField(max_length=128, blank=True, null=True)
     test = models.ForeignKey(TestsStorage, on_delete=models.CASCADE, related_name='bugs')
@@ -207,4 +218,5 @@ class Screenshots(models.Model):
     thumbnail = models.ImageField(null=True, blank=True, upload_to="screenshots")
     created_at = models.DateTimeField(auto_now_add=True)
     test = models.ForeignKey(Tests, on_delete=models.CASCADE, related_name='test_parent')
+
 

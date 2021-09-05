@@ -47,6 +47,11 @@
         font-size: medium;
     }
 
+    .upload{
+        white-space: normal;
+        word-wrap: break-word
+    }
+
 </style>
 
 </head>
@@ -119,9 +124,17 @@
         <p><strong>Time Taken: </strong><br /><span id="job_time_taken">{% if time_taken is not None %}{{ time_taken }}{% else %}Pending...{% endif %}</span></p>
         <p><strong>Runner: </strong>
         {% if fw == 1 %}nose2{% elif fw == 2 %}pytest{% else %}unknown{% endif %}</p>
+        {% if files %}
+        <div><h5>Files:</h5></div>
+            <p class="upload">
+            {% for item in files %}
+            <a href="{{ item.file.url }}">{{ item.get_file_name }}</a><br/>
+            {% endfor %}
+            </p>
+        {% endif %}
         {% if status != 1 %}
-            <div><h5>Chart:</h5></div>
-            <div><canvas id="myChart" width="250" height="250"></canvas></div>
+         <div><h5>Chart:</h5></div>
+         <div><canvas id="myChart" width="250" height="250"></canvas></div>
         {% endif %}
     </div>
 
@@ -754,14 +767,14 @@
         <div class="ui positive right labeled icon button" id="confirm_delete_job" data-id="{{ uuid }}">
             Delete<i class="checkmark icon"></i></div>
     </div>
-  </div>
-  <div class="ui second coupled mini modal">
+</div>
+<div class="ui second coupled mini modal">
     <div class="content">
         <div class="ui center aligned grid">
             <div class="ui row"><div class="column"><h3>Completed!</h3></div></div>
         </div>
     </div>
-  </div>
+</div>
 
 <div class="ui tiny modal" id="add_note">
   <div class="header">
@@ -829,8 +842,8 @@
 </body>
 
 <script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.8/dist/semantic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
 
 <script>
     let passed = {{ passed }};
@@ -860,16 +873,15 @@ $(document).ready(function() {
         type: 'doughnut',
         data: data,
         options: {
+            plugins: {
+                legend: {
+                    display: false,
+                }
+            },
             animation: {
                 duration: 0
             },
             responsive: false,
-            legend: {
-                display: false,
-                labels: {
-                    fontColor: 'rgb(255, 99, 132)'
-                }
-            }
         }
     });
 });
@@ -884,9 +896,8 @@ $(document).ready(function() {
 <script type="application/javascript" id="job_tests_details" data-job-uuid="{{ uuid }}"
         src="{% static 'js/testgr/main/job_tests_details.js' %}">
 </script>
+
 <script>
-
-
 $("#delete_job").click(function () {
 $('.coupled.modal')
   .modal({
@@ -906,6 +917,7 @@ $('.first.modal')
   .modal('show')
 });
 </script>
+
 <script>
  $("#confirm_delete_job").click(function () {
     var job_id = $(this).data("id");
@@ -917,6 +929,7 @@ $('.first.modal')
     });
 });
 </script>
+
 <script>
 $("#reload_after_delete").click(function () {
 window.location.replace("{% url 'index' %}");

@@ -8,6 +8,8 @@ urlpatterns = [
     path('api/tstorage/<pk>/', views.TestsStorageItem.as_view()),
     path('api/bugs/<pk>/', views.BugItem.as_view()),
     path('api/bugs/change/<pk>/', views.BugsManagement.as_view()),
+    path('api/user/<pk>/', views.Users.as_view()),
+    path('api/user/<pk>/regenerate-token', views.UsersRegenerateToken.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

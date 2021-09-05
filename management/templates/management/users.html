@@ -62,18 +62,19 @@
         <div class="ui divider"></div>
 
         <a href="{% url 'users_add' %}">
-            <button class="ui basic button">
+            <button class="ui green button">
                 <i class="icon user"></i>
                 Add User
             </button>
         </a>
-
+        <p>&nbsp;</p>
         <table class="ui very basic collapsing celled table">
             <thead>
             <tr>
                 <th>Username</th>
                 <th>Type</th>
-               {% comment %} <th>Actions</th> {% endcomment %}
+                <th>Regenerate token</th>
+                <th>Delete user</th>
             </tr></thead>
             <tbody>
             {% for user in users %}
@@ -81,7 +82,19 @@
                 <td>
                     <h4 class="ui image header">
                         <div class="content">
+                            {% if request.user.is_superuser %}
+                            <a href="{% url 'users_edit' user.pk %}">
                             {{ user.username }}
+                            </a>
+                            {% elif request.user.is_staff %}
+                            {% if user.is_superuser %}
+                            {{ user.username }}
+                            {% else %}
+                            <a href="{% url 'users_edit' user.pk %}">
+                            {{ user.username }}
+                            </a>
+                            {% endif %}
+                            {% endif %}
                         </div>
                     </h4>
                 </td>
@@ -98,23 +111,40 @@
                         </div>
                     </h4>
                 </td>
-                {% comment %}
+                <td class="ui center aligned">
+                    {% if request.user.is_superuser %}
+                    <button class="ui icon button" data-reload-token-btn="{{ user.pk }}">
+                        <i class="redo alternate icon"></i>
+                    </button>
+                    {% elif request.user.is_staff %}
+                    <button class="ui icon button" {% if user.is_superuser %}disabled{% endif %}
+                            data-reload-token-btn="{{ user.pk }}">
+                        <i class="redo alternate icon"></i>
+                    </button>
+                    {% endif %}
+                </td>
                 <td>
                     <h4 class="ui image header">
                         <div class="field">
                             <div class="ui action input">
                             {% if request.user.is_superuser %}
-                                <div class="ui button {% if user.is_superuser %}disabled{% endif %}"
-                                     data-create-btn="{{ user.pk }}">Delete</div>
+                                {% if request.user != user %}
+                                <div class="ui button" data-delete-btn="{{ user.pk }}">Delete</div>
+                                {% else %}
+                                <div class="ui button disabled">Delete</div>
+                                {% endif %}
                             {% elif request.user.is_staff %}
-                                <div class="ui button {% if user.is_staff %}disabled{% endif %}"
-                                     data-create-btn="{{ user.pk }}">Delete</div>
+                                {% if request.user != user %}
+                                <div class="ui button {% if user.is_superuser %}disabled{% endif %}"
+                                     data-delete-btn="{{ user.pk }}">Delete</div>
+                                {% else %}
+                                <div class="ui button disabled">Delete</div>
+                                {% endif %}
                             {% endif %}
                             </div>
                         </div>
                     </h4>
                 </td>
-                {% endcomment %}
             </tr>
             {% endfor %}
             </tbody>
@@ -125,7 +155,108 @@
     <div class="one wide column">
     </div>
 
+<div class="ui first coupled mini modal">
+    <div class="header">
+     Delete user
+    </div>
+    <div class="image content">
+      <div class="description">
+        Are you sure that you want to delete user?
+      </div>
+    </div>
+    <div class="actions">
+        <div class="ui negative button">Cancel</div>
+        <div class="ui positive right labeled icon button" id="confirm_delete_user">
+            Delete<i class="checkmark icon"></i></div>
+    </div>
 </div>
+<div class="ui second coupled mini modal">
+    <div class="content">
+        <div class="ui center aligned grid">
+            <div class="ui row"><div class="column"><h3>Completed!</h3></div></div>
+        </div>
+    </div>
+</div>
+
+
+</div>
+
+<script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.8/dist/semantic.min.js"></script>
+
+<script>
+$("div[data-delete-btn]").click(function () {
+    let user_id = $(this).data("delete-btn");
+$('.coupled.modal')
+  .modal({
+    allowMultiple: false
+  })
+;
+// attach events to buttons
+$('.second.modal')
+  .modal({onShow: function(){
+          window.setTimeout(function(){
+             window.location.replace("{% url 'users' %}");
+          }, 2000)}
+
+  }).modal('attach events', '.first.modal .positive.button')
+;
+// show first now
+$('.first.modal')
+  .modal('show')
+
+ $("#confirm_delete_user").click(function () {
+    $.ajax({
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        url: "/api/user/" + user_id + "/",
+        type: "DELETE",
+    });
+});
+});
+
+</script>
+
+
+<script>
+$("button[data-reload-token-btn]").click(function () {
+    let user_id = $(this).data("reload-token-btn");
+    $.ajax({
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        url: "/api/user/" + user_id + "/regenerate-token",
+        type: "GET",
+        success: function(data) {
+            $('body').modal('alert','Attention!','<strong>Please save user token in the safe place!</strong>' +
+                '<br/><br/>' + data["token"]);
+        },
+        error: function() {
+            $('body').modal('alert','Error','Operation can\'t be done!');
+        }
+    });
+});
+</script>
+
+
+{% comment %}
+<script>
+$("div[data-delete-btn]").click(function () {
+    let user_id = $(this).data("delete-btn");
+    $.ajax({
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        url: "/api/user/" + user_id + "/",
+        type: "DELETE",
+        //data: {'id': button_id},
+        success: function() {
+            alert("Deleted!");
+            location.reload();
+        },
+        error: function() {
+            alert("User can't be deleted");
+            location.reload();
+        }
+    });
+});
+</script>
+{% endcomment %}
 
 <script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>
 

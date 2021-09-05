@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'anymail',
     'management',
     'channels',
@@ -94,6 +95,8 @@ DATABASES = {
         'NAME': 'mydatabase',
     }
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 
 # Password validation
@@ -205,3 +208,6 @@ TESTGR_URL = os.getenv('TESTGR_URL')
 
 # Authentication
 LOGIN_URL = "/login"
+
+UPLOAD_MIME_TYPES = os.getenv('UPLOAD_MIME_TYPES')
+

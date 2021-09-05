@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from loader.models import TestJobs, Tests, Screenshots
+from loader.models import TestJobs, Tests, Screenshots, Files
 from loader.redis import Redis
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
@@ -103,6 +103,10 @@ def job(request, job_uuid):
         time_taken = None
     env = job_object.get_env()
 
+    files = Files.objects.filter(job_id=job_object)
+    if files:
+        files = files
+
     status = job_object.status
     tests = job_object.tests.select_related('test')
 
@@ -141,7 +145,8 @@ def job(request, job_uuid):
                                              'aborted': aborted,
                                              'fw': fw,
                                              'running_jobs_count': running_jobs_count,
-                                             'custom_data': custom_data
+                                             'custom_data': custom_data,
+                                             'files': files
                                              # 'tests_percentage': job_object.tests_percentage()
                                              })
 
@@ -189,6 +194,10 @@ def test(request, test_uuid):
                 identity.extend(modified_item)
             else:
                 pass
+
+    files = Files.objects.filter(test_id=test_object)
+    if files:
+        files = files
 
     if test_object.test.description:
         description = test_object.test.description
@@ -332,7 +341,8 @@ def test(request, test_uuid):
                                               'next_f_result': next_fail,
                                               'prev_s_result': prev_success,
                                               'next_s_result': next_success,
-                                              'screenshots': screenshots})
+                                              'screenshots': screenshots,
+                                              'files': files})
 
 
 @login_required()
