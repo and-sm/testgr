@@ -128,10 +128,18 @@
                         <div class="field">
                             <div class="ui action input">
                             {% if request.user.is_superuser %}
+                                {% if request.user != user %}
                                 <div class="ui button" data-delete-btn="{{ user.pk }}">Delete</div>
+                                {% else %}
+                                <div class="ui button disabled">Delete</div>
+                                {% endif %}
                             {% elif request.user.is_staff %}
+                                {% if request.user != user %}
                                 <div class="ui button {% if user.is_superuser %}disabled{% endif %}"
                                      data-delete-btn="{{ user.pk }}">Delete</div>
+                                {% else %}
+                                <div class="ui button disabled">Delete</div>
+                                {% endif %}
                             {% endif %}
                             </div>
                         </div>
