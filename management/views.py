@@ -26,7 +26,7 @@ def main(request):
 @staff_member_required
 def about(request):
 
-    version = "1.12.0"
+    version = "1.12.1"
 
     response = requests.get(f"https://api.github.com/repos/and-sm/testgr/releases/latest",
                             headers={"Content-Type": "application/json", "User-Agent": "testgr"})
