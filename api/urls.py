@@ -10,6 +10,7 @@ urlpatterns = [
     path('api/bugs/change/<pk>/', views.BugsManagement.as_view()),
     path('api/user/<pk>/', views.Users.as_view()),
     path('api/user/<pk>/regenerate-token', views.UsersRegenerateToken.as_view()),
+    path('api/settings/', views.SettingsView.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

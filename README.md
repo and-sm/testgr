@@ -30,6 +30,7 @@ On this page you can review status of your test job execution.
 * Django 3.2.7
 * Redis 6.0.15
 * SQLite or MySQL 8
+* Celery 5.2.1
 
 ### API plugins setup
 Depending on your test framework (nose2 or pytest) you can choose [**nose2-rt**](https://github.com/and-sm/nose2rt) or [**pytest-rt**](https://github.com/and-sm/pytest-rt).

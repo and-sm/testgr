@@ -75,14 +75,14 @@
             {% for env in envs %}
             <tr>
                 <td>
-                    <h4 class="ui image header">
+                    <h4 class="ui header">
                         <div class="content">
                             {{ env.name }}
                         </div>
                     </h4>
                 </td>
                 <td data-id="remapped_name_{{ env.pk }}">
-                <h4 class="ui image header">
+                <h4 class="ui header">
                     {% if not env.remapped_name %}
                         <div class="field">
                             <div class="ui action input">

@@ -1,0 +1,133 @@
+<html>
+
+<head>
+
+<title>TESTGR</title>
+
+{% load static %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.7/dist/semantic.min.css">
+
+</head>
+
+<body>
+
+<div class="ui grid">
+
+	<div class="sixteen wide column">
+        <div class="ui fixed menu">
+            <div class="item">
+                <h3><a href="{%  url 'index' %}">TESTGR</a></h3>
+            </div>
+            <a href="{%  url 'index' %}" class="item">Monitoring</a>
+            <a href="{%  url 'search' %}" class="item">Search</a>
+            <a href="{%  url 'history' %}" class="item">History</a>
+            {% if request.user.is_staff %}
+            <a href="{%  url 'management' %}" class="item active">Management</a>
+            {% else %}
+            <a href="{%  url 'about_guest' %}" class="item active">About</a>
+            {% endif %}
+            <div class="right menu" id="main_right_menu">
+                {% if running_jobs_count > 0 %}
+                <div class="item" id="running_jobs_count">
+                <span>Active jobs: <strong>{{ running_jobs_count }}</strong></span>
+                </div>
+                {% else %}
+                <div class="" id="running_jobs_count">
+                </div>
+                {% endif %}
+                <div class="item">
+                    <a href="https://github.com/and-sm/testgr" target="_blank">Github</a>
+                </div>
+            <a href="{%  url 'logout' %}" class="item">Logout</a>
+            </div>
+        </div>
+	</div>
+
+    <div class="sixteen wide column">
+        <p>&nbsp;</p>
+    </div>
+
+    <div class="one wide column">
+    </div>
+
+    <div class="{% if request.user.is_staff %}three{% else %}two{% endif %} wide column">
+    {% if request.user.is_staff %}
+        <h3>Management</h3>
+        <div class="ui divider"></div>
+        <div class="ui secondary vertical menu">
+            <a class="item" href="{% url 'management' %}">Environments</a>
+            <a class="item" href="{% url 'users' %}">Users</a>
+            <a class="item" href="{% url 'events' %}">Events</a>
+            <a class="item active" href="{% url 'about' %}">Settings</a>
+            <a class="item" href="{% url 'about' %}">About</a>
+        </div>
+    {% endif %}
+    </div>
+
+    <div class="eleven wide column">
+        <h3>Settings</h3>
+        <div class="ui divider"></div>
+
+        <form class="ui form">
+            <div class="field">
+                <div class="field">
+                    <h3 class="ui header">Running jobs age (minutes)
+                    <div class="sub header">Each 5 minutes a background task will do a force stop action for running jobs which are older than configured time</div></h3>
+                    <div class="ui action input">
+                        <input type="text" placeholder="Int" data-role="input-running-jobs-age"
+                               value="{{ settings.running_jobs_age }}">
+                        <button class="ui button" data-role="save-running-jobs-age">Save</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+    <div class="one wide column">
+    </div>
+
+</div>
+
+</body>
+
+<script type="application/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.8/dist/semantic.min.js"></script>
+
+<script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>
+
+<script>
+    // Save data
+    $("button[data-role='save-running-jobs-age']").click(function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    let input_value = $("input[data-role='input-running-jobs-age']").val();
+    let data_send = "";
+    data_send = {"running_jobs_age": input_value}
+    $.ajax({
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        url: "/api/settings/",
+        data: data_send,
+        type : "POST",
+        success : function() {
+            $('body')
+                .toast({
+                    class: 'success',
+                    showIcon: 'check',
+                    message: `Setting was saved!`
+                });
+        },
+        error : function() {
+            $('body')
+                .toast({
+                    class: 'error',
+                    showIcon: 'times circle outline',
+                    message: `Check value or backend error!`
+                });
+        },
+    });
+});
+</script>
+
+</html>

@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'loader',
     'main',
     'search',
-    'history'
+    'history',
+    'upload',
 
 ]
 
@@ -119,6 +120,9 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
 
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',

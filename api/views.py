@@ -6,7 +6,8 @@ from rest_framework.authentication import SessionAuthentication
 from loader.models import Environments, TestJobs, TestsStorage, Bugs
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-from api.serializers import EnvironmentsSerializer, TestsStorageSerializer, BugsSerializer
+from management.models import Settings
+from api.serializers import EnvironmentsSerializer, TestsStorageSerializer, BugsSerializer, SettingsSerializer
 from django.http import Http404
 
 
@@ -186,4 +187,22 @@ class BugsManagement(APIView):
         item = Bugs.objects.get(pk=pk)
         item.delete()
         return Response(status=status.HTTP_200_OK)
+
+
+class SettingsView(APIView):
+
+    def post(self, request):
+        serializer = SettingsSerializer(data=request.data)
+        try:
+            serializer.instance = Settings.objects.get(pk=1)
+        except Settings.DoesNotExist:
+            pass
+        try:
+            if serializer.is_valid():
+                serializer.save(pk=1, running_jobs_age=request.data['running_jobs_age'].strip())
+                return Response(data=serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
 

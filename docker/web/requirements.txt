@@ -11,3 +11,4 @@ djangorestframework==3.12.4
 argon2-cffi==21.1.0
 Pillow==8.3.2
 python-magic==0.4.24
+celery==5.1.2

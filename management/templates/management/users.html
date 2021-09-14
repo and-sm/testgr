@@ -80,7 +80,7 @@
             {% for user in users %}
             <tr>
                 <td>
-                    <h4 class="ui image header">
+                    <h4 class="ui header">
                         <div class="content">
                             {% if request.user.is_superuser %}
                             <a href="{% url 'users_edit' user.pk %}">
@@ -99,7 +99,7 @@
                     </h4>
                 </td>
                 <td>
-                    <h4 class="ui image header">
+                    <h4 class="ui header">
                         <div class="content">
                             {% if user.is_superuser %}
                             Super user
@@ -124,7 +124,7 @@
                     {% endif %}
                 </td>
                 <td>
-                    <h4 class="ui image header">
+                    <h4 class="ui header">
                         <div class="field">
                             <div class="ui action input">
                             {% if request.user.is_superuser %}
@@ -161,7 +161,7 @@
     </div>
     <div class="image content">
       <div class="description">
-        Are you sure that you want to delete user?
+        Are you sure you want to delete user?
       </div>
     </div>
     <div class="actions">
