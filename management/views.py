@@ -144,8 +144,9 @@ def users_edit(request, pk):
 
 @login_required()
 @staff_member_required
+@login_required()
+@staff_member_required
 def settings(request):
-    settings = Settings.objects.get(pk=1)
+    settings = Settings.objects.filter(pk=1)
     return render(request, "management/settings.html", {"settings": settings})
-
 

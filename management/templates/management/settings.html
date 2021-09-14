@@ -58,7 +58,6 @@
         <div class="ui secondary vertical menu">
             <a class="item" href="{% url 'management' %}">Environments</a>
             <a class="item" href="{% url 'users' %}">Users</a>
-            <a class="item" href="{% url 'events' %}">Events</a>
             <a class="item active" href="{% url 'about' %}">Settings</a>
             <a class="item" href="{% url 'about' %}">About</a>
         </div>
@@ -76,7 +75,7 @@
                     <div class="sub header">Each 5 minutes a background task will do a force stop action for running jobs which are older than configured time</div></h3>
                     <div class="ui action input">
                         <input type="text" placeholder="Int" data-role="input-running-jobs-age"
-                               value="{{ settings.running_jobs_age }}">
+                               value="{% if settings %}{{ settings.running_jobs_age }}{% else %}0{% endif %}">
                         <button class="ui button" data-role="save-running-jobs-age">Save</button>
                     </div>
                 </div>

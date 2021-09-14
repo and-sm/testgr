@@ -16,7 +16,12 @@ services:
     build:
       context: ./docker/web/
       dockerfile: ./Dockerfile
-    command: ["bash", "-c", "python manage.py migrate && gunicorn testgr.wsgi --bind 0.0.0.0:8000"]
+    command: >
+        bash -c "python manage.py migrate
+        && gunicorn testgr.wsgi --bind 0.0.0.0:8000
+        & daphne testgr.asgi:application -p 9000 -b 0.0.0.0
+        & celery -A testgr worker --loglevel INFO
+        & celery -A testgr beat -l INFO"
     env_file:
       - config.env
     depends_on:
@@ -25,16 +30,4 @@ services:
   redis:
     build: ./docker/redis
     depends_on:
-      - websocket
-
-  websocket:
-    volumes:
-      - .:/code
-    build:
-      context: ./docker/web/
-      dockerfile: ./Dockerfile
-    command: daphne testgr.asgi:application -p 9000 -b 0.0.0.0
-    depends_on:
       - nginx
-    env_file:
-      - config.env
