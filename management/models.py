@@ -1,3 +1,5 @@
 from django.db import models
 
-# Create your models here.
+
+class Settings(models.Model):
+    running_jobs_age = models.IntegerField(blank=True, null=True)

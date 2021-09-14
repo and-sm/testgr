@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from loader.models import Environments, Bugs, TestsStorage
+from loader.models import Environments, Bugs, TestsStorage, TestJobs
+from management.models import Settings
 
 
 class EnvironmentsSerializer(serializers.ModelSerializer):
@@ -18,4 +19,10 @@ class BugsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bugs
         fields = ['id', 'bug']
+
+
+class SettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Settings
+        fields = ['running_jobs_age']
 

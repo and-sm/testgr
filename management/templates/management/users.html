@@ -53,6 +53,7 @@
         <div class="ui secondary vertical menu">
             <a class="item" href="{% url 'management' %}">Environments</a>
             <a class="item active" href="{% url 'users' %}">Users</a>
+            <a class="item" href="{% url 'settings' %}">Settings</a>
             <a class="item" href="{% url 'about' %}">About</a>
         </div>
     </div>
@@ -80,7 +81,7 @@
             {% for user in users %}
             <tr>
                 <td>
-                    <h4 class="ui image header">
+                    <h4 class="ui header">
                         <div class="content">
                             {% if request.user.is_superuser %}
                             <a href="{% url 'users_edit' user.pk %}">
@@ -99,7 +100,7 @@
                     </h4>
                 </td>
                 <td>
-                    <h4 class="ui image header">
+                    <h4 class="ui header">
                         <div class="content">
                             {% if user.is_superuser %}
                             Super user
@@ -124,7 +125,7 @@
                     {% endif %}
                 </td>
                 <td>
-                    <h4 class="ui image header">
+                    <h4 class="ui header">
                         <div class="field">
                             <div class="ui action input">
                             {% if request.user.is_superuser %}
@@ -161,7 +162,7 @@
     </div>
     <div class="image content">
       <div class="description">
-        Are you sure that you want to delete user?
+        Are you sure you want to delete user?
       </div>
     </div>
     <div class="actions">

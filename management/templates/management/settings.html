@@ -58,24 +58,29 @@
         <div class="ui secondary vertical menu">
             <a class="item" href="{% url 'management' %}">Environments</a>
             <a class="item" href="{% url 'users' %}">Users</a>
-            <a class="item" href="{% url 'settings' %}">Settings</a>
-            <a class="item active" href="{% url 'about' %}">About</a>
+            <a class="item active" href="{% url 'settings' %}">Settings</a>
+            <a class="item" href="{% url 'about' %}">About</a>
         </div>
     {% endif %}
     </div>
 
     <div class="eleven wide column">
-        <h3>About</h3>
+        <h3>Settings</h3>
         <div class="ui divider"></div>
 
-        <p><strong>Installed version:</strong> {{ version }}</p>
-        {% if latest_version != version %}
-        <p><strong>Latest version: </strong><strong>
-            <a href="https://github.com/and-sm/testgr" target="_blank">{{ latest_version }}</a>.
-            <label style="color: indianred"> Update if needed.</label></strong></p>
-        {% else %}
-        <p><strong>Latest version: </strong>{{ latest_version }}</p>
-        {% endif %}
+        <form class="ui form">
+            <div class="field">
+                <div class="field">
+                    <h3 class="ui header">Running jobs age (minutes)
+                    <div class="sub header">Each 5 minutes a background task will do a force stop action for running jobs which are older than configured time</div></h3>
+                    <div class="ui action input">
+                        <input type="text" placeholder="Int" data-role="input-running-jobs-age"
+                               value="{% if settings %}{{ settings.running_jobs_age }}{% else %}0{% endif %}">
+                        <button class="ui button" data-role="save-running-jobs-age">Save</button>
+                    </div>
+                </div>
+            </div>
+        </form>
 
     </div>
 
@@ -90,5 +95,38 @@
 <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.8/dist/semantic.min.js"></script>
 
 <script type="application/javascript" src="{% static 'js/testgr/main/running_jobs_count.js' %}"></script>
+
+<script>
+    // Save data
+    $("button[data-role='save-running-jobs-age']").click(function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    let input_value = $("input[data-role='input-running-jobs-age']").val();
+    let data_send = "";
+    data_send = {"running_jobs_age": input_value}
+    $.ajax({
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        url: "/api/settings/",
+        data: data_send,
+        type : "POST",
+        success : function() {
+            $('body')
+                .toast({
+                    class: 'success',
+                    showIcon: 'check',
+                    message: `Setting was saved!`
+                });
+        },
+        error : function() {
+            $('body')
+                .toast({
+                    class: 'error',
+                    showIcon: 'times circle outline',
+                    message: `Check value or backend error!`
+                });
+        },
+    });
+});
+</script>
 
 </html>

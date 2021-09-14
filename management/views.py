@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework.authtoken.models import Token
+from management.models import Settings
 from .forms import AddUserForm, EditUserForm
 from helpers import helpers
 import requests
@@ -26,7 +27,7 @@ def main(request):
 @staff_member_required
 def about(request):
 
-    version = "1.12.1"
+    version = "1.13.0"
 
     response = requests.get(f"https://api.github.com/repos/and-sm/testgr/releases/latest",
                             headers={"Content-Type": "application/json", "User-Agent": "testgr"})
@@ -138,4 +139,14 @@ def users_edit(request, pk):
                     'running_jobs_count': running_jobs_count})
 
 
+
+
+
+@login_required()
+@staff_member_required
+@login_required()
+@staff_member_required
+def settings(request):
+    settings = Settings.objects.filter(pk=1)
+    return render(request, "management/settings.html", {"settings": settings})
 
