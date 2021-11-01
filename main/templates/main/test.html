@@ -53,8 +53,6 @@
             <a href="{%  url 'history' %}" class="item">History</a>
             {% if request.user.is_staff %}
             <a href="{%  url 'management' %}" class="item">Management</a>
-            {% else %}
-            <a href="{%  url 'about_guest' %}" class="item">About</a>
             {% endif %}
             <div class="right menu" id="main_right_menu">
                 {% if running_jobs_count > 0 %}
