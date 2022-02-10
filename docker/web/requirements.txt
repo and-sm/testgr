@@ -1,4 +1,4 @@
-django==3.2.8
+django==3.2.12
 django-anymail==8.4
 channels==3.0.4
 channels-redis==3.3.1
