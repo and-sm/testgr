@@ -1,12 +1,11 @@
-from django.conf.urls import url
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 
 urlpatterns = [
-    url(r'^management$', views.main, name='management'),
-    url(r'^management/about$', views.about, name='about'),
-    url(r'^management/users$', views.users, name='users'),
-    url(r'^management/users/add$', views.users_add, name='users_add'),
-    path('management/users/edit/<pk>/', views.users_edit, name='users_edit'),
-    url(r'^management/settings$', views.settings, name='settings'),
+    re_path(r'^management$', views.main, name='management'),
+    re_path(r'^management/about$', views.about, name='about'),
+    re_path(r'^management/users$', views.users, name='users'),
+    re_path(r'^management/users/add$', views.users_add, name='users_add'),
+    re_path('management/users/edit/<pk>/', views.users_edit, name='users_edit'),
+    re_path(r'^management/settings$', views.settings, name='settings'),
 ]

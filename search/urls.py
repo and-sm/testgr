@@ -1,7 +1,7 @@
-from django.conf.urls import url
+from django.urls import re_path
 from . import views
 
 urlpatterns = [
-    url(r'^search$', views.search, name='search'),
-    url(r'^search/filter$', views.filter_data, name='filter_data')
+    re_path(r'^search$', views.search, name='search'),
+    re_path(r'^search/filter$', views.filter_data, name='filter_data')
 ]

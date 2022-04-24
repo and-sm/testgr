@@ -1,2 +1,2 @@
 # Pull base image
-FROM redis:6.0.15
+FROM redis:6.0.16
