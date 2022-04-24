@@ -19,7 +19,7 @@ services:
 
   nginx:
     build: .
-    image: umputun/nginx-le:v1.4.1
+    image: umputun/nginx-le:v1.4.2
     hostname: nginx
     restart: always
     container_name: nginx

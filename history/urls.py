@@ -1,6 +1,6 @@
-from django.conf.urls import url
+from django.urls import re_path
 from . import views
 
 urlpatterns = [
-    url(r'^history', views.history, name='history')
+    re_path(r'^history', views.history, name='history')
 ]
