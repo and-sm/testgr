@@ -3,12 +3,16 @@ version: '3.3'
 services:
 
   nginx:
+    build: .
+    image: umputun/nginx-le:v1.4.2
     volumes:
       - .:/code
-    build: ./docker/nginx/
+      - ./docker/nginx/testgr.conf:/etc/nginx/conf.d/testgr.conf
     restart: always
     ports:
       - "80:80"
+    environment:
+     - LETSENCRYPT=false
 
   web:
     volumes:
