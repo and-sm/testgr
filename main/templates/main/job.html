@@ -253,7 +253,7 @@
             </tr>
             </thead>
             <tbody id="tests_list">
-            {% for item in tests.all %}
+            {% for item in tests %}
                 <tr onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';"
                     class="ui
                     {% if item.status == 1%}{% endif %}
@@ -345,7 +345,7 @@
             </tr>
             </thead>
             <tbody id="tests_list">
-            {% for item in tests.all %}
+            {% for item in tests %}
                 {% if item.status != 3 and item.status != 1 and item.status != 5 and item.status != 6%}
                 <tr class="ui negative" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
@@ -428,7 +428,7 @@
             </tr>
             </thead>
             <tbody id="tests_list">
-            {% for item in tests.all %}
+            {% for item in tests %}
                 {% if item.status == 3 %}
                 <tr class="ui positive" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
@@ -510,7 +510,7 @@
             </tr>
             </thead>
             <tbody id="tests_list">
-            {% for item in tests.all %}
+            {% for item in tests %}
                 {% if item.status == 6 %}
                 <tr class="ui negative" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
@@ -592,7 +592,7 @@
             </tr>
             </thead>
             <tbody id="tests_list">
-            {% for item in tests.all %}
+            {% for item in tests %}
                 {% if item.status == 5 %}
                 <tr class="ui warning" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
@@ -674,7 +674,7 @@
             </tr>
             </thead>
             <tbody id="tests_list">
-            {% for item in tests.all %}
+            {% for item in tests %}
                 {% if item.status == 1 %}
                 <tr class="ui" onclick="window.location.href = '{% url 'test' test_uuid=item.uuid %}';">
                     {% if fw == 1 %}
