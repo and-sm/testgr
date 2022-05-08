@@ -108,7 +108,7 @@ def job(request, job_uuid):
         files = files
 
     status = job_object.status
-    tests = job_object.tests.select_related('test')
+    tests = job_object.tests.select_related('test').prefetch_related('test__bugs')
 
     # Statistics
     not_started = int(job_object.tests_not_started or 0)
