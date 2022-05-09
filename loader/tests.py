@@ -28,21 +28,22 @@ def test_loader_invalid_json():
     assert resp.status_code == 400  # won't panic on JSON decoder exception
 
 
-@pytest.mark.parametrize('loader_type', [
-    '1',  # nose2
-    '2',  # pytest
+@pytest.mark.parametrize('loader_type, expected_status_code', [
+    ('1', 200),  # nose2
+    ('2', 200),  # pytest
+    ('3', 400),  # unknown loader
 ])
-def test_loader(loader_type: str):
+def test_loader(loader_type: str, expected_status_code: int):
     c = Client()
     url = django.urls.reverse('loader')
 
     fw = {'fw': loader_type}
 
-    # correct types
+    # correct action types
     for at in _action_types:
         resp = c.post(url, fw | {'type': at}, content_type='application/json')
-        assert resp.status_code == 200
+        assert resp.status_code == expected_status_code
 
-    # wrong type
+    # wrong action type
     resp = c.post(url, fw | {'type': 'wrongActionExample'}, content_type='application/json')
     assert resp.status_code == 400
