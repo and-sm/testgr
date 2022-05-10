@@ -27,7 +27,7 @@ On this page you can review status of your test job execution.
 
 ### Components:
 * Python 3.10.4
-* Django 3.2.7
+* Django 4.0.4
 * Redis 6.0.16
 * SQLite, MySQL 8 or PostgreSQL 10+
 * Celery 5.2.6
