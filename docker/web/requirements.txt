@@ -9,6 +9,6 @@ mysqlclient==2.1.0
 redis==4.2.2
 djangorestframework==3.13.1
 argon2-cffi==21.3.0
-Pillow==9.1.0
+Pillow==9.3.0
 python-magic==0.4.25
 celery==5.2.6
